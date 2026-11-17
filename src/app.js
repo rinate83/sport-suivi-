@@ -42,9 +42,9 @@ function beep(f = 880, ms = 180) { try { const a = beep.ctx || (beep.ctx = new (
 // ===================== DONNÉES =====================
 const KEY = 'apexfit_v3';
 let S = load();
-function blank() { return { v: 3, profile: { prenom: '', age: 30, sexe: 'h', poids: '', taille: '', obj: 'forme', jours: 3, mat: ['aucun'], sports: [] }, sessions: [], templates: [], tests: [], prog: null, goals: [], skipTest: false }; }
+function blank() { return { v: 3, profile: { prenom: '', age: 30, sexe: 'h', poids: '', taille: '', obj: 'forme', jours: 3, mat: ['aucun'], sports: [] }, sessions: [], templates: [], tests: [], prog: null, goals: [], skipTest: false, body: [], remind: null }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) return Object.assign(blank(), s); } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; return o; } } catch (e) {}
   const s = blank();
   try { // reprise des données de l'ancienne version (apexfit_state)
     const o = JSON.parse(localStorage.getItem('apexfit_state'));
@@ -113,6 +113,9 @@ function vHome() {
     <button class="btn pri w" style="margin-top:12px" onclick="startProgSession()">${ic('play')}Démarrer la séance</button></div>`;
   else if (lastTest || S.skipTest) h += `<div class="card"><div class="row"><div class="em" style="font-size:28px">📋</div><div style="flex:1"><b>Choisissez un programme</b><div class="mu small">${lastTest ? 'Votre niveau : ' + lastTest.levelTxt + '. Des programmes vous sont recommandés.' : 'Des séances prêtes à suivre selon votre objectif.'}</div></div></div><button class="btn w" style="margin-top:12px" onclick="go('programmes')">Voir les programmes</button></div>`;
   // calendrier
+  if (plannedDays().has(today()) && !S.sessions.some(x => x.date === today())) h = `<div class="card todaycard"><div class="row"><div class="em bell">🔔</div><div style="flex:1"><b>Séance prévue aujourd’hui</b><div class="mu small">${nx ? esc(nx.s.nom) : 'C’est le jour : bougez !'}${S.remind ? ' · ' + S.remind.time : ''}</div></div>${nx ? `<button class="btn sm pri" onclick="startProgSession()">${ic('play')}</button>` : `<button class="btn sm pri" onclick="plusMenu()">${ic('plus')}</button>`}</div></div>` + h;
+  const bw = S.body.filter(b => b.poids).sort((a, b) => a.date.localeCompare(b.date));
+  if (bw.length) { const l = bw.at(-1), f = bw[0], d = l.poids - f.poids; h += `<div class="card row" onclick="go('profil');setTimeout(()=>$('#corps')&&$('#corps').scrollIntoView({behavior:'smooth'}),100)" style="cursor:pointer"><div class="em">⚖️</div><div style="flex:1"><b>${String(l.poids).replace('.', ',')} kg</b><div class="mu small">${bw.length > 1 ? (d <= 0 ? '▼ ' : '▲ ') + Math.abs(d).toFixed(1).replace('.', ',') + ' kg depuis le ' + fmtDate(f.date, { day: 'numeric', month: 'short' }) : 'Première pesée'}</div></div><canvas class="spark" id="wSpark" width="200" height="60"></canvas></div>`; }
   h += `<h3 class="sec">Calendrier</h3><div class="card">${calendar()}</div>`;
   // sports pratiqués
   const P = practiced();
@@ -122,7 +125,7 @@ function vHome() {
   const last = [...S.sessions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
   if (last.length) h += `<h3 class="sec">Dernières séances</h3>${last.map(sessRow).join('')}`;
   $('#view').innerHTML = h;
-  weekChart();
+  weekChart(); spark($('#wSpark'), S.body.filter(b => b.poids).sort((a, b) => a.date.localeCompare(b.date)).slice(-12).map(b => +b.poids));
 }
 function spCard(k) {
   const L = sessionsOf(k), m = new Date().getMonth(), y = new Date().getFullYear(), mo = L.filter(x => { const d = parseD(x.date); return d.getMonth() === m && d.getFullYear() === y; });
@@ -155,9 +158,10 @@ function calendar() {
   return h + `</div><div class="legend">${used.map(s => `<span><i style="background:${SPORTS[s].c}"></i>${SPORTS[s].nom}</span>`).join('')}${plan.size ? '<span><i style="border:1.5px solid var(--warn)"></i>Séance prévue</span>' : ''}</div>`;
 }
 // jours prévus par le programme suivi (selon la fréquence, à partir d'aujourd'hui)
+function defaultDays() { const p = S.prog && PROGRAMS.find(x => x.id === S.prog.id), f = p ? p.freq : (+S.profile.jours || 3); return { 2: [1, 4], 3: [0, 2, 4], 4: [0, 1, 3, 4], 5: [0, 1, 2, 4, 5], 6: [0, 1, 2, 3, 4, 5], 7: [0, 1, 2, 3, 4, 5, 6] }[f] || [0, 2, 4]; }
 function plannedDays() {
-  const set = new Set(); if (!S.prog) return set; const p = PROGRAMS.find(x => x.id === S.prog.id); if (!p) return set;
-  const pattern = { 2: [1, 4], 3: [0, 2, 4], 4: [0, 1, 3, 4], 5: [0, 1, 2, 4, 5] }[p.freq] || [0, 2, 4];
+  const set = new Set(); if (!S.prog && !(S.remind && S.remind.days.length)) return set;
+  const pattern = S.remind && S.remind.days.length ? S.remind.days : defaultDays();
   const a = monday(new Date()); for (let w = 0; w < 6; w++) pattern.forEach(i => { const d = new Date(a); d.setDate(d.getDate() + w * 7 + i); if (ymd(d) >= today()) set.add(ymd(d)); });
   return set;
 }
@@ -258,12 +262,12 @@ function spChart(k, L) {
   }
   $('#spChartL').textContent = lab; drawLine(c, pts, sp.c, !(k === 'muscu' && chartExo));
 }
-function drawLine(c, pts, col, bars) {
+function drawLine(c, pts, col, bars, zoom) {
   const W = c.width = c.clientWidth * 2, H = c.height = 400, x = c.getContext('2d'), P = 60; x.clearRect(0, 0, W, H);
   if (!pts.length) { x.fillStyle = '#64708a'; x.font = '26px system-ui'; x.textAlign = 'center'; x.fillText('Pas encore assez de données', W / 2, H / 2); return; }
-  const mx = Math.max(1, ...pts.map(p => p[1])) * 1.15, n = pts.length, X = i => P + (n === 1 ? (W - P - 20) / 2 : i * (W - P - 20) / (n - 1)), Y = v => H - 40 - v / mx * (H - 70);
+  const lo = zoom ? Math.min(...pts.map(p => p[1])) - 1 : 0, mx0 = Math.max(1, ...pts.map(p => p[1])), mx = zoom ? mx0 + 1 - lo : mx0 * 1.15, n = pts.length, X = i => P + (n === 1 ? (W - P - 20) / 2 : i * (W - P - 20) / (n - 1)), Y = v => H - 40 - (v - lo) / mx * (H - 70);
   x.strokeStyle = 'rgba(255,255,255,.06)'; x.fillStyle = '#64708a'; x.font = '20px system-ui'; x.textAlign = 'right';
-  for (let k = 0; k <= 3; k++) { const v = mx * k / 3; x.beginPath(); x.moveTo(P, Y(v)); x.lineTo(W - 10, Y(v)); x.stroke(); x.fillText(v >= 100 ? Math.round(v) : v.toFixed(1), P - 8, Y(v) + 7); }
+  for (let k = 0; k <= 3; k++) { const v = lo + mx * k / 3; x.beginPath(); x.moveTo(P, Y(v)); x.lineTo(W - 10, Y(v)); x.stroke(); x.fillText(v >= 100 ? Math.round(v) : v.toFixed(1), P - 8, Y(v) + 7); }
   x.textAlign = 'center'; pts.forEach((p, i) => { if (n <= 8 || i % Math.ceil(n / 6) === 0) x.fillText(parseD(p[0]).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }), X(i), H - 10); });
   if (bars) { const bw = Math.min(46, (W - P) / n * .6); pts.forEach((p, i) => { x.fillStyle = col; x.globalAlpha = p[0] >= ymd(monday(new Date())) ? 1 : .55; roundRect(x, X(i) - bw / 2, Y(p[1]), bw, Math.max(4, H - 40 - Y(p[1])), 8); x.fill(); }); x.globalAlpha = 1; return; }
   const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, col + '66'); g.addColorStop(1, col + '00');
@@ -332,7 +336,8 @@ function startPicker(k) {
 let READY = [];
 function startReady(i) { const r = READY[i]; if (r) startLive(personalize(JSON.parse(JSON.stringify(r.s)))); }
 function quickStart(sport, mv) { startLive({ sport, nom: mvById(mv).n, items: SPORTS[sport].kind === 'cardio' ? null : [newItem(mv)], blocks: SPORTS[sport].kind === 'cardio' ? [{ t: mvById(mv).n, d: mvById(mv).dose || '' }] : null }); }
-function newItem(mv) {
+function newItem(mv) { const it = newItem0(mv); if (L && !L.tplMode) applySuggestions([it]); return it; }
+function newItem0(mv) {
   const m = mvById(mv), timed = m && /(\d+)\s*s\b|min/.test(m.dose || '') && /gainage|Postures|Hanches|Dos|Jambes|Cardio|Gainage/.test(m.g) && !/rep/.test(m.dose);
   const last = lastPerf(mv);
   if (last) return { mv, rest: 90, sets: last.sets.map(z => ({ reps: z.reps, kg: z.kg, sec: z.sec })) };
@@ -368,6 +373,45 @@ function addSession(s) {
   save(); render(); toast(`✅ Séance enregistrée${streak() > 1 ? ` · série de ${streak()} jours 🔥` : ''}`);
 }
 
+// ===================== PROGRESSION AUTOMATIQUE =====================
+// Double progression : toutes les séries réussies la dernière fois -> on augmente ; 2 échecs de suite -> on allège de 10 %.
+const BIG = ['squat', 'sdt', 'sdtr', 'presse', 'hipthrust', 'fentes'];
+const r25 = v => Math.round(v / 2.5) * 2.5;
+function history(mv, n = 3) {
+  const out = [];
+  for (const s of [...S.sessions].sort((a, b) => b.date.localeCompare(a.date))) { const it = (s.items || []).find(i => i.mv === mv && i.sets.some(z => z.done)); if (it) { out.push({ s, it }); if (out.length >= n) break; } }
+  return out;
+}
+function success(h) {
+  const it = h.it, tg = it.target || Math.max(...it.sets.map(z => +z.reps || 0));
+  if (it.sets.some(z => z.sec != null)) return it.sets.every(z => z.done);
+  return it.sets.every(z => z.done && (+z.reps || 0) >= tg) && !(h.s.rpe >= 10);
+}
+function suggest(mv, targetReps, isTimed) {
+  const H = history(mv); if (!H.length) return null;
+  const last = H[0].it, done = last.sets.filter(z => z.done), kg = Math.max(0, ...done.map(z => +z.kg || 0));
+  if (isTimed) { const s = Math.max(...done.map(z => +z.sec || 0)); return success(H[0]) ? { sec: s + 5, why: '↑ +5 s : tenu la dernière fois', up: 1 } : { sec: s, why: '= même durée que la dernière fois' }; }
+  if (!kg) { const r = Math.max(...done.map(z => +z.reps || 0)); return success(H[0]) ? { reps: r + 1, why: '↑ +1 répétition : séance précédente réussie', up: 1 } : { reps: r, why: '= mêmes répétitions : consolidez' }; }
+  if (success(H[0])) { const inc = BIG.includes(mv) ? 5 : 2.5; return { kg: kg + inc, why: `↑ +${String(inc).replace('.', ',')} kg : toutes les séries réussies la dernière fois`, up: 1 }; }
+  if (H.length >= 2 && !success(H[1])) return { kg: r25(kg * .9), why: '↓ −10 % : 2 séances difficiles d’affilée, on repart plus léger', down: 1 };
+  return { kg, why: '= même charge : terminez toutes les séries avant d’augmenter' };
+}
+// séries d'échauffement pour les exercices lourds
+function warmup(mv, kg) {
+  if (!kg || kg < 30 || !['dc', 'squat', 'sdt', 'dm', 'rowb', 'presse', 'hipthrust', 'sdtr', 'dih'].includes(mv)) return '';
+  const bar = 20, w = [[.4, 8], [.6, 5], [.8, 3]].map(([p, r]) => `${r} × ${String(Math.max(bar, r25(kg * p))).replace('.', ',')} kg`).filter((v, i, A) => A.indexOf(v) === i);
+  return `Échauffement conseillé : ${['10 × barre (20 kg)', ...w].join(' · ')}`;
+}
+function applySuggestions(items) {
+  if (L && L.tplMode) return items;
+  items.forEach(it => {
+    const timed = it.sets.some(z => z.sec != null), tg = it.target || (timed ? 0 : Math.max(...it.sets.map(z => +z.reps || 0)));
+    it.target = tg || it.target; const sg = suggest(it.mv, tg, timed); if (!sg) return; it.sug = sg;
+    it.sets.forEach(z => { if (sg.kg != null) z.kg = sg.kg; if (sg.sec != null && z.sec != null) z.sec = sg.sec; if (sg.reps != null && !timed && !z.kg) z.reps = Math.max(+z.reps || 0, sg.reps); });
+  });
+  return items;
+}
+
 // ===================== SÉANCE EN DIRECT =====================
 let L = null, liveTick = null, rest = null;
 function startLive(sess, opt = {}) {
@@ -376,7 +420,8 @@ function startLive(sess, opt = {}) {
   L = { sport: sess.sport, nom: sess.nom, items: sess.items && !progItems ? sess.items.map(it => ({ mv: it.mv, n: it.n, rest: it.rest ?? 90, sets: (it.sets || []).map(z => ({ ...z, done: false })) })) : null,
     blocks: sess.blocks ? sess.blocks.map(b => ({ ...b, done: false })) : null, start: Date.now(), src: opt.src || null, tplMode: !!opt.tplMode, dist: sess.dist || '' };
   // éléments de programme { mv, sets: nombre, reps|sec }
-  if (progItems) L.items = sess.items.map(it => { const last = lastPerf(it.mv); return { mv: it.mv, rest: it.rest ?? 90, sets: Array.from({ length: it.sets }, (_, i) => it.sec ? { sec: it.sec, done: false } : { reps: it.reps, kg: last && last.sets[i] ? last.sets[i].kg : (last && last.sets[0] ? last.sets[0].kg : ''), done: false }) }; });
+  if (progItems) L.items = sess.items.map(it => ({ mv: it.mv, rest: it.rest ?? 90, target: it.reps || 0, sets: Array.from({ length: it.sets }, () => it.sec ? { sec: it.sec, done: false } : { reps: it.reps, kg: '', done: false }) }));
+  if (L.items && !L.tplMode) applySuggestions(L.items);
   document.body.style.overflow = 'hidden'; renderLive(); clearInterval(liveTick); liveTick = setInterval(() => { const c = $('#liveClock'); if (c) c.textContent = mmss((Date.now() - L.start) / 1000); }, 1000);
   try { navigator.wakeLock && navigator.wakeLock.request('screen').then(w => L.wake = w).catch(() => {}); } catch (e) {}
 }
@@ -390,6 +435,7 @@ function renderLive() {
       const last = lastPerf(it.mv), m = mvById(it.mv), timed = it.sets.some(z => z.sec != null);
       return `<div class="ex"><div class="eh">${m ? `<span onclick="openMv('${it.mv}',1)" style="cursor:pointer">${mvImg(it.mv, 'thumb')}</span>` : ''}<b onclick="openMv('${it.mv}',1)" style="cursor:pointer">${esc(mvName(it))} <span class="mu">${m ? ic('info', 'i small') : ''}</span></b>
         <button class="btn sm ghost" onclick="L.items.splice(${i},1);renderLive()">${ic('trash')}</button></div>
+        ${it.sug && !L.tplMode ? `<div class="sug ${it.sug.up ? 'up' : it.sug.down ? 'down' : ''}">${esc(it.sug.why)}</div>` : ''}${!L.tplMode && hasKg && it.sets[0] && warmup(it.mv, +it.sets[0].kg) ? `<div class="last">🔥 ${warmup(it.mv, +it.sets[0].kg)}</div>` : ''}
         ${last && !L.tplMode ? `<div class="last">Dernière fois (${fmtDate(last.date, { day: 'numeric', month: 'short' })}) : ${last.sets.map(z => z.sec ? z.sec + ' s' : z.reps + (z.kg ? '×' + z.kg : '')).join(' · ')}</div>` : ''}
         <div class="set ${timed ? 't3' : hasKg ? '' : 't3'}"><span></span>${timed ? '<span class="lab">Durée (s)</span>' : '<span class="lab">Reps</span>' + (hasKg ? '<span class="lab">Kg</span>' : '')}<span></span></div>
         ${it.sets.map((z, j) => `<div class="set ${timed || !hasKg ? 't3' : ''} ${z.done ? 'done' : ''}"><span class="n">${j + 1}</span>
@@ -471,7 +517,7 @@ function finishLive() {
 function saveLive() {
   const s = { id: uid(), date: today(), sport: L.sport, nom: L.nom, dur: +$('#fiT').value || 0, rpe: +$('#fiR').value, notes: $('#fiN').value.trim() };
   if ($('#fiD') && +$('#fiD').value) s.dist = +$('#fiD').value; if ($('#fiE') && +$('#fiE').value) s.deniv = +$('#fiE').value;
-  if (L.items) s.items = L.items.map(it => ({ mv: it.mv, n: it.n || mvName(it), rest: it.rest, sets: it.sets.map(z => ({ ...z })) }));
+  if (L.items) s.items = L.items.map(it => ({ mv: it.mv, n: it.n || mvName(it), rest: it.rest, target: it.target || 0, sets: it.sets.map(z => ({ reps: z.reps, kg: z.kg, sec: z.sec, done: !!z.done })) }));
   if (L.blocks) s.blocks = L.blocks.map(b => ({ t: b.t, d: b.d, done: b.done }));
   if (L.src && L.src.type === 'prog' && S.prog) { s.prog = S.prog.id; S.prog.done.push(L.src.key); }
   if ($('#fiTpl').checked) { const tp = toTemplate(s, s.nom); tp.items && tp.items.forEach(it => it.sets.forEach(z => delete z.done)); S.templates.push(tp); }
@@ -657,6 +703,7 @@ function vProfil() {
   const missed = S.goals.filter(g => goalProgress(g, -1).p < 1 && S.sessions.some(x => parseD(x.date) < weekStats(-1).a));
   let h = `<h1 class="vt">Profil</h1><div class="card"><div class="row"><div class="em" style="font-size:30px">👤</div><div style="flex:1"><b style="font-size:17px">${esc(P.prenom || 'Sportif')}</b><div class="mu small">${P.age ? P.age + ' ans · ' : ''}${OBJ[P.obj]} · ${P.jours} séances/sem.</div></div><button class="btn sm" onclick="editProfile()">${ic('edit')}</button></div>
     <div class="grid3" style="margin-top:12px"><div class="kpi"><div class="l">Séances</div><div class="v">${S.sessions.length}</div></div><div class="kpi"><div class="l">Temps total</div><div class="v" style="font-size:19px">${hmin(S.sessions.reduce((a, x) => a + (+x.dur || 0), 0))}</div></div><div class="kpi"><div class="l">Objectifs tenus</div><div class="v">${rate}</div></div></div></div>`;
+  h += bodySection() + remindSection();
   h += `<h3 class="sec">Objectifs de la semaine <a onclick="goalForm()">+ Ajouter</a></h3>`;
   h += S.goals.map(g => { const r = goalProgress(g); return `<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(g.titre)}</b><button class="btn sm ghost" onclick="S.goals=S.goals.filter(x=>x.id!=='${g.id}');save();render()">${ic('trash')}</button></div>
     <div class="pbar" style="margin:10px 0 6px"><i style="width:${r.p * 100}%"></i></div><div class="row" style="justify-content:space-between"><span class="mu small">${g.type === 'km' ? r.v.toFixed(1) : Math.round(r.v)} / ${g.target} ${g.type === 'km' ? 'km' : g.type === 'minutes' ? 'min' : 'séances'}</span>${r.p >= 1 ? '<span class="pill ok">Réussi ✓</span>' : `<span class="pill dan">Pénalité : ${esc(g.penalite || '—')}</span>`}</div></div>`; }).join('') || '<div class="card empty">Aucun objectif.</div>';
@@ -664,8 +711,9 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.2 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.3 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
+  bodyChart(); loadThumbs();
 }
 function editProfile() {
   const P = S.profile;
@@ -686,6 +734,109 @@ function goalAdd() {
 }
 function exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(S)], { type: 'application/json' })); a.download = `apexfit_${today()}.json`; a.click(); }
 function importData(f) { if (!f) return; f.text().then(t => { const d = JSON.parse(t); if (d.v !== 3) throw 0; S = Object.assign(blank(), d); save(); render(); toast('Données restaurées ✅'); }).catch(() => toast('Fichier invalide')); }
+
+// ===================== CORPS : POIDS, MENSURATIONS, PHOTOS =====================
+const MES = { poids: ['Poids', 'kg'], taille_t: ['Tour de taille', 'cm'], hanches: ['Hanches', 'cm'], poitrine: ['Poitrine', 'cm'], bras: ['Bras', 'cm'], cuisse: ['Cuisse', 'cm'], mg: ['Masse grasse', '%'] };
+let bodyM = 'poids';
+function bodySection() {
+  const B = [...S.body].sort((a, b) => a.date.localeCompare(b.date)), keys = Object.keys(MES).filter(k => B.some(b => b[k] != null && b[k] !== ''));
+  if (!keys.includes(bodyM)) bodyM = keys[0] || 'poids';
+  let h = `<h3 class="sec" id="corps">Corps & mensurations <a onclick="bodyForm()">+ Mesure</a></h3>`;
+  if (!B.length) return h + `<div class="card empty"><div class="e">⚖️</div>Notez votre poids et vos mensurations (et des photos) pour suivre votre transformation.<br><button class="btn pri" style="margin-top:12px" onclick="bodyForm()">${ic('plus')}Première mesure</button></div>`;
+  const first = B.find(b => b[bodyM] != null && b[bodyM] !== ''), last = [...B].reverse().find(b => b[bodyM] != null && b[bodyM] !== ''), d = last && first ? last[bodyM] - first[bodyM] : 0;
+  const P = S.profile, imc = last && last.poids && P.taille ? last.poids / (P.taille / 100) ** 2 : 0;
+  h += `<div class="card"><div class="chips" style="margin-bottom:10px">${keys.map(k => `<button class="chip ${k === bodyM ? 'on' : ''}" onclick="bodyM='${k}';lastKey='';render()">${MES[k][0]}</button>`).join('')}</div>
+    <div class="grid3"><div class="kpi"><div class="l">Actuel</div><div class="v">${last ? String(last[bodyM]).replace('.', ',') : '—'}<small> ${MES[bodyM][1]}</small></div></div>
+    <div class="kpi"><div class="l">Évolution</div><div class="v" style="color:${d <= 0 ? '#4ade80' : '#fbbf24'}">${d > 0 ? '+' : ''}${d.toFixed(1).replace('.', ',')}<small> ${MES[bodyM][1]}</small></div></div>
+    <div class="kpi"><div class="l">${imc ? 'IMC' : 'Mesures'}</div><div class="v">${imc ? imc.toFixed(1).replace('.', ',') : B.length}</div></div></div>
+    <canvas class="ch" id="bodyChart" height="180" style="margin-top:10px"></canvas></div>`;
+  const ph = B.filter(b => b.photo);
+  h += `<div class="card"><div class="row" style="justify-content:space-between"><b>📸 Photos de progression</b>${ph.length >= 2 ? `<button class="btn sm" onclick="compareForm()">Avant / après</button>` : ''}</div>
+    ${ph.length ? `<div class="thumbs">${ph.slice(-8).reverse().map(b => `<button class="th" onclick="viewPhoto('${b.id}')"><img data-ph="${b.photo}" alt=""><span>${fmtDate(b.date, { day: 'numeric', month: 'short' })}</span></button>`).join('')}</div>` : '<p class="mu small">Ajoutez une photo à vos mesures (même pose, même lumière) pour comparer.</p>'}</div>`;
+  h += [...B].reverse().slice(0, 6).map(b => `<div class="li" style="cursor:default"><span class="em">⚖️</span><span class="t"><b>${fmtDate(b.date, { day: 'numeric', month: 'long', year: 'numeric' })}</b><small>${Object.keys(MES).filter(k => b[k] != null && b[k] !== '').map(k => `${MES[k][0]} ${String(b[k]).replace('.', ',')} ${MES[k][1]}`).join(' · ')}${b.photo ? ' · 📸' : ''}</small></span><button class="btn sm ghost" onclick="if(confirm('Supprimer cette mesure ?')){delPhoto('${b.photo || ''}');S.body=S.body.filter(x=>x.id!=='${b.id}');save();lastKey='';render()}">${ic('trash')}</button></div>`).join('');
+  return h;
+}
+function bodyChart() { const c = $('#bodyChart'); if (!c) return; const B = [...S.body].filter(b => b[bodyM] != null && b[bodyM] !== '').sort((a, b) => a.date.localeCompare(b.date)); drawLine(c, B.map(b => [b.date, +b[bodyM]]), '#22c55e', false, true); }
+function bodyForm() {
+  const last = [...S.body].sort((a, b) => a.date.localeCompare(b.date)).at(-1) || {};
+  sheet(`<h2>Nouvelle mesure</h2><p class="mu small">Mesurez-vous le matin, à jeun, dans les mêmes conditions. Tout est facultatif sauf la date.</p>
+    <label class="f">Date<input class="in" type="date" id="bD" value="${today()}"></label>
+    <div class="grid2">${Object.entries(MES).map(([k, [n, u]]) => `<label class="f">${n} (${u})<input class="in" type="number" step="0.1" inputmode="decimal" id="b_${k}" placeholder="${last[k] != null ? String(last[k]).replace('.', ',') : ''}"></label>`).join('')}</div>
+    <label class="btn w" style="margin-top:14px;cursor:pointer">📸 Ajouter une photo<input type="file" accept="image/*" hidden onchange="pickPhoto(this.files[0])"></label><div id="bPh" class="mu small" style="text-align:center;margin-top:6px"></div>
+    <button class="btn pri w" style="margin-top:12px" onclick="bodySave()">${ic('check')}Enregistrer</button>`);
+}
+let pendingPhoto = null;
+async function pickPhoto(f) {
+  if (!f) return; try {
+    const url = URL.createObjectURL(f), img = await new Promise((r, j) => { const i = new Image(); i.onload = () => r(i); i.onerror = j; i.src = url; });
+    const k = Math.min(1, 900 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+    pendingPhoto = await new Promise(r => c.toBlob(r, 'image/jpeg', .82)); $('#bPh').innerHTML = `<img src="${URL.createObjectURL(pendingPhoto)}" style="max-height:140px;border-radius:12px;margin-top:6px">`;
+  } catch (e) { toast('Photo illisible'); }
+}
+async function bodySave() {
+  const b = { id: uid(), date: $('#bD').value || today() }; let any = false;
+  Object.keys(MES).forEach(k => { const v = $('#b_' + k).value.replace(',', '.'); if (v !== '' && !isNaN(+v)) { b[k] = +v; any = true; } });
+  if (!any && !pendingPhoto) return toast('Indiquez au moins une mesure ou une photo');
+  if (pendingPhoto) { b.photo = 'ph_' + b.id; await idbPut(b.photo, pendingPhoto); pendingPhoto = null; }
+  if (b.poids) S.profile.poids = b.poids;
+  S.body.push(b); save(); closeSheet(); lastKey = ''; render(); toast('Mesure enregistrée ✅'); haptic(15);
+}
+// photos : IndexedDB (trop lourdes pour le stockage simple)
+function idb() { return new Promise((r, j) => { const q = indexedDB.open('apexfit', 1); q.onupgradeneeded = () => q.result.createObjectStore('ph'); q.onsuccess = () => r(q.result); q.onerror = () => j(q.error); }); }
+async function idbPut(k, v) { const d = await idb(); return new Promise((r, j) => { const t = d.transaction('ph', 'readwrite'); t.objectStore('ph').put(v, k); t.oncomplete = r; t.onerror = () => j(t.error); }); }
+async function idbGet(k) { const d = await idb(); return new Promise(r => { const q = d.transaction('ph').objectStore('ph').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(null); }); }
+function delPhoto(k) { if (!k) return; idb().then(d => d.transaction('ph', 'readwrite').objectStore('ph').delete(k)).catch(() => {}); }
+const urlCache = {};
+async function photoURL(k) { if (urlCache[k]) return urlCache[k]; const b = await idbGet(k); return b ? (urlCache[k] = URL.createObjectURL(b)) : ''; }
+function loadThumbs() { $$('img[data-ph]').forEach(async i => { i.src = await photoURL(i.dataset.ph); }); }
+async function viewPhoto(id) { const b = S.body.find(x => x.id === id); sheet(`<h2>${fmtDate(b.date, { day: 'numeric', month: 'long', year: 'numeric' })}</h2><img src="${await photoURL(b.photo)}" style="width:100%;border-radius:16px;margin-top:8px"><p class="mu small">${Object.keys(MES).filter(k => b[k] != null).map(k => `${MES[k][0]} ${String(b[k]).replace('.', ',')} ${MES[k][1]}`).join(' · ')}</p>`); }
+async function compareForm(i0, i1) {
+  const ph = [...S.body].filter(b => b.photo).sort((a, b) => a.date.localeCompare(b.date)); const A = ph[i0 ?? 0], B = ph[i1 ?? ph.length - 1];
+  const opt = sel => ph.map((b, i) => `<option value="${i}" ${b === sel ? 'selected' : ''}>${fmtDate(b.date, { day: 'numeric', month: 'short', year: '2-digit' })}</option>`).join('');
+  const dw = A.poids && B.poids ? B.poids - A.poids : null;
+  sheet(`<h2>Avant / après</h2><div class="grid2"><select class="in" id="cA" onchange="compareForm(+this.value,+$('#cB').value)">${opt(A)}</select><select class="in" id="cB" onchange="compareForm(+$('#cA').value,+this.value)">${opt(B)}</select></div>
+    <div class="cmp" id="cmp"><img src="${await photoURL(B.photo)}"><img id="cmpA" src="${await photoURL(A.photo)}" style="clip-path:inset(0 50% 0 0)"><div class="cmpBar" id="cmpBar"></div>
+    <span class="cmpL">Avant</span><span class="cmpR">Après</span></div><input type="range" min="0" max="100" value="50" oninput="$('#cmpA').style.clipPath='inset(0 '+(100-this.value)+'% 0 0)';$('#cmpBar').style.left=this.value+'%'">
+    ${dw != null ? `<p class="small" style="text-align:center">Poids : <b>${String(A.poids).replace('.', ',')} → ${String(B.poids).replace('.', ',')} kg</b> (${dw > 0 ? '+' : ''}${dw.toFixed(1).replace('.', ',')} kg) en ${Math.round((parseD(B.date) - parseD(A.date)) / 864e5)} jours</p>` : ''}`);
+}
+function spark(c, v) {
+  if (!c || v.length < 2) return; const x = c.getContext('2d'), W = c.width, H = c.height, mn = Math.min(...v), mx = Math.max(...v), r = mx - mn || 1;
+  const P = v.map((y, i) => [4 + i * (W - 8) / (v.length - 1), H - 6 - (y - mn) / r * (H - 12)]);
+  x.beginPath(); P.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.strokeStyle = v.at(-1) <= v[0] ? '#4ade80' : '#fbbf24'; x.lineWidth = 4; x.lineJoin = 'round'; x.stroke();
+  const [a, b] = P.at(-1); x.beginPath(); x.arc(a, b, 5, 0, 7); x.fillStyle = x.strokeStyle; x.fill();
+}
+
+// ===================== RAPPELS =====================
+const JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'], ICSD = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+function remindSection() {
+  const R0 = S.remind;
+  return `<h3 class="sec">Rappels de séance</h3><div class="card"><p class="mu small" style="margin-top:0">${R0 ? `Jours : <b style="color:var(--tx)">${R0.days.map(d => JOURS[d]).join(', ')}</b> à <b style="color:var(--tx)">${R0.time}</b>` : 'Choisissez vos jours et votre heure d’entraînement : l’appli les ajoute à votre calendrier avec une alerte.'}</p>
+    <button class="btn w ${R0 ? '' : 'pri'}" onclick="remindForm()">🔔 ${R0 ? 'Modifier les rappels' : 'Programmer mes rappels'}</button></div>`;
+}
+function remindForm() {
+  const R0 = S.remind || { days: defaultDays(), time: '18:30', alert: 15 };
+  sheet(`<h2>Rappels de séance</h2><p class="mu small">Les rappels sont ajoutés au <b>calendrier de votre téléphone</b> : vous recevez une alerte même appli fermée.</p>
+    <label class="f">Jours d’entraînement</label><div class="chips" style="flex-wrap:wrap" id="rD">${JOURS.map((j, i) => `<button class="chip ${R0.days.includes(i) ? 'on' : ''}" data-d="${i}" onclick="this.classList.toggle('on')">${j}</button>`).join('')}</div>
+    <div class="grid2"><label class="f">Heure<input class="in" type="time" id="rT" value="${R0.time}"></label><label class="f">Alerte<select class="in" id="rA">${[[0, 'À l’heure'], [15, '15 min avant'], [30, '30 min avant'], [60, '1 h avant']].map(([v, l]) => `<option value="${v}" ${R0.alert === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div>
+    <button class="btn pri w" style="margin-top:14px" onclick="remindSave()">📅 Ajouter à mon calendrier</button>
+    ${S.remind ? `<button class="btn dan w" style="margin-top:8px" onclick="S.remind=null;save();closeSheet();lastKey='';render();toast('Rappels désactivés dans l’appli (supprimez aussi l’événement du calendrier)')">Désactiver les rappels</button>` : ''}
+    <p class="mu tiny" style="margin-top:10px">Sur iPhone : touchez le fichier téléchargé puis « Ajouter tout ». Pour changer d’horaire, supprimez l’ancien événement « ApexFit » de votre calendrier.</p>`);
+}
+function remindSave() {
+  const days = $$('#rD .chip.on').map(b => +b.dataset.d).sort(); if (!days.length) return toast('Choisissez au moins un jour');
+  S.remind = { days, time: $('#rT').value || '18:30', alert: +$('#rA').value }; save();
+  const [hh, mm] = S.remind.time.split(':').map(Number), d = new Date(); d.setHours(hh, mm, 0, 0);
+  while (!days.includes((d.getDay() + 6) % 7) || d < new Date()) d.setDate(d.getDate() + 1);
+  const f = x => `${x.getFullYear()}${pad(x.getMonth() + 1)}${pad(x.getDate())}T${pad(x.getHours())}${pad(x.getMinutes())}00`, now = new Date();
+  const p = S.prog && PROGRAMS.find(x => x.id === S.prog.id);
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ApexFit//FR', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', `UID:apexfit-rappel-${uid()}@apexfit`, `DTSTAMP:${f(now)}`, `DTSTART:${f(d)}`, 'DURATION:PT1H',
+    `RRULE:FREQ=WEEKLY;BYDAY=${days.map(i => ICSD[i]).join(',')}`, `SUMMARY:💪 Séance ApexFit${p ? ' — ' + p.nom : ''}`, `DESCRIPTION:Ouvrez ApexFit pour démarrer votre séance : ${location.href.split('#')[0]}`,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:C’est l’heure de votre séance ApexFit 💪', `TRIGGER:-PT${S.remind.alert}M`, 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'apexfit-rappels.ics'; document.body.appendChild(a); a.click(); a.remove();
+  closeSheet(); lastKey = ''; render(); toast('📅 Fichier calendrier créé : ouvrez-le pour ajouter les rappels', 4500);
+}
 
 // ===================== INTERACTIONS DYNAMIQUES =====================
 const haptic = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };

@@ -178,3 +178,18 @@ canvas.ch{width:100%;display:block}
 .kpi{transition:transform .2s}.kpi:active{transform:scale(.97)}
 .choice button.on{animation:pop .35s cubic-bezier(.3,1.8,.5,1)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* progression, corps, rappels */
+.sug{font-size:12.5px;font-weight:700;margin:-2px 0 8px;padding:6px 10px;border-radius:10px;background:rgba(148,163,184,.1);color:var(--mu)}
+.sug.up{background:rgba(34,197,94,.12);color:#86efac}.sug.down{background:rgba(245,158,11,.12);color:#fcd34d}
+.todaycard{border-color:rgba(245,158,11,.5);background:linear-gradient(135deg,#2a1d07,#111827)}
+.bell{font-size:26px;animation:ring 2.5s ease-in-out infinite;transform-origin:50% 0}
+@keyframes ring{0%,60%,100%{transform:rotate(0)}10%{transform:rotate(14deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(8deg)}40%{transform:rotate(-4deg)}}
+canvas.spark{width:100px;height:30px}
+.thumbs{display:flex;gap:8px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.th{flex:none;width:86px;border:0;background:none;padding:0;cursor:pointer;color:var(--mu);font-size:11px}
+.th img{width:86px;height:110px;object-fit:cover;border-radius:12px;background:var(--card2);display:block;margin-bottom:4px}
+.cmp{position:relative;margin-top:12px;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:3/4}
+.cmp>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cmpBar{position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.6)}
+.cmpL,.cmpR{position:absolute;bottom:10px;padding:4px 10px;border-radius:99px;background:rgba(0,0,0,.6);font-size:12px;font-weight:700}.cmpL{left:10px}.cmpR{right:10px}
