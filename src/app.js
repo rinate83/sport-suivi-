@@ -77,8 +77,10 @@ function render() {
   const back = v === 'sport';
   $('#top').innerHTML = `${back ? `<button class="back" onclick="go('sports')">${ic('left')}</button>` : '<img src="icons/icon.svg" alt="">'}
     <div><b>${back ? esc(SPORTS[route.sp].ic + ' ' + SPORTS[route.sp].nom) : 'APEX<span>FIT</span>'}</b><small>${back ? 'Suivi, mouvements, séances types' : greeting()}</small></div>
-    <div class="streak">${ic('flame')}<span>${streak()} j</span></div>`;
-  try { ({ home: vHome, sports: vSports, sport: vSport, programmes: vProgrammes, profil: vProfil })[v](); }
+    <div class="streak ${streak() ? 'hot' : ''}">${ic('flame')}<span>${streak()} j</span></div>`;
+  try { ({ home: vHome, sports: vSports, sport: vSport, programmes: vProgrammes, profil: vProfil })[v]();
+  enhance();
+  }
   catch (e) { console.error(e); $('#view').innerHTML = `<div class="card empty"><div class="e">⚠️</div>Un problème d’affichage est survenu.<br><small class="mu">${esc(e.message)}</small></div>`; }
 }
 function greeting() { const h = new Date().getHours(); return `${h < 18 ? 'Bonjour' : 'Bonsoir'}${S.profile.prenom ? ' ' + esc(S.profile.prenom) : ''} · ${fmtDate(today(), { weekday: 'long', day: 'numeric', month: 'long' })}`; }
@@ -127,7 +129,7 @@ function spCard(k) {
   const sp = SPORTS[k], extra = sp.dist ? `${mo.reduce((a, x) => a + distKm(x), 0).toFixed(1)} km` : hmin(mo.reduce((a, x) => a + (+x.dur || 0), 0));
   return `<button class="sp" style="--c:${sp.c}" onclick="go('sport',{sp:'${k}'})"><span class="e">${sp.ic}</span><span><b>${sp.nom}</b><br><small>${mo.length} ce mois · ${extra}</small></span></button>`;
 }
-function weekChart() {
+function weekChart(k = 1) {
   const c = $('#weekChart'); if (!c) return; const W = c.width = c.clientWidth * 2, H = c.height = 240, x = c.getContext('2d'), a = monday(new Date());
   const days = [...Array(7)].map((_, i) => { const d = new Date(a); d.setDate(d.getDate() + i); return ymd(d); });
   const per = days.map(d => S.sessions.filter(s => s.date === d)), mx = Math.max(30, ...per.map(L => L.reduce((s, z) => s + (+z.dur || 0), 0)));
@@ -135,7 +137,7 @@ function weekChart() {
   per.forEach((L, i) => {
     let y = H - 40; const x0 = i * bw + bw * .22, w = bw * .56;
     x.fillStyle = 'rgba(255,255,255,.06)'; roundRect(x, x0, 16, w, H - 56, 12); x.fill();
-    L.forEach(s => { const h = (+s.dur || 0) / mx * (H - 60); x.fillStyle = SPORTS[s.sport].c; roundRect(x, x0, y - h, w, Math.max(h, 6), 10); x.fill(); y -= h; });
+    L.forEach(s => { const h = (+s.dur || 0) / mx * (H - 60) * k; x.fillStyle = SPORTS[s.sport].c; roundRect(x, x0, y - h, w, Math.max(h, 6), 10); x.fill(); y -= h; });
     x.fillStyle = days[i] === today() ? '#4ade80' : '#64708a'; x.font = '700 22px -apple-system,system-ui'; x.textAlign = 'center'; x.fillText(lab[i], x0 + w / 2, H - 8);
   });
 }
@@ -186,8 +188,15 @@ function openSession(id) {
 const pace = minPerKm => { const s = Math.round(minPerKm * 60); return `${Math.floor(s / 60)}:${pad(s % 60)}`; };
 
 // ===================== FEUILLES =====================
-function sheet(html) { closeSheet(); const b = document.createElement('div'); b.className = 'sheet-bg'; b.id = 'sheetBg'; b.innerHTML = `<div class="sheet"><div class="grab"></div>${html}</div>`; b.addEventListener('click', e => { if (e.target === b) closeSheet(); }); document.body.appendChild(b); }
+function sheet(html) { closeSheet(); const b = document.createElement('div'); b.className = 'sheet-bg'; b.id = 'sheetBg'; b.innerHTML = `<div class="sheet"><div class="grab"></div>${html}</div>`; b.addEventListener('click', e => { if (e.target === b) closeSheet(); }); document.body.appendChild(b); swipeClose(b.firstChild); }
 function closeSheet() { const b = $('#sheetBg'); if (b) b.remove(); }
+function swipeClose(sh) {
+  let y0 = null, dy = 0;
+  sh.addEventListener('touchstart', e => { if (sh.scrollTop > 0) return; y0 = e.touches[0].clientY; dy = 0; sh.style.transition = 'none'; }, { passive: true });
+  sh.addEventListener('touchmove', e => { if (y0 == null) return; dy = Math.max(0, e.touches[0].clientY - y0); if (dy > 0) sh.style.transform = `translateY(${dy}px)`; }, { passive: true });
+  sh.addEventListener('touchend', () => { if (y0 == null) return; y0 = null; sh.style.transition = 'transform .25s ease';
+    if (dy > 110) { sh.style.transform = 'translateY(100%)'; haptic(10); setTimeout(closeSheet, 200); } else sh.style.transform = ''; });
+}
 
 // ===================== PAGE SPORTS =====================
 function vSports() {
@@ -403,8 +412,23 @@ function renderLive() {
 function addSet(i) { const s = L.items[i].sets, p = s.at(-1) || { reps: 10, kg: '' }; s.push(p.sec != null ? { sec: p.sec } : { reps: p.reps, kg: p.kg }); renderLive(); }
 function toggleSet(i, j) {
   const it = L.items[i], z = it.sets[j];
-  if (z.sec != null && !z.done) return countdown(z.sec, mvName(it), () => { z.done = true; renderLive(); restStart(it.rest, i, j); });
-  z.done = !z.done; renderLive(); if (z.done) restStart(it.rest, i, j);
+  if (z.sec != null && !z.done) return countdown(z.sec, mvName(it), () => { z.done = true; renderLive(); setDoneFx(i, j); restStart(it.rest, i, j); });
+  z.done = !z.done; renderLive(); if (z.done) { setDoneFx(i, j); restStart(it.rest, i, j); }
+}
+function setDoneFx(i, j) {
+  haptic(15);
+  const rows = $$('#live .ex')[i] ? $$('#live .ex')[i].querySelectorAll('.set:not(:first-of-type)') : [], row = [...$$('#live .ex')[i].querySelectorAll('.set')].filter(r => r.querySelector('.n'))[j];
+  if (row) row.classList.add('pop');
+  const it = L.items[i], z = it.sets[j];
+  if (it.sets.every(s => s.done)) { const card = $$('#live .ex')[i]; card && card.classList.add('allDone'); }
+  // record : meilleur 1RM estimé jamais fait sur ce mouvement
+  if (z.kg && z.reps) {
+    const v = e1rm(+z.kg, +z.reps); let best = 0;
+    S.sessions.forEach(s => (s.items || []).forEach(x => { if (x.mv === it.mv) x.sets.forEach(q => { if (q.done && q.kg && q.reps) best = Math.max(best, e1rm(+q.kg, +q.reps)); }); }));
+    if (best && v > best + 0.01 && !z.pr) { z.pr = true; confetti(70); toast(`🏅 Nouveau record sur ${mvName(it)} ! 1RM ≈ ${Math.round(v)} kg`, 3500); haptic([30, 40, 30]); }
+  }
+  // fait défiler jusqu'à la prochaine série à faire
+  setTimeout(() => { const nx = $('#live .set:not(.done) .ok'); if (nx) nx.closest('.set').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 350);
 }
 function nextLabel(i, j) { const it = L.items[i]; if (j + 1 < it.sets.length) return `${mvName(it)} — série ${j + 2}`; const n = L.items[i + 1]; return n ? `${mvName(n)} — série 1` : 'Dernière série faite 💪'; }
 function restStart(sec, i, j) {
@@ -413,7 +437,7 @@ function restStart(sec, i, j) {
   b.innerHTML = `<span class="big" id="restT">${mmss(sec)}</span><div style="flex:1;min-width:0"><b>Repos</b><div class="mu tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Ensuite : ${esc(nextLabel(i, j))}</div></div>
     <button class="btn sm" onclick="rest.end+=15000">+15</button><button class="btn sm pri" onclick="restStop()">Passer</button><span class="prog" id="restP"></span>`;
   document.body.appendChild(b); rest = { end, t: null };
-  rest.t = setInterval(() => { const r = Math.max(0, (rest.end - Date.now()) / 1000); $('#restT').textContent = mmss(Math.ceil(r)); $('#restP').style.width = (100 - r / tot * 100) + '%'; if (r <= 3 && r > 2.8) beep(660, 120); if (r <= 0) { beep(990, 400); restStop(); } }, 200);
+  rest.t = setInterval(() => { const r = Math.max(0, (rest.end - Date.now()) / 1000); $('#restT').textContent = mmss(Math.ceil(r)); $('#restP').style.width = (100 - r / tot * 100) + '%'; const rb = $('#restbar'); rb && rb.classList.toggle('last', r <= 3); if (r <= 3 && r > 2.8) beep(660, 120); if (r <= 0) { beep(990, 400); restStop(); } }, 200);
 }
 function restDone() { const d = rest && rest.done; restStop(); if (d) d(); }
 function restStop() { if (rest) clearInterval(rest.t); rest = null; const b = $('#restbar'); if (b) b.remove(); }
@@ -451,7 +475,7 @@ function saveLive() {
   if (L.blocks) s.blocks = L.blocks.map(b => ({ t: b.t, d: b.d, done: b.done }));
   if (L.src && L.src.type === 'prog' && S.prog) { s.prog = S.prog.id; S.prog.done.push(L.src.key); }
   if ($('#fiTpl').checked) { const tp = toTemplate(s, s.nom); tp.items && tp.items.forEach(it => it.sets.forEach(z => delete z.done)); S.templates.push(tp); }
-  closeSheet(); endLive(); addSession(s);
+  closeSheet(); endLive(); addSession(s); confetti(140); haptic([20, 50, 20]);
   if (s.prog) { const nx = nextProgSession(); if (!nx) toast('🏆 Programme terminé ! Refaites le test pour mesurer vos progrès.', 5000); }
 }
 
@@ -596,7 +620,7 @@ function drawRadar(sc) {
 }
 function saveTest(silent) {
   const r = scoreTest(TS.res); S.tests.push({ date: today(), ...r }); S.skipTest = true; save();
-  endTest(); if (!silent) { go('programmes'); toast('Résultats enregistrés ✅ Voici vos programmes conseillés'); }
+  endTest(); confetti(120); if (!silent) { go('programmes'); toast('Résultats enregistrés ✅ Voici vos programmes conseillés'); }
 }
 function showTest(i) { const t = S.tests[i]; sheet(`<h2>Test du ${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</h2>${testResultHTML(t)}${i > 0 ? compareTests(S.tests[i - 1], t) : ''}`); setTimeout(() => drawRadar(t.scores), 30); }
 function compareTests(a, b) { const R = ['pompes', 'squats', 'gainage', 'tractions', 'cooper']; const rows = R.filter(k => a.res[k] != null && b.res[k] != null).map(k => { const d = b.res[k] - a.res[k]; return `<div class="row" style="justify-content:space-between;padding:4px 0"><span class="mu small">${TESTS.find(t => t.id === k)?.nom || 'Cooper (m)'}</span><b>${a.res[k]} → ${b.res[k]} <span style="color:${d >= 0 ? '#4ade80' : '#fb7185'}">${d >= 0 ? '+' : ''}${d}</span></b></div>`; }); return rows.length ? `<h3 class="sec">Évolution depuis le test précédent</h3><div class="card">${rows.join('')}</div>` : ''; }
@@ -640,7 +664,7 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.1 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.2 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
 }
 function editProfile() {
@@ -662,6 +686,69 @@ function goalAdd() {
 }
 function exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(S)], { type: 'application/json' })); a.download = `apexfit_${today()}.json`; a.click(); }
 function importData(f) { if (!f) return; f.text().then(t => { const d = JSON.parse(t); if (d.v !== 3) throw 0; S = Object.assign(blank(), d); save(); render(); toast('Données restaurées ✅'); }).catch(() => toast('Fichier invalide')); }
+
+// ===================== INTERACTIONS DYNAMIQUES =====================
+const haptic = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+let lastKey = '';
+function enhance() {
+  const key = route.v + (route.sp || '') + (route.v === 'sport' ? spTab : '') + (route.v === 'programmes' ? progF : '');
+  const fresh = key !== lastKey; lastKey = key;
+  if (fresh && !reduced()) {
+    [...$('#view').children].forEach((el, i) => { el.style.setProperty('--i', Math.min(i, 12)); el.classList.add('rise'); });
+    countUp(); fillBars(); ringFill();
+    if ($('#weekChart')) { const t0 = performance.now(); const st = t => { const k = Math.min(1, (t - t0) / 700); weekChart(1 - Math.pow(1 - k, 3)); if (k < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); }
+  }
+  const cal = $('#view .cal'); if (cal) swipeCal(cal.parentElement);
+  $$('#view .li[onclick^="openSession"]').forEach(swipeDelete);
+}
+// chiffres qui défilent jusqu'à leur valeur
+function countUp() {
+  $$('#view .kpi .v, #view .ring b, #view .hero [data-count]').forEach(el => {
+    const tn = [...el.childNodes].find(n => n.nodeType === 3 && /\d/.test(n.textContent)); if (!tn) return;
+    const m = tn.textContent.match(/(\d+(?:[.,]\d+)?)/); if (!m) return;
+    const target = parseFloat(m[1].replace(',', '.')), dec = (m[1].split(/[.,]/)[1] || '').length, pre = tn.textContent.slice(0, m.index), post = tn.textContent.slice(m.index + m[1].length);
+    if (!target) return; const t0 = performance.now(), D = 800;
+    const st = t => { const k = Math.min(1, (t - t0) / D), v = target * (1 - Math.pow(1 - k, 3)); tn.textContent = pre + v.toFixed(dec) + post; if (k < 1) requestAnimationFrame(st); };
+    requestAnimationFrame(st);
+  });
+}
+function fillBars() { $$('#view .pbar i').forEach(i => { const w = i.style.width; i.style.width = '0'; requestAnimationFrame(() => requestAnimationFrame(() => { i.style.width = w; })); }); }
+function ringFill() { const r = $('#view .ring'); if (!r) return; const p = +getComputedStyle(r).getPropertyValue('--p') || 0, t0 = performance.now(); const st = t => { const k = Math.min(1, (t - t0) / 900); r.style.setProperty('--p', (p * (1 - Math.pow(1 - k, 3))).toFixed(1)); if (k < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); }
+// calendrier : balayer pour changer de mois
+function swipeCal(box) {
+  if (box.dataset.sw) return; box.dataset.sw = 1; let x0 = null, y0 = 0;
+  box.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  box.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + (dx < 0 ? 1 : -1), 1); haptic(8); render(); const c = $('#view .cal'); if (c) c.classList.add(dx < 0 ? 'slideL' : 'slideR'); } });
+}
+// séance : balayer vers la gauche pour supprimer (avec annulation)
+function swipeDelete(el) {
+  if (el.dataset.sw) return; el.dataset.sw = 1; let x0 = null, y0 = 0, dx = 0, moved = false;
+  const id = (el.getAttribute('onclick').match(/openSession\('([^']+)'\)/) || [])[1]; if (!id) return;
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; moved = false; el.style.transition = 'none'; }, { passive: true });
+  el.addEventListener('touchmove', e => { if (x0 == null) return; dx = Math.min(0, e.touches[0].clientX - x0); if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(e.touches[0].clientY - y0)) { moved = true; el.style.transform = `translateX(${dx}px)`; el.style.boxShadow = `inset ${-dx}px 0 0 rgba(244,63,94,${Math.min(.5, -dx / 300)})`; } }, { passive: true });
+  el.addEventListener('touchend', () => { if (x0 == null) return; x0 = null; el.style.transition = 'transform .25s, box-shadow .25s';
+    if (dx < -110) { el.style.transform = 'translateX(-110%)'; haptic(20); setTimeout(() => deleteWithUndo(id), 220); } else { el.style.transform = ''; el.style.boxShadow = ''; } });
+  el.addEventListener('click', e => { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+}
+function deleteWithUndo(id) {
+  const i = S.sessions.findIndex(x => x.id === id); if (i < 0) return; const [s] = S.sessions.splice(i, 1); save(); lastKey = ''; render();
+  const d = document.createElement('div'); d.className = 'toast'; d.innerHTML = `Séance supprimée <button class="btn sm" style="margin-left:10px;padding:6px 10px">Annuler</button>`; document.body.appendChild(d);
+  d.querySelector('button').onclick = () => { S.sessions.splice(i, 0, s); save(); lastKey = ''; render(); d.remove(); haptic(10); };
+  setTimeout(() => d.remove(), 5000);
+}
+// confettis
+function confetti(n = 100) {
+  if (reduced()) return; const c = document.createElement('canvas'), W = c.width = innerWidth * 2, H = c.height = innerHeight * 2, x = c.getContext('2d');
+  c.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:300'; document.body.appendChild(c);
+  const col = ['#22c55e', '#4ade80', '#14b8a6', '#facc15', '#818cf8', '#f472b6', '#fb923c'];
+  const P = Array.from({ length: n }, () => ({ x: W / 2 + (Math.random() - .5) * W * .3, y: H * .55, vx: (Math.random() - .5) * 34, vy: -Math.random() * 46 - 18, r: Math.random() * 10 + 6, a: Math.random() * 6, va: (Math.random() - .5) * .4, c: col[Math.random() * col.length | 0] }));
+  const t0 = performance.now(); const st = t => { x.clearRect(0, 0, W, H); P.forEach(p => { p.vy += 1.4; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.a += p.va; x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.c; x.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); x.restore(); });
+    if (t - t0 < 2200) requestAnimationFrame(st); else c.remove(); }; requestAnimationFrame(st);
+}
+// petite vibration à chaque bouton (Android ; ignoré sur iPhone)
+document.addEventListener('pointerdown', e => { if (e.target.closest('button, .li, .sp, .d, .block')) haptic(6); }, { passive: true });
 
 // ===================== DÉMARRAGE =====================
 $('#nav').innerHTML = `<button data-v="home" onclick="go('home')">${ic('home')}Accueil</button><button data-v="sports" onclick="go('sports')">${ic('grid')}Sports</button>

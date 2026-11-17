@@ -146,3 +146,35 @@ canvas.ch{width:100%;display:block}
 .mvimg.big{width:100%;aspect-ratio:4/3;border-radius:18px;margin:4px 0 10px}
 .mvimg.big img{object-fit:contain;background:#f1f5f9}
 .ex .eh .mvimg.thumb{width:48px;height:48px;border-radius:12px}
+
+/* ===== interactions dynamiques ===== */
+.rise{animation:rise .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 45ms)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.btn,.li,.sp,.chip,.nav button,.cal .d,.block{transition:transform .12s ease,background .2s,border-color .2s}
+.li:active,.sp:active,.cal .d:active,.block:active{transform:scale(.97)}
+.chip:active,.nav button:active{transform:scale(.92)}
+.nav .plus{transition:transform .2s cubic-bezier(.3,1.6,.5,1)}.nav .plus:active{transform:scale(.88) rotate(90deg)}
+.nav button.on svg{animation:navpop .35s cubic-bezier(.3,1.6,.5,1)}
+@keyframes navpop{40%{transform:translateY(-4px) scale(1.15)}}
+.streak.hot svg{color:#fb923c;animation:flame 1.6s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes flame{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.15) rotate(3deg);filter:drop-shadow(0 0 6px rgba(251,146,60,.8))}}
+.pbar i{transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.cal.slideL{animation:slL .3s ease}.cal.slideR{animation:slR .3s ease}
+@keyframes slL{from{opacity:0;transform:translateX(30px)}}@keyframes slR{from{opacity:0;transform:translateX(-30px)}}
+.cal .d.today{animation:today 2.4s ease-in-out infinite}
+@keyframes today{50%{box-shadow:0 0 0 4px rgba(34,197,94,.18)}}
+.set.pop .ok{animation:pop .45s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.ex{transition:border-color .4s,box-shadow .4s}
+.ex.allDone{border-color:rgba(34,197,94,.55);box-shadow:0 0 0 1px rgba(34,197,94,.25),0 10px 30px -12px rgba(34,197,94,.5)}
+.ex.allDone .eh b:after{content:'  ✓';color:var(--ac2)}
+.restbar{animation:up .3s cubic-bezier(.2,.8,.2,1)}
+.restbar.last{animation:beat .5s ease-in-out infinite}
+@keyframes beat{50%{transform:scale(1.03);box-shadow:0 0 0 6px rgba(34,197,94,.25)}}
+.block.done .ck{animation:pop .4s cubic-bezier(.3,1.8,.5,1)}
+.sheet{will-change:transform}
+.sheet .grab{width:48px;height:6px;cursor:grab}
+.sp:hover .e,.sp:active .e{transform:scale(1.12) rotate(-6deg)}.sp .e{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.kpi{transition:transform .2s}.kpi:active{transform:scale(.97)}
+.choice button.on{animation:pop .35s cubic-bezier(.3,1.8,.5,1)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
