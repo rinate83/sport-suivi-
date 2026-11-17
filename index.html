@@ -152,6 +152,16 @@ canvas.ch{width:100%;display:block}
 .choice button.on{border-color:var(--ac);background:rgba(34,197,94,.12)}
 .score{display:flex;align-items:center;gap:10px;margin-top:8px}.score span{flex:1;font-size:14px}.score .pbar{flex:1.3}
 
+/* images des mouvements */
+.mvimg{position:relative;display:block;overflow:hidden;background:#e2e8f0;flex:none}
+.mvimg img{display:block;width:100%;height:100%;object-fit:cover}
+.mvimg.anim img:nth-child(2){position:absolute;inset:0;animation:frame 2.4s steps(1) infinite}
+@keyframes frame{0%{opacity:0}50%{opacity:1}}
+.mvimg.thumb{width:56px;height:56px;border-radius:14px}
+.mvimg.big{width:100%;aspect-ratio:4/3;border-radius:18px;margin:4px 0 10px}
+.mvimg.big img{object-fit:contain;background:#f1f5f9}
+.ex .eh .mvimg.thumb{width:48px;height:48px;border-radius:12px}
+
 </style>
 </head>
 <body>
@@ -452,17 +462,29 @@ const OBJ = { forme: 'Remise en forme', muscle: 'Prise de muscle', force: 'Force
 // barèmes indicatifs (adulte 20-29 ans), ajustés avec l'âge ; score 1 (faible) à 5 (excellent)
 const TESTS = [
   { id: 'pompes', nom: 'Pompes maximum', q: 'force_haut', unit: 'répétitions', mv: 'pompe', how: 'Pompes complètes (sur les genoux pour les femmes si besoin, notez-le), sans pause, corps aligné. Arrêtez à la première pompe mal faite.', h: [17, 22, 29, 36], f: [10, 15, 21, 30], f_note: 'Femmes : pompes sur les genoux acceptées.' },
-  { id: 'squats', nom: 'Squats en 1 minute', q: 'force_bas', unit: 'répétitions', mv: 'goblet', how: 'Squats au poids du corps, cuisses parallèles au sol, le plus possible en 60 s.', h: [22, 30, 38, 45], f: [18, 25, 33, 40], timer: 60 },
+  { id: 'squats', nom: 'Squats en 1 minute', q: 'force_bas', unit: 'répétitions', mv: 'goblet', img: 'test_squat', how: 'Squats au poids du corps, cuisses parallèles au sol, le plus possible en 60 s.', h: [22, 30, 38, 45], f: [18, 25, 33, 40], timer: 60 },
   { id: 'gainage', nom: 'Gainage planche', q: 'gainage', unit: 'secondes', mv: 'gainage', how: 'Planche sur les avant-bras, corps aligné. Arrêtez dès que le bassin tombe ou monte.', h: [30, 60, 90, 120], f: [30, 60, 90, 120], stopwatch: true },
   { id: 'tractions', nom: 'Tractions (si barre)', q: 'force_haut2', unit: 'répétitions', mv: 'tractions', how: 'Tractions complètes, menton au-dessus de la barre, bras tendus en bas. Sans barre : laissez vide.', h: [1, 4, 8, 12], f: [1, 1, 3, 5], optional: true },
-  { id: 'souplesse', nom: 'Souplesse (flexion avant)', q: 'souplesse', unit: 'niveau', mv: 'ischios', how: 'Debout jambes tendues, penchez-vous lentement vers l’avant. Jusqu’où vont vos mains ?', choices: ['Genoux', 'Tibias', 'Chevilles', 'Bout des doigts au sol', 'Paumes au sol'] },
+  { id: 'souplesse', nom: 'Souplesse (flexion avant)', q: 'souplesse', unit: 'niveau', mv: 'ischios', img: 'test_souplesse', how: 'Debout jambes tendues, penchez-vous lentement vers l’avant. Jusqu’où vont vos mains ?', choices: ['Genoux', 'Tibias', 'Chevilles', 'Bout des doigts au sol', 'Paumes au sol'] },
   { id: 'cardio', nom: 'Cardio', q: 'cardio', mv: 'ef', how: 'Choisissez UN test : Cooper (courir le plus loin possible en 12 min) ou Ruffier-Dickson (30 squats en 45 s, à faire chez soi avec la mesure du pouls).', cardio: true }
 ];
 const COOPER = { h: [1600, 2200, 2400, 2800], f: [1500, 1800, 2200, 2700] };
 const QUAL = { force_haut: 'Force haut du corps', force_bas: 'Force jambes', gainage: 'Gainage', souplesse: 'Souplesse', cardio: 'Cardio' };
 
+// ===================== IMAGES DES MOUVEMENTS =====================
+// [format, nombre d'images] : photos départ/arrivée (free-exercise-db, domaine public) ou dessins sur mesure
+const IMG = {"dc":["jpg",2],"dih":["jpg",2],"pompe":["jpg",2],"dips":["jpg",2],"ecarte":["jpg",2],"tractions":["jpg",2],"rowb":["jpg",2],"rowh":["jpg",2],"tirage":["jpg",2],"sdt":["jpg",2],"sdtr":["jpg",2],"squat":["jpg",2],"goblet":["jpg",2],"fentes":["jpg",2],"presse":["jpg",2],"hipthrust":["jpg",2],"legcurl":["jpg",2],"mollets":["jpg",2],"dm":["jpg",2],"elev":["jpg",2],"facepull":["jpg",2],"curl":["jpg",2],"marteau":["jpg",2],"triceps":["jpg",2],"gainage":["jpg",2],"gainlat":["jpg",2],"releve":["jpg",2],"swing":["jpg",2],"ef":["jpg",2],"fc":["jpg",2],"fl":["jpg",2],"seuil":["jpg",2],"sl":["jpg",2],"cotes":["svg",2],"talons":["jpg",2],"skipping":["jpg",2],"bondissantes":["jpg",2],"chasses":["svg",2],"lignes":["svg",2],"technique":["jpg",2],"z2":["svg",2],"sweet":["jpg",2],"sprints":["svg",2],"velocite":["jpg",2],"danseuse":["svg",2],"reglage":["svg",1],"crawl":["svg",2],"brasse":["svg",2],"dos":["svg",2],"papillon":["svg",2],"rattrape":["svg",2],"planche":["svg",2],"pull":["svg",2],"resp3":["svg",2],"burpee":["svg",2],"jj":["jpg",2],"mc":["jpg",2],"squatjump":["jpg",2],"thruster":["jpg",2],"boxjump":["jpg",2],"corde":["jpg",2],"fentesaut":["jpg",2],"commando":["svg",2],"wallball":["svg",2],"rameur":["jpg",2],"chien":["svg",1],"cobra":["svg",1],"enfant":["jpg",2],"guerrier1":["svg",1],"guerrier2":["svg",1],"pigeon":["svg",1],"chatvache":["jpg",2],"fentebasse":["jpg",2],"ischios":["jpg",2],"thoracique":["jpg",2],"9090":["svg",1],"pont":["jpg",2],"active":["svg",2],"nordique":["svg",2],"montee":["svg",2],"test_squat":["jpg",2],"test_souplesse":["jpg",2]};
+
 </script>
 <script>
+// ===================== COMPATIBILITÉ (iPhone anciens) + ERREURS VISIBLES =====================
+if (!Array.prototype.at) Object.defineProperty(Array.prototype, 'at', { value: function (i) { i = Math.trunc(i) || 0; if (i < 0) i += this.length; return this[i]; }, writable: true, configurable: true });
+if (!Array.prototype.flat) Object.defineProperty(Array.prototype, 'flat', { value: function () { return [].concat(...this); }, writable: true, configurable: true });
+if (!Array.prototype.flatMap) Object.defineProperty(Array.prototype, 'flatMap', { value: function (f) { return [].concat(...this.map(f)); }, writable: true, configurable: true });
+window.addEventListener('error', e => showErr(e.message));
+window.addEventListener('unhandledrejection', e => showErr(e.reason && e.reason.message || String(e.reason)));
+function showErr(m) { try { const d = document.createElement('div'); d.className = 'toast'; d.style.background = '#7f1d1d'; d.textContent = '⚠️ Erreur : ' + m + ' — envoyez une capture'; document.body.appendChild(d); setTimeout(() => d.remove(), 7000); } catch (e) {} }
+
 // ===================== OUTILS =====================
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -475,6 +497,12 @@ const fmtDate = (s, o = { weekday: 'long', day: 'numeric', month: 'long' }) => p
 const mmss = s => `${pad(Math.floor(s / 60))}:${pad(Math.floor(s % 60))}`;
 const hmin = m => m >= 60 ? `${Math.floor(m / 60)} h ${pad(Math.round(m % 60))}` : `${Math.round(m)} min`;
 const mvById = id => LIB.find(m => m.id === id);
+// image d'un mouvement : 2 images = animation départ ↔ arrivée
+function mvImg(id, cls = '') {
+  const m = IMG[id]; if (!m) return '';
+  const src = i => `img/${id}-${i}.${m[0]}`;
+  return `<span class="mvimg ${cls} ${m[1] > 1 ? 'anim' : ''}"><img src="${src(0)}" alt="" loading="lazy">${m[1] > 1 ? `<img src="${src(1)}" alt="" loading="lazy">` : ''}</span>`;
+}
 const mvName = it => (mvById(it.mv) || {}).n || it.n || it.mv;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const monday = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
@@ -529,7 +557,8 @@ function render() {
   $('#top').innerHTML = `${back ? `<button class="back" onclick="go('sports')">${ic('left')}</button>` : '<img src="icons/icon.svg" alt="">'}
     <div><b>${back ? esc(SPORTS[route.sp].ic + ' ' + SPORTS[route.sp].nom) : 'APEX<span>FIT</span>'}</b><small>${back ? 'Suivi, mouvements, séances types' : greeting()}</small></div>
     <div class="streak">${ic('flame')}<span>${streak()} j</span></div>`;
-  ({ home: vHome, sports: vSports, sport: vSport, programmes: vProgrammes, profil: vProfil })[v]();
+  try { ({ home: vHome, sports: vSports, sport: vSport, programmes: vProgrammes, profil: vProfil })[v](); }
+  catch (e) { console.error(e); $('#view').innerHTML = `<div class="card empty"><div class="e">⚠️</div>Un problème d’affichage est survenu.<br><small class="mu">${esc(e.message)}</small></div>`; }
 }
 function greeting() { const h = new Date().getHours(); return `${h < 18 ? 'Bonjour' : 'Bonsoir'}${S.profile.prenom ? ' ' + esc(S.profile.prenom) : ''} · ${fmtDate(today(), { weekday: 'long', day: 'numeric', month: 'long' })}`; }
 // série réelle : jours consécutifs avec au moins une séance (aujourd'hui ou hier pour ne pas casser la série du jour)
@@ -721,12 +750,13 @@ function libView(k) {
   if (!all.length) return `<div class="card empty"><div class="e">📚</div>Pour ce sport, ajoutez librement vos activités avec « Enregistrer ».</div>`;
   return `<input class="in" placeholder="Rechercher un mouvement, un muscle…" value="${esc(libQ)}" oninput="libQ=this.value;const p=this.selectionStart;render();const i=$('.in');i.focus();i.setSelectionRange(p,p)">
     <div class="chips" style="margin:10px 0">${groups.map(g => `<button class="chip ${g === libG ? 'on' : ''}" onclick="libG='${esc(g)}';render()">${esc(g)}</button>`).join('')}</div>
-    ${L.map(m => `<button class="li" onclick="openMv('${m.id}')"><span class="em">${SPORTS[m.s].ic}</span><span class="t"><b>${esc(m.n)}</b><small>${esc(m.mu)} · ${esc(m.mat)}</small></span>${lvl(m.niv)}</button>`).join('') || '<div class="empty">Aucun résultat</div>'}`;
+    ${L.map(m => `<button class="li" onclick="openMv('${m.id}')">${mvImg(m.id, 'thumb') || `<span class="em">${SPORTS[m.s].ic}</span>`}<span class="t"><b>${esc(m.n)}</b><small>${esc(m.mu)} · ${esc(m.mat)}</small></span>${lvl(m.niv)}</button>`).join('') || '<div class="empty">Aucun résultat</div>'}`;
 }
 const lvl = n => `<span class="lvl" title="Niveau ${n}/3">${[1, 2, 3].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>`;
 function openMv(id, fromLive) {
   const m = mvById(id); if (!m) return;
-  sheet(`<div class="mu tiny" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800">${SPORTS[m.s].nom} · ${esc(m.g)}</div><h2>${esc(m.n)}</h2>
+  sheet(`${mvImg(m.id, 'big')}${IMG[m.id] && IMG[m.id][1] > 1 ? '<div class="mu tiny" style="text-align:center;margin:-4px 0 8px">Position de départ ↔ position d’arrivée</div>' : ''}
+    <div class="mu tiny" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800">${SPORTS[m.s].nom} · ${esc(m.g)}</div><h2>${esc(m.n)}</h2>
     <div class="row" style="flex-wrap:wrap;gap:6px;margin:8px 0"><span class="pill">💪 ${esc(m.mu)}</span><span class="pill">🧰 ${esc(m.mat)}</span><span class="pill">Niveau ${lvl(m.niv)}</span>${m.dose ? `<span class="pill ok">⏱ ${esc(m.dose)}</span>` : ''}</div>
     <h3 class="sec" style="margin-top:14px">Exécution</h3><ol class="how">${m.how.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
     <h3 class="sec">Erreurs fréquentes</h3><ul class="err">${m.err.map(s => `<li>${esc(s)}</li>`).join('')}</ul>
@@ -763,12 +793,14 @@ function plusMenu() {
 function startPicker(k) {
   if (!k) return sheet(`<h2>Quel sport ?</h2><div class="sports" style="margin-top:12px">${Object.keys(SPORTS).map(s => `<button class="sp" style="--c:${SPORTS[s].c}" onclick="startPicker('${s}')"><span class="e">${SPORTS[s].ic}</span><b>${SPORTS[s].nom}</b></button>`).join('')}</div>`);
   const tpl = S.templates.filter(t => t.sport === k), sp = SPORTS[k];
-  const ready = PROGRAMS.flatMap(p => (p.seances || []).filter(s => s.sport === k).map(s => ({ s, p })));
+  const ready = READY = PROGRAMS.flatMap(p => (p.seances || []).filter(s => s.sport === k).map(s => ({ s, p })));
   sheet(`<h2>${sp.ic} ${sp.nom}</h2>
     <button class="li" onclick="closeSheet();startLive({sport:'${k}',nom:'${esc(sp.nom)}',items:${sp.kind === 'cardio' ? 'null' : '[]'},blocks:${sp.kind === 'cardio' ? '[]' : 'null'}})"><span class="em">✨</span><span class="t"><b>Séance libre</b><small>${sp.kind === 'cardio' ? 'Chrono puis distance' : 'Ajoutez vos exercices au fur et à mesure'}</small></span>${ic('right')}</button>
     ${tpl.length ? `<h3 class="sec">Mes séances types</h3>${tpl.map(t => `<button class="li" onclick="closeSheet();startTpl('${t.id}')"><span class="em">💾</span><span class="t"><b>${esc(t.nom)}</b><small>${esc(sessDesc(t))}</small></span>${ic('play')}</button>`).join('')}` : ''}
-    ${ready.length ? `<h3 class="sec">Séances prêtes</h3>${ready.slice(0, 8).map(({ s, p }) => `<button class="li" onclick="closeSheet();startLive(personalize(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}'))))"><span class="em">${p.ic}</span><span class="t"><b>${esc(s.nom)}</b><small>${esc(p.nom)}</small></span>${ic('play')}</button>`).join('')}` : ''}`);
+    ${ready.length ? `<h3 class="sec">Séances prêtes</h3>${ready.slice(0, 8).map(({ s, p }, i) => `<button class="li" onclick="closeSheet();startReady(${i})"><span class="em">${p.ic}</span><span class="t"><b>${esc(s.nom)}</b><small>${esc(p.nom)}</small></span>${ic('play')}</button>`).join('')}` : ''}`);
 }
+let READY = [];
+function startReady(i) { const r = READY[i]; if (r) startLive(personalize(JSON.parse(JSON.stringify(r.s)))); }
 function quickStart(sport, mv) { startLive({ sport, nom: mvById(mv).n, items: SPORTS[sport].kind === 'cardio' ? null : [newItem(mv)], blocks: SPORTS[sport].kind === 'cardio' ? [{ t: mvById(mv).n, d: mvById(mv).dose || '' }] : null }); }
 function newItem(mv) {
   const m = mvById(mv), timed = m && /(\d+)\s*s\b|min/.test(m.dose || '') && /gainage|Postures|Hanches|Dos|Jambes|Cardio|Gainage/.test(m.g) && !/rep/.test(m.dose);
@@ -826,7 +858,7 @@ function renderLive() {
   if (force) {
     h += L.items.map((it, i) => {
       const last = lastPerf(it.mv), m = mvById(it.mv), timed = it.sets.some(z => z.sec != null);
-      return `<div class="ex"><div class="eh"><b onclick="openMv('${it.mv}',1)" style="cursor:pointer">${esc(mvName(it))} <span class="mu">${m ? ic('info', 'i small') : ''}</span></b>
+      return `<div class="ex"><div class="eh">${m ? `<span onclick="openMv('${it.mv}',1)" style="cursor:pointer">${mvImg(it.mv, 'thumb')}</span>` : ''}<b onclick="openMv('${it.mv}',1)" style="cursor:pointer">${esc(mvName(it))} <span class="mu">${m ? ic('info', 'i small') : ''}</span></b>
         <button class="btn sm ghost" onclick="L.items.splice(${i},1);renderLive()">${ic('trash')}</button></div>
         ${last && !L.tplMode ? `<div class="last">Dernière fois (${fmtDate(last.date, { day: 'numeric', month: 'short' })}) : ${last.sets.map(z => z.sec ? z.sec + ' s' : z.reps + (z.kg ? '×' + z.kg : '')).join(' · ')}</div>` : ''}
         <div class="set ${timed ? 't3' : hasKg ? '' : 't3'}"><span></span>${timed ? '<span class="lab">Durée (s)</span>' : '<span class="lab">Reps</span>' + (hasKg ? '<span class="lab">Kg</span>' : '')}<span></span></div>
@@ -871,7 +903,7 @@ function countdown(sec, label, done) {
 }
 function pickExo() {
   const own = LIB.filter(m => m.s === L.sport), other = LIB.filter(m => m.s !== L.sport && SPORTS[m.s].kind === 'force');
-  const row = m => `<button class="li" onclick="L.items.push(newItem('${m.id}'));closeSheet();renderLive()"><span class="em">${SPORTS[m.s].ic}</span><span class="t"><b>${esc(m.n)}</b><small>${esc(m.g)} · ${esc(m.mat)}</small></span>${ic('plus')}</button>`;
+  const row = m => `<button class="li" onclick="L.items.push(newItem('${m.id}'));closeSheet();renderLive()">${mvImg(m.id, 'thumb')}<span class="t"><b>${esc(m.n)}</b><small>${esc(m.g)} · ${esc(m.mat)}</small></span>${ic('plus')}</button>`;
   sheet(`<h2>Ajouter un exercice</h2><input class="in" placeholder="Rechercher…" oninput="$$('#pk .li').forEach(b=>b.style.display=b.textContent.toLowerCase().includes(this.value.toLowerCase())?'':'none')">
     <div id="pk" style="margin-top:10px">${own.map(row).join('')}<h3 class="sec">Autres disciplines</h3>${other.map(row).join('')}
     <button class="li" onclick="const n=prompt('Nom de l’exercice :');if(n){L.items.push({mv:'perso_'+uid(),n,rest:90,sets:[{reps:10,kg:''},{reps:10,kg:''},{reps:10,kg:''}]});closeSheet();renderLive()}"><span class="em">✍️</span><span class="t"><b>Exercice personnalisé</b><small>Hors bibliothèque</small></span>${ic('plus')}</button></div>`);
@@ -968,7 +1000,7 @@ function renderTest() {
   const ti = st - 2;
   if (ti < TESTS.length) {
     const t = TESTS[ti], m = mvById(t.mv), v = TS.res[t.id];
-    let body = `<p>${esc(t.how)}</p>${m ? `<button class="btn sm" onclick="openMv('${m.id}',1)">${ic('info')}Technique : ${esc(m.n)}</button>` : ''}${t.f_note && P.sexe === 'f' ? `<p class="mu small">${t.f_note}</p>` : ''}`;
+    let body = `${mvImg(t.img || t.mv, 'big')}<p>${esc(t.how)}</p>${m && !t.img ? `<button class="btn sm" onclick="openMv('${m.id}',1)">${ic('info')}Technique : ${esc(m.n)}</button>` : ''}${t.f_note && P.sexe === 'f' ? `<p class="mu small">${t.f_note}</p>` : ''}`;
     if (t.choices) body += `<div class="choice">${t.choices.map((c, i) => `<button class="btn ${v === i ? 'on' : ''}" onclick="TS.res.${t.id}=${i};renderTest()">${c}</button>`).join('')}</div>`;
     else if (t.cardio) {
       body += `<div class="seg" style="margin-top:14px"><button class="${TS.cardio === 'cooper' ? 'on' : ''}" onclick="TS.cardio='cooper';renderTest()">🏃 Cooper 12 min</button><button class="${TS.cardio === 'ruffier' ? 'on' : ''}" onclick="TS.cardio='ruffier';renderTest()">❤️ Ruffier (maison)</button></div>`;
@@ -1087,7 +1119,7 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3 · données 100 % locales</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.1 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
 }
 function editProfile() {

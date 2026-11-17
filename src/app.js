@@ -1,3 +1,11 @@
+// ===================== COMPATIBILITÉ (iPhone anciens) + ERREURS VISIBLES =====================
+if (!Array.prototype.at) Object.defineProperty(Array.prototype, 'at', { value: function (i) { i = Math.trunc(i) || 0; if (i < 0) i += this.length; return this[i]; }, writable: true, configurable: true });
+if (!Array.prototype.flat) Object.defineProperty(Array.prototype, 'flat', { value: function () { return [].concat(...this); }, writable: true, configurable: true });
+if (!Array.prototype.flatMap) Object.defineProperty(Array.prototype, 'flatMap', { value: function (f) { return [].concat(...this.map(f)); }, writable: true, configurable: true });
+window.addEventListener('error', e => showErr(e.message));
+window.addEventListener('unhandledrejection', e => showErr(e.reason && e.reason.message || String(e.reason)));
+function showErr(m) { try { const d = document.createElement('div'); d.className = 'toast'; d.style.background = '#7f1d1d'; d.textContent = '⚠️ Erreur : ' + m + ' — envoyez une capture'; document.body.appendChild(d); setTimeout(() => d.remove(), 7000); } catch (e) {} }
+
 // ===================== OUTILS =====================
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -10,6 +18,12 @@ const fmtDate = (s, o = { weekday: 'long', day: 'numeric', month: 'long' }) => p
 const mmss = s => `${pad(Math.floor(s / 60))}:${pad(Math.floor(s % 60))}`;
 const hmin = m => m >= 60 ? `${Math.floor(m / 60)} h ${pad(Math.round(m % 60))}` : `${Math.round(m)} min`;
 const mvById = id => LIB.find(m => m.id === id);
+// image d'un mouvement : 2 images = animation départ ↔ arrivée
+function mvImg(id, cls = '') {
+  const m = IMG[id]; if (!m) return '';
+  const src = i => `img/${id}-${i}.${m[0]}`;
+  return `<span class="mvimg ${cls} ${m[1] > 1 ? 'anim' : ''}"><img src="${src(0)}" alt="" loading="lazy">${m[1] > 1 ? `<img src="${src(1)}" alt="" loading="lazy">` : ''}</span>`;
+}
 const mvName = it => (mvById(it.mv) || {}).n || it.n || it.mv;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const monday = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
@@ -64,7 +78,8 @@ function render() {
   $('#top').innerHTML = `${back ? `<button class="back" onclick="go('sports')">${ic('left')}</button>` : '<img src="icons/icon.svg" alt="">'}
     <div><b>${back ? esc(SPORTS[route.sp].ic + ' ' + SPORTS[route.sp].nom) : 'APEX<span>FIT</span>'}</b><small>${back ? 'Suivi, mouvements, séances types' : greeting()}</small></div>
     <div class="streak">${ic('flame')}<span>${streak()} j</span></div>`;
-  ({ home: vHome, sports: vSports, sport: vSport, programmes: vProgrammes, profil: vProfil })[v]();
+  try { ({ home: vHome, sports: vSports, sport: vSport, programmes: vProgrammes, profil: vProfil })[v](); }
+  catch (e) { console.error(e); $('#view').innerHTML = `<div class="card empty"><div class="e">⚠️</div>Un problème d’affichage est survenu.<br><small class="mu">${esc(e.message)}</small></div>`; }
 }
 function greeting() { const h = new Date().getHours(); return `${h < 18 ? 'Bonjour' : 'Bonsoir'}${S.profile.prenom ? ' ' + esc(S.profile.prenom) : ''} · ${fmtDate(today(), { weekday: 'long', day: 'numeric', month: 'long' })}`; }
 // série réelle : jours consécutifs avec au moins une séance (aujourd'hui ou hier pour ne pas casser la série du jour)
@@ -256,12 +271,13 @@ function libView(k) {
   if (!all.length) return `<div class="card empty"><div class="e">📚</div>Pour ce sport, ajoutez librement vos activités avec « Enregistrer ».</div>`;
   return `<input class="in" placeholder="Rechercher un mouvement, un muscle…" value="${esc(libQ)}" oninput="libQ=this.value;const p=this.selectionStart;render();const i=$('.in');i.focus();i.setSelectionRange(p,p)">
     <div class="chips" style="margin:10px 0">${groups.map(g => `<button class="chip ${g === libG ? 'on' : ''}" onclick="libG='${esc(g)}';render()">${esc(g)}</button>`).join('')}</div>
-    ${L.map(m => `<button class="li" onclick="openMv('${m.id}')"><span class="em">${SPORTS[m.s].ic}</span><span class="t"><b>${esc(m.n)}</b><small>${esc(m.mu)} · ${esc(m.mat)}</small></span>${lvl(m.niv)}</button>`).join('') || '<div class="empty">Aucun résultat</div>'}`;
+    ${L.map(m => `<button class="li" onclick="openMv('${m.id}')">${mvImg(m.id, 'thumb') || `<span class="em">${SPORTS[m.s].ic}</span>`}<span class="t"><b>${esc(m.n)}</b><small>${esc(m.mu)} · ${esc(m.mat)}</small></span>${lvl(m.niv)}</button>`).join('') || '<div class="empty">Aucun résultat</div>'}`;
 }
 const lvl = n => `<span class="lvl" title="Niveau ${n}/3">${[1, 2, 3].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>`;
 function openMv(id, fromLive) {
   const m = mvById(id); if (!m) return;
-  sheet(`<div class="mu tiny" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800">${SPORTS[m.s].nom} · ${esc(m.g)}</div><h2>${esc(m.n)}</h2>
+  sheet(`${mvImg(m.id, 'big')}${IMG[m.id] && IMG[m.id][1] > 1 ? '<div class="mu tiny" style="text-align:center;margin:-4px 0 8px">Position de départ ↔ position d’arrivée</div>' : ''}
+    <div class="mu tiny" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800">${SPORTS[m.s].nom} · ${esc(m.g)}</div><h2>${esc(m.n)}</h2>
     <div class="row" style="flex-wrap:wrap;gap:6px;margin:8px 0"><span class="pill">💪 ${esc(m.mu)}</span><span class="pill">🧰 ${esc(m.mat)}</span><span class="pill">Niveau ${lvl(m.niv)}</span>${m.dose ? `<span class="pill ok">⏱ ${esc(m.dose)}</span>` : ''}</div>
     <h3 class="sec" style="margin-top:14px">Exécution</h3><ol class="how">${m.how.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
     <h3 class="sec">Erreurs fréquentes</h3><ul class="err">${m.err.map(s => `<li>${esc(s)}</li>`).join('')}</ul>
@@ -298,12 +314,14 @@ function plusMenu() {
 function startPicker(k) {
   if (!k) return sheet(`<h2>Quel sport ?</h2><div class="sports" style="margin-top:12px">${Object.keys(SPORTS).map(s => `<button class="sp" style="--c:${SPORTS[s].c}" onclick="startPicker('${s}')"><span class="e">${SPORTS[s].ic}</span><b>${SPORTS[s].nom}</b></button>`).join('')}</div>`);
   const tpl = S.templates.filter(t => t.sport === k), sp = SPORTS[k];
-  const ready = PROGRAMS.flatMap(p => (p.seances || []).filter(s => s.sport === k).map(s => ({ s, p })));
+  const ready = READY = PROGRAMS.flatMap(p => (p.seances || []).filter(s => s.sport === k).map(s => ({ s, p })));
   sheet(`<h2>${sp.ic} ${sp.nom}</h2>
     <button class="li" onclick="closeSheet();startLive({sport:'${k}',nom:'${esc(sp.nom)}',items:${sp.kind === 'cardio' ? 'null' : '[]'},blocks:${sp.kind === 'cardio' ? '[]' : 'null'}})"><span class="em">✨</span><span class="t"><b>Séance libre</b><small>${sp.kind === 'cardio' ? 'Chrono puis distance' : 'Ajoutez vos exercices au fur et à mesure'}</small></span>${ic('right')}</button>
     ${tpl.length ? `<h3 class="sec">Mes séances types</h3>${tpl.map(t => `<button class="li" onclick="closeSheet();startTpl('${t.id}')"><span class="em">💾</span><span class="t"><b>${esc(t.nom)}</b><small>${esc(sessDesc(t))}</small></span>${ic('play')}</button>`).join('')}` : ''}
-    ${ready.length ? `<h3 class="sec">Séances prêtes</h3>${ready.slice(0, 8).map(({ s, p }) => `<button class="li" onclick="closeSheet();startLive(personalize(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}'))))"><span class="em">${p.ic}</span><span class="t"><b>${esc(s.nom)}</b><small>${esc(p.nom)}</small></span>${ic('play')}</button>`).join('')}` : ''}`);
+    ${ready.length ? `<h3 class="sec">Séances prêtes</h3>${ready.slice(0, 8).map(({ s, p }, i) => `<button class="li" onclick="closeSheet();startReady(${i})"><span class="em">${p.ic}</span><span class="t"><b>${esc(s.nom)}</b><small>${esc(p.nom)}</small></span>${ic('play')}</button>`).join('')}` : ''}`);
 }
+let READY = [];
+function startReady(i) { const r = READY[i]; if (r) startLive(personalize(JSON.parse(JSON.stringify(r.s)))); }
 function quickStart(sport, mv) { startLive({ sport, nom: mvById(mv).n, items: SPORTS[sport].kind === 'cardio' ? null : [newItem(mv)], blocks: SPORTS[sport].kind === 'cardio' ? [{ t: mvById(mv).n, d: mvById(mv).dose || '' }] : null }); }
 function newItem(mv) {
   const m = mvById(mv), timed = m && /(\d+)\s*s\b|min/.test(m.dose || '') && /gainage|Postures|Hanches|Dos|Jambes|Cardio|Gainage/.test(m.g) && !/rep/.test(m.dose);
@@ -361,7 +379,7 @@ function renderLive() {
   if (force) {
     h += L.items.map((it, i) => {
       const last = lastPerf(it.mv), m = mvById(it.mv), timed = it.sets.some(z => z.sec != null);
-      return `<div class="ex"><div class="eh"><b onclick="openMv('${it.mv}',1)" style="cursor:pointer">${esc(mvName(it))} <span class="mu">${m ? ic('info', 'i small') : ''}</span></b>
+      return `<div class="ex"><div class="eh">${m ? `<span onclick="openMv('${it.mv}',1)" style="cursor:pointer">${mvImg(it.mv, 'thumb')}</span>` : ''}<b onclick="openMv('${it.mv}',1)" style="cursor:pointer">${esc(mvName(it))} <span class="mu">${m ? ic('info', 'i small') : ''}</span></b>
         <button class="btn sm ghost" onclick="L.items.splice(${i},1);renderLive()">${ic('trash')}</button></div>
         ${last && !L.tplMode ? `<div class="last">Dernière fois (${fmtDate(last.date, { day: 'numeric', month: 'short' })}) : ${last.sets.map(z => z.sec ? z.sec + ' s' : z.reps + (z.kg ? '×' + z.kg : '')).join(' · ')}</div>` : ''}
         <div class="set ${timed ? 't3' : hasKg ? '' : 't3'}"><span></span>${timed ? '<span class="lab">Durée (s)</span>' : '<span class="lab">Reps</span>' + (hasKg ? '<span class="lab">Kg</span>' : '')}<span></span></div>
@@ -406,7 +424,7 @@ function countdown(sec, label, done) {
 }
 function pickExo() {
   const own = LIB.filter(m => m.s === L.sport), other = LIB.filter(m => m.s !== L.sport && SPORTS[m.s].kind === 'force');
-  const row = m => `<button class="li" onclick="L.items.push(newItem('${m.id}'));closeSheet();renderLive()"><span class="em">${SPORTS[m.s].ic}</span><span class="t"><b>${esc(m.n)}</b><small>${esc(m.g)} · ${esc(m.mat)}</small></span>${ic('plus')}</button>`;
+  const row = m => `<button class="li" onclick="L.items.push(newItem('${m.id}'));closeSheet();renderLive()">${mvImg(m.id, 'thumb')}<span class="t"><b>${esc(m.n)}</b><small>${esc(m.g)} · ${esc(m.mat)}</small></span>${ic('plus')}</button>`;
   sheet(`<h2>Ajouter un exercice</h2><input class="in" placeholder="Rechercher…" oninput="$$('#pk .li').forEach(b=>b.style.display=b.textContent.toLowerCase().includes(this.value.toLowerCase())?'':'none')">
     <div id="pk" style="margin-top:10px">${own.map(row).join('')}<h3 class="sec">Autres disciplines</h3>${other.map(row).join('')}
     <button class="li" onclick="const n=prompt('Nom de l’exercice :');if(n){L.items.push({mv:'perso_'+uid(),n,rest:90,sets:[{reps:10,kg:''},{reps:10,kg:''},{reps:10,kg:''}]});closeSheet();renderLive()}"><span class="em">✍️</span><span class="t"><b>Exercice personnalisé</b><small>Hors bibliothèque</small></span>${ic('plus')}</button></div>`);
@@ -503,7 +521,7 @@ function renderTest() {
   const ti = st - 2;
   if (ti < TESTS.length) {
     const t = TESTS[ti], m = mvById(t.mv), v = TS.res[t.id];
-    let body = `<p>${esc(t.how)}</p>${m ? `<button class="btn sm" onclick="openMv('${m.id}',1)">${ic('info')}Technique : ${esc(m.n)}</button>` : ''}${t.f_note && P.sexe === 'f' ? `<p class="mu small">${t.f_note}</p>` : ''}`;
+    let body = `${mvImg(t.img || t.mv, 'big')}<p>${esc(t.how)}</p>${m && !t.img ? `<button class="btn sm" onclick="openMv('${m.id}',1)">${ic('info')}Technique : ${esc(m.n)}</button>` : ''}${t.f_note && P.sexe === 'f' ? `<p class="mu small">${t.f_note}</p>` : ''}`;
     if (t.choices) body += `<div class="choice">${t.choices.map((c, i) => `<button class="btn ${v === i ? 'on' : ''}" onclick="TS.res.${t.id}=${i};renderTest()">${c}</button>`).join('')}</div>`;
     else if (t.cardio) {
       body += `<div class="seg" style="margin-top:14px"><button class="${TS.cardio === 'cooper' ? 'on' : ''}" onclick="TS.cardio='cooper';renderTest()">🏃 Cooper 12 min</button><button class="${TS.cardio === 'ruffier' ? 'on' : ''}" onclick="TS.cardio='ruffier';renderTest()">❤️ Ruffier (maison)</button></div>`;
@@ -622,7 +640,7 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3 · données 100 % locales</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.1 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
 }
 function editProfile() {
