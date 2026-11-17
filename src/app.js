@@ -42,9 +42,9 @@ function beep(f = 880, ms = 180) { try { const a = beep.ctx || (beep.ctx = new (
 // ===================== DONNÉES =====================
 const KEY = 'apexfit_v3';
 let S = load();
-function blank() { return { v: 3, profile: { prenom: '', age: 30, sexe: 'h', poids: '', taille: '', obj: 'forme', jours: 3, mat: ['aucun'], sports: [] }, sessions: [], templates: [], tests: [], prog: null, goals: [], skipTest: false, body: [], remind: null }; }
+function blank() { return { v: 3, profile: { prenom: '', age: 30, sexe: 'h', poids: '', taille: '', obj: 'forme', jours: 3, mat: ['aucun'], sports: [] }, sessions: [], templates: [], tests: [], prog: null, goals: [], skipTest: false, body: [], remind: null, avail: {}, weekOk: {} }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; return o; } } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; o.avail = o.avail || {}; o.weekOk = o.weekOk || {}; o.profile.pratique = o.profile.pratique || []; return o; } } catch (e) {}
   const s = blank();
   try { // reprise des données de l'ancienne version (apexfit_state)
     const o = JSON.parse(localStorage.getItem('apexfit_state'));
@@ -105,15 +105,18 @@ function vHome() {
     <div class="mu small">${w.km ? w.km.toFixed(1) + ' km parcourus · ' : ''}${prev.min || w.min ? (delta >= 0 ? '▲ ' : '▼ ') + hmin(Math.abs(delta)) + ' vs sem. dernière' : 'Commencez votre semaine !'}</div></div></div>
     <canvas class="ch" id="weekChart" height="120" style="margin-top:12px;position:relative"></canvas></div>`;
   // prochaine action
+  h += planPrompt();
   if (!lastTest && !S.skipTest) h += `<div class="card" style="border-color:rgba(245,158,11,.4)"><div class="row"><div class="em" style="font-size:30px">🧪</div><div style="flex:1"><b>Faites le test de capacités</b><div class="mu small">15–25 min pour mesurer force, gainage, souplesse et cardio, puis recevoir un programme adapté.</div></div></div>
     <div class="grid2" style="margin-top:12px"><button class="btn pri" onclick="startTest()">${ic('test')}Commencer</button><button class="btn ghost" onclick="S.skipTest=true;save();render()">Plus tard</button></div></div>`;
   if (nx) h += `<div class="card"><div class="mu tiny" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800">Prochaine séance · ${esc(nx.p.nom)}</div>
     <div class="row" style="margin-top:8px"><div class="em" style="font-size:28px">${SPORTS[nx.s.sport].ic}</div><div style="flex:1"><b style="font-size:17px">${esc(nx.s.nom)}</b><div class="mu small">${sessDesc(nx.s)}</div></div></div>
-    <div class="pbar" style="margin:12px 0 6px"><i style="width:${Math.round(nx.done / nx.total * 100)}%"></i></div><div class="mu tiny">${nx.done}/${nx.total} séances du programme</div>
-    <button class="btn pri w" style="margin-top:12px" onclick="startProgSession()">${ic('play')}Démarrer la séance</button></div>`;
+    <div class="pbar" style="margin:12px 0 6px"><i style="width:${Math.round(nx.done / nx.total * 100)}%"></i></div><div class="mu tiny">${nx.done}/${nx.total} séances du programme${(() => { const w = weekPlan(0).items[0] || weekPlan(1).items[0]; return w ? ` · prévue ${w.date === today() ? 'aujourd’hui' : parseD(w.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' })}${w.express ? ' (express)' : ''}` : ''; })()}</div>
+    <div class="grid2" style="margin-top:12px"><button class="btn pri" onclick="startProgSession()">${ic('play')}Démarrer</button><button class="btn" onclick="startProgSession(1)">⏱ Express</button></div>
+    <button class="btn ghost w sm" style="margin-top:8px" onclick="openPlanner(${new Date().getDay() === 6 || new Date().getDay() === 0 ? 1 : 0})">📅 Planifier ma semaine</button></div>`;
   else if (lastTest || S.skipTest) h += `<div class="card"><div class="row"><div class="em" style="font-size:28px">📋</div><div style="flex:1"><b>Choisissez un programme</b><div class="mu small">${lastTest ? 'Votre niveau : ' + lastTest.levelTxt + '. Des programmes vous sont recommandés.' : 'Des séances prêtes à suivre selon votre objectif.'}</div></div></div><button class="btn w" style="margin-top:12px" onclick="go('programmes')">Voir les programmes</button></div>`;
   // calendrier
-  if (plannedDays().has(today()) && !S.sessions.some(x => x.date === today())) h = `<div class="card todaycard"><div class="row"><div class="em bell">🔔</div><div style="flex:1"><b>Séance prévue aujourd’hui</b><div class="mu small">${nx ? esc(nx.s.nom) : 'C’est le jour : bougez !'}${S.remind ? ' · ' + S.remind.time : ''}</div></div>${nx ? `<button class="btn sm pri" onclick="startProgSession()">${ic('play')}</button>` : `<button class="btn sm pri" onclick="plusMenu()">${ic('plus')}</button>`}</div></div>` + h;
+  const tp = plannedMap().get(today());
+  if (tp && !S.sessions.some(x => x.date === today())) h = `<div class="card todaycard"><div class="row"><div class="em bell">${tp.express ? '⏱' : '🔔'}</div><div style="flex:1"><b>${tp.express ? 'Journée chargée : séance express' : 'Séance prévue aujourd’hui'}</b><div class="mu small">${tp.s ? esc(tp.s.nom) : nx ? esc(nx.s.nom) : 'C’est le jour : bougez !'}${S.remind ? ' · ' + S.remind.time : ''}</div></div>${nx ? `<button class="btn sm pri" onclick="startProgSession(${tp.express ? 1 : 0})">${ic('play')}</button>` : `<button class="btn sm pri" onclick="plusMenu()">${ic('plus')}</button>`}</div></div>` + h;
   const bw = S.body.filter(b => b.poids).sort((a, b) => a.date.localeCompare(b.date));
   if (bw.length) { const l = bw.at(-1), f = bw[0], d = l.poids - f.poids; h += `<div class="card row" onclick="go('profil');setTimeout(()=>$('#corps')&&$('#corps').scrollIntoView({behavior:'smooth'}),100)" style="cursor:pointer"><div class="em">⚖️</div><div style="flex:1"><b>${String(l.poids).replace('.', ',')} kg</b><div class="mu small">${bw.length > 1 ? (d <= 0 ? '▼ ' : '▲ ') + Math.abs(d).toFixed(1).replace('.', ',') + ' kg depuis le ' + fmtDate(f.date, { day: 'numeric', month: 'short' }) : 'Première pesée'}</div></div><canvas class="spark" id="wSpark" width="200" height="60"></canvas></div>`; }
   h += `<h3 class="sec">Calendrier</h3><div class="card">${calendar()}</div>`;
@@ -152,18 +155,72 @@ function calendar() {
   for (let i = 0; i < 42; i++) {
     const d = new Date(start); d.setDate(d.getDate() + i); const k = ymd(d), L = S.sessions.filter(s => s.date === k);
     if (i >= 35 && d.getMonth() !== m) break;
-    h += `<div class="d${d.getMonth() !== m ? ' out' : ''}${k === today() ? ' today' : ''}${L.length ? ' act' : ''}${plan.has(k) && !L.length ? ' plan' : ''}" onclick="openDay('${k}')"><span>${d.getDate()}</span><span class="dots">${[...new Set(L.map(s => s.sport))].map(s => `<i style="background:${SPORTS[s].c}"></i>`).join('')}</span></div>`;
+    h += `<div class="d${d.getMonth() !== m ? ' out' : ''}${k === today() ? ' today' : ''}${L.length ? ' act' : ''}${plan.has(k) && !L.length ? ' plan' : ''}${S.avail[k] ? ' av-' + S.avail[k] : ''}" onclick="openDay('${k}')"><span>${d.getDate()}</span><span class="dots">${[...new Set(L.map(s => s.sport))].map(s => `<i style="background:${SPORTS[s].c}"></i>`).join('')}</span></div>`;
   }
   const used = [...new Set(S.sessions.map(s => s.sport))];
-  return h + `</div><div class="legend">${used.map(s => `<span><i style="background:${SPORTS[s].c}"></i>${SPORTS[s].nom}</span>`).join('')}${plan.size ? '<span><i style="border:1.5px solid var(--warn)"></i>Séance prévue</span>' : ''}</div>`;
+  return h + `</div><div class="legend">${used.map(s => `<span><i style="background:${SPORTS[s].c}"></i>${SPORTS[s].nom}</span>`).join('')}${plan.size ? '<span><i style="border:1.5px solid var(--warn)"></i>Séance prévue</span>' : ''}${Object.keys(S.avail).length ? '<span><i style="background:#475569"></i>Indisponible</span><span>⏱ Peu de temps</span>' : ''}</div>`;
 }
 // jours prévus par le programme suivi (selon la fréquence, à partir d'aujourd'hui)
 function defaultDays() { const p = S.prog && PROGRAMS.find(x => x.id === S.prog.id), f = p ? p.freq : (+S.profile.jours || 3); return { 2: [1, 4], 3: [0, 2, 4], 4: [0, 1, 3, 4], 5: [0, 1, 2, 4, 5], 6: [0, 1, 2, 3, 4, 5], 7: [0, 1, 2, 3, 4, 5, 6] }[f] || [0, 2, 4]; }
-function plannedDays() {
-  const set = new Set(); if (!S.prog && !(S.remind && S.remind.days.length)) return set;
-  const pattern = S.remind && S.remind.days.length ? S.remind.days : defaultDays();
-  const a = monday(new Date()); for (let w = 0; w < 6; w++) pattern.forEach(i => { const d = new Date(a); d.setDate(d.getDate() + w * 7 + i); if (ymd(d) >= today()) set.add(ymd(d)); });
-  return set;
+// ---- planning de la semaine : jours préférés, indisponibilités, séances « express » les jours chargés
+const pref = () => S.remind && S.remind.days.length ? S.remind.days : defaultDays();
+const wantPerWeek = () => { const p = S.prog && PROGRAMS.find(x => x.id === S.prog.id); return p ? p.freq : (+S.profile.jours || 3); };
+function weekDates(off) { const a = monday(new Date()); a.setDate(a.getDate() + 7 * off); return [...Array(7)].map((_, i) => { const d = new Date(a); d.setDate(d.getDate() + i); return ymd(d); }); }
+function weekPlan(off = 0) {
+  const days = weekDates(off), t = today(), hasSess = d => S.sessions.some(x => x.date === d);
+  const done = off === 0 ? S.sessions.filter(x => days.includes(x.date)).length : 0, want = Math.max(0, wantPerWeek() - done);
+  const cand = days.filter(d => d >= t && S.avail[d] !== 'off' && !hasSess(d)), P = pref(), chosen = [];
+  cand.filter(d => P.includes((parseD(d).getDay() + 6) % 7)).forEach(d => { if (chosen.length < want) chosen.push(d); });
+  while (chosen.length < want) { // compléter en espaçant au maximum les séances
+    const rest = cand.filter(d => !chosen.includes(d)); if (!rest.length) break;
+    const gap = d => Math.min(9, ...chosen.concat(days.filter(hasSess)).map(c => Math.abs(parseD(d) - parseD(c)) / 864e5));
+    chosen.push(rest.sort((x, y) => gap(y) - gap(x) || (S.avail[x] === 'court') - (S.avail[y] === 'court'))[0]);
+  }
+  chosen.sort();
+  // séances du programme dans l'ordre (la semaine suivante reprend après celles de cette semaine)
+  let queue = [];
+  if (S.prog) { const p = PROGRAMS.find(x => x.id === S.prog.id); if (p) queue = progSessions(p).filter(x => !S.prog.done.includes(x.key)); }
+  const skip = off === 1 ? weekPlan(0).items.length : 0;
+  const items = chosen.map((d, i) => { const base = queue[skip + i]; let s = base ? personalize(JSON.parse(JSON.stringify(base))) : null; const ex = S.avail[d] === 'court'; if (s && ex) s = express(s); return { date: d, s, express: ex }; });
+  return { days, items, want, missing: Math.max(0, want - chosen.length), done };
+}
+function plannedMap() {
+  const m = new Map(); [0, 1].forEach(o => weekPlan(o).items.forEach(it => m.set(it.date, it)));
+  if (S.prog || (S.remind && S.remind.days.length)) for (let w = 2; w < 6; w++) weekDates(w).forEach(d => { if (pref().includes((parseD(d).getDay() + 6) % 7) && S.avail[d] !== 'off') m.set(d, { date: d }); });
+  return m;
+}
+function plannedDays() { return new Set(plannedMap().keys()); }
+// version courte d'une séance : 4 exercices maximum, une série de moins, cardio raccourci
+function express(s) {
+  const x = JSON.parse(JSON.stringify(s)); x.express = true; x.nom = x.nom + ' · express';
+  if (x.items) x.items = x.items.slice(0, 4).map(it => typeof it.sets === 'number' ? { ...it, sets: Math.max(2, it.sets - 1) } : it);
+  if (x.blocks) x.blocks = x.blocks.map(b => /corps/i.test(b.t) ? { ...b, d: b.d + ' — version courte : environ la moitié' } : b);
+  return x;
+}
+const AV = { ok: ['✅', 'Disponible'], court: ['⏱', 'Peu de temps'], off: ['❌', 'Indisponible'] };
+function setAvail(d, v) { if (v === 'ok') delete S.avail[d]; else S.avail[d] = v; save(); }
+let planOff = 0;
+function openPlanner(off) {
+  if (off != null) planOff = off; const P = weekPlan(planOff), ws = P.days[0], t = today();
+  const lab = d => parseD(d).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
+  const plan = new Map(P.items.map(i => [i.date, i]));
+  let h = `<h2>📅 Planifier ${planOff ? 'la semaine prochaine' : 'cette semaine'}</h2><p class="mu small">Indiquez les jours où vous avez quelque chose de prévu : vos ${P.want + P.done} séances sont réparties sur les autres jours, en version express les jours chargés.</p>
+    <div class="seg"><button class="${planOff === 0 ? 'on' : ''}" onclick="openPlanner(0)">Cette semaine</button><button class="${planOff === 1 ? 'on' : ''}" onclick="openPlanner(1)">Semaine prochaine</button></div>`;
+  h += P.days.map(d => { const past = d < t, v = S.avail[d] || 'ok', it = plan.get(d), did = S.sessions.filter(x => x.date === d);
+    return `<div class="dayrow ${past ? 'past' : ''} ${v}"><div class="dl"><b style="text-transform:capitalize">${lab(d)}</b><small>${did.length ? '✓ ' + did.map(x => esc(x.nom || SPORTS[x.sport].nom)).join(', ') : it ? `${it.express ? '⏱ ' : '💪 '}${it.s ? esc(it.s.nom) : 'Séance prévue'}` : past ? '' : v === 'off' ? 'Pas d’entraînement' : 'Repos'}</small></div>
+      ${past ? '' : `<div class="avb">${Object.entries(AV).map(([k, [e, l]]) => `<button class="${v === k ? 'on ' + k : ''}" title="${l}" onclick="setAvail('${d}','${k}');openPlanner()">${e}</button>`).join('')}</div>`}</div>`; }).join('');
+  if (P.missing) h += `<div class="tip" style="border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08);color:#fde68a">⚠️ ${P.missing} séance${P.missing > 1 ? 's' : ''} ne rentre${P.missing > 1 ? 'nt' : ''} pas cette semaine : ${S.prog ? 'le programme reprendra là où vous en êtes, sans rien sauter.' : 'pas de souci, gardez le rythme la semaine suivante.'} Astuce : marquez un jour chargé « ⏱ Peu de temps » plutôt que « ❌ » pour faire une séance express.</div>`;
+  else h += `<div class="tip">✅ Semaine prête : ${P.items.length} séance${P.items.length > 1 ? 's' : ''} prévue${P.items.length > 1 ? 's' : ''}${P.items.some(i => i.express) ? ', dont des versions express les jours chargés' : ''}.</div>`;
+  h += `<p class="mu tiny" style="margin-top:10px">✅ disponible · ⏱ peu de temps (séance express) · ❌ indisponible</p>
+    <button class="btn pri w" style="margin-top:8px" onclick="S.weekOk['${ws}']=1;save();closeSheet();render();toast('Semaine planifiée 📅')">Valider ma semaine</button>`;
+  const sh = $('#sheetBg .sheet'); if (sh) { sh.innerHTML = '<div class="grab"></div>' + h; } else sheet(h);
+}
+// carte « planifiez votre semaine » : le week-end pour la semaine suivante, le lundi pour la semaine en cours
+function planPrompt() {
+  const d = new Date().getDay(), off = d === 6 || d === 0 ? 1 : d === 1 ? 0 : null; if (off == null) return '';
+  const ws = weekDates(off)[0]; if (S.weekOk[ws]) return '';
+  return `<div class="card plancard"><div class="row"><div class="em" style="font-size:28px">📅</div><div style="flex:1"><b>Planifiez ${off ? 'la semaine prochaine' : 'votre semaine'}</b><div class="mu small">Des choses de prévu ? Indiquez vos indisponibilités, l’entraînement s’adapte.</div></div></div>
+    <div class="grid2" style="margin-top:12px"><button class="btn pri" onclick="openPlanner(${off})">Planifier</button><button class="btn ghost" onclick="S.weekOk['${ws}']=1;save();render()">Semaine normale</button></div></div>`;
 }
 function sessDesc(s) { return s.items ? s.items.slice(0, 4).map(mvName).join(' · ') + (s.items.length > 4 ? ' …' : '') : (s.blocks || []).map(b => b.d).join(' · ').slice(0, 90); }
 function sessRow(s) {
@@ -172,7 +229,9 @@ function sessRow(s) {
 }
 function openDay(k) {
   const L = S.sessions.filter(s => s.date === k);
-  sheet(`<h2 style="text-transform:capitalize">${fmtDate(k)}</h2><p class="mu small">${L.length ? L.length + ' séance(s)' : 'Aucune séance ce jour-là.'}</p>${L.map(sessRow).join('')}
+  const v = S.avail[k] || 'ok', pl = plannedMap().get(k);
+  sheet(`<h2 style="text-transform:capitalize">${fmtDate(k)}</h2><p class="mu small">${L.length ? L.length + ' séance(s)' : pl ? (pl.express ? '⏱ Séance express prévue' : '💪 Séance prévue') + (pl.s ? ' : ' + esc(pl.s.nom) : '') : 'Aucune séance ce jour-là.'}</p>${L.map(sessRow).join('')}
+    ${k >= today() ? `<label class="f">Ce jour-là, je suis…</label><div class="seg" style="margin-top:6px">${Object.entries(AV).map(([x, [e, l]]) => `<button class="${v === x ? 'on' : ''}" onclick="setAvail('${k}','${x}');openDay('${k}');render()">${e} ${l}</button>`).join('')}</div>` : ''}
     <button class="btn pri w" style="margin-top:14px" onclick="closeSheet();logForm(null,'${k}')">${ic('plus')}Ajouter une séance ce jour</button>`);
 }
 function openSession(id) {
@@ -533,7 +592,7 @@ function nextProgSession() {
   const all = progSessions(p).map((s, i) => ({ ...s, key: s.key || String(i) })), s = all.find(x => !S.prog.done.includes(x.key));
   return s ? { p, s: personalize(JSON.parse(JSON.stringify(s))), done: S.prog.done.length, total: all.length } : null;
 }
-function startProgSession() { const nx = nextProgSession(); if (nx) startLive(nx.s, { src: { type: 'prog', key: nx.s.key } }); }
+function startProgSession(ex) { const nx = nextProgSession(); if (nx) startLive(ex ? express(nx.s) : nx.s, { src: { type: 'prog', key: nx.s.key } }); }
 function vProgrammes() {
   const t = S.tests.at(-1), rec = recommend();
   let h = `<h1 class="vt">Programmes</h1>`;
@@ -544,9 +603,13 @@ function vProgrammes() {
   if (S.prog) { const p = PROGRAMS.find(x => x.id === S.prog.id); h += `<h3 class="sec">En cours</h3><div class="card"><div class="row"><div class="em" style="font-size:28px">${p.ic}</div><div style="flex:1"><b>${p.nom}</b><div class="mu small">${nx ? 'Prochaine : ' + esc(nx.s.nom) : 'Terminé 🏆'}</div></div></div>
       ${nx ? `<div class="pbar" style="margin:12px 0 6px"><i style="width:${Math.round(nx.done / nx.total * 100)}%"></i></div><div class="mu tiny">${nx.done}/${nx.total} séances</div>` : ''}
       <div class="grid2" style="margin-top:12px">${nx ? `<button class="btn pri" onclick="startProgSession()">${ic('play')}Démarrer</button>` : ''}<button class="btn dan" onclick="if(confirm('Arrêter ce programme ?')){S.prog=null;save();render()}">Arrêter</button></div></div>`; }
+  const pr = S.profile.pratique || [];
+  h += `<h3 class="sec">Préparation pour vos sports <a onclick="sportsPicker()">${pr.length ? 'Modifier' : '+ Ajouter'}</a></h3>`;
+  h += pr.length ? pr.map(k => `<button class="li" onclick="openSpec('${k}')"><span class="em" style="font-size:24px">${SPEC[k].ic}</span><span class="t"><b>Préparation ${esc(SPEC[k].nom)}</b><small>${esc(SPEC[k].qual)}</small></span>${ic('right')}</button>`).join('')
+    : `<div class="card"><div class="row"><div class="em" style="font-size:26px">🏅</div><div style="flex:1"><b>Vous pratiquez un sport ?</b><div class="mu small">Football, tennis, escalade, ski, tir… Recevez une préparation physique et des exercices de prévention spécifiques.</div></div></div><button class="btn w" style="margin-top:10px" onclick="sportsPicker()">Choisir mes sports</button></div>`;
   if (rec.length) h += `<h3 class="sec">Recommandés pour vous</h3>${rec.slice(0, 3).map(p => progRow(p, true)).join('')}`;
   h += `<h3 class="sec">Tous les programmes</h3><div class="chips" style="margin-bottom:10px">${[['tous', 'Tous'], ...Object.entries(OBJ)].map(([k, v]) => `<button class="chip ${progF === k ? 'on' : ''}" onclick="progF='${k}';render()">${v}</button>`).join('')}</div>`;
-  h += PROGRAMS.filter(p => progF === 'tous' || p.obj === progF).map(p => progRow(p)).join('');
+  h += PROGRAMS.filter(p => (progF === 'tous' && !p.spec) || p.obj === progF).map(p => progRow(p)).join('');
   $('#view').innerHTML = h;
 }
 const NIV = ['', 'Débutant', 'Intermédiaire', 'Avancé'];
@@ -581,6 +644,7 @@ function renderTest() {
       <div class="grid3"><label class="f">Sexe<select class="in" id="tS"><option value="h" ${P.sexe === 'h' ? 'selected' : ''}>Homme</option><option value="f" ${P.sexe === 'f' ? 'selected' : ''}>Femme</option></select></label><label class="f">Poids (kg)<input class="in" type="number" id="tW" value="${P.poids || ''}"></label><label class="f">Taille (cm)<input class="in" type="number" id="tH" value="${P.taille || ''}"></label></div>
       <label class="f">Objectif principal<select class="in" id="tO">${Object.entries(OBJ).map(([k, v]) => `<option value="${k}" ${P.obj === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
       <label class="f">Séances possibles par semaine<select class="in" id="tJ">${[2, 3, 4, 5].map(n => `<option ${+P.jours === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="f">Vous pratiquez un sport ? (préparation spécifique)</label><div class="chips" style="flex-wrap:wrap" id="tSp">${Object.entries(SPEC).map(([k, s]) => `<button class="chip ${(P.pratique || []).includes(k) ? 'on' : ''}" data-sp="${k}" onclick="this.classList.toggle('on')">${s.ic} ${s.nom}</button>`).join('')}</div>
       <label class="f">Matériel disponible</label><div class="chips" style="flex-wrap:wrap">${[['aucun', 'Rien (maison)'], ['halteres', 'Haltères / kettlebell'], ['barre', 'Barre de traction'], ['salle', 'Salle de sport'], ['piscine', 'Piscine'], ['velo', 'Vélo']].map(([k, v]) => `<button class="chip ${P.mat.includes(k) ? 'on' : ''}" onclick="this.classList.toggle('on')" data-m="${k}">${v}</button>`).join('')}</div>
       <div class="tip" style="margin-top:14px">⚠️ En cas de problème de santé, de douleur ou de reprise après une longue pause, demandez l’avis d’un médecin avant les tests d’effort maximal.</div>`,
     `<span></span><button class="btn pri" onclick="saveTestProfile()">Continuer</button>`);
@@ -613,7 +677,8 @@ function renderTest() {
 }
 function saveTestProfile() {
   const P = S.profile; P.prenom = $('#tP').value.trim(); P.age = +$('#tA').value || 30; P.sexe = $('#tS').value; P.poids = +$('#tW').value || ''; P.taille = +$('#tH').value || ''; P.obj = $('#tO').value; P.jours = +$('#tJ').value;
-  P.mat = $$('#live .chip.on').map(b => b.dataset.m); if (!P.mat.length) P.mat = ['aucun']; save(); TS.step++; renderTest();
+  P.pratique = $$('#tSp .chip.on').map(b => b.dataset.sp);
+  P.mat = $$('#live .chip.on[data-m]').map(b => b.dataset.m); if (!P.mat.length) P.mat = ['aucun']; save(); TS.step++; renderTest();
 }
 function saveTestValue(ti) {
   const t = TESTS[ti];
@@ -675,7 +740,27 @@ function recommend(r) {
   const t = r || S.tests.at(-1), P = S.profile, lvl = t ? t.level : 1, mat = P.mat || ['aucun'];
   const ok = p => p.mat === 'aucun' || (p.mat === 'salle' && mat.includes('salle')) || (p.mat === 'piscine' && mat.includes('piscine')) || (p.mat === 'velo' && mat.includes('velo'));
   const weakCardio = t && t.scores.cardio && t.scores.cardio <= 2;
-  return PROGRAMS.filter(ok).map(p => ({ p, s: (p.obj === P.obj ? 0 : 3) + Math.abs(p.niv - lvl) * 1.5 + (p.freq > (+P.jours || 3) ? 2 : 0) + (weakCardio && p.obj === 'endurance' && p.niv === 1 ? -1 : 0) })).sort((a, b) => a.s - b.s).map(x => x.p);
+  const pr = P.pratique || [];
+  return PROGRAMS.filter(ok).filter(p => !p.spec || pr.includes(p.spec)).map(p => ({ p, s: (p.spec ? -1 : 0) + (p.obj === P.obj ? 0 : 3) + Math.abs(p.niv - lvl) * 1.5 + (p.freq > (+P.jours || 3) ? 2 : 0) + (weakCardio && p.obj === 'endurance' && p.niv === 1 ? -1 : 0) })).sort((a, b) => a.s - b.s).map(x => x.p);
+}
+function sportsPicker() {
+  const pr = S.profile.pratique || [];
+  sheet(`<h2>Mes sports pratiqués</h2><p class="mu small">En club ou en loisir. Vous recevrez une préparation physique, les risques de blessure à connaître et des exercices de prévention.</p>
+    <div class="chips" style="flex-wrap:wrap" id="spP">${Object.entries(SPEC).map(([k, s]) => `<button class="chip ${pr.includes(k) ? 'on' : ''}" data-sp="${k}" onclick="this.classList.toggle('on')">${s.ic} ${s.nom}</button>`).join('')}</div>
+    <button class="btn pri w" style="margin-top:14px" onclick="S.profile.pratique=$$('#spP .chip.on').map(b=>b.dataset.sp);save();closeSheet();render()">Enregistrer</button>`);
+}
+function openSpec(k) {
+  const s = SPEC[k], S0 = s.seances.map(x => personalize(JSON.parse(JSON.stringify(x))));
+  READY = s.seances.map(x => ({ s: x }));
+  sheet(`<div style="font-size:40px">${s.ic}</div><h2>Préparation ${esc(s.nom)}</h2>
+    <div class="kpi" style="margin-top:10px"><div class="l">Qualités clés</div><div class="small" style="margin-top:4px">${esc(s.qual)}</div></div>
+    <div class="kpi" style="margin-top:8px;border-color:rgba(244,63,94,.35)"><div class="l" style="color:#fda4af">Zones à protéger</div><div class="small" style="margin-top:4px">${esc(s.risques)}</div></div>
+    <h3 class="sec">Conseils</h3><ul class="small" style="padding-left:18px;line-height:1.5">${s.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+    <h3 class="sec">Séances spécifiques</h3>${S0.map((x, i) => `<div class="kpi" style="margin-top:8px"><div class="row" style="justify-content:space-between"><b>${SPORTS[x.sport].ic} ${esc(x.nom)}</b><button class="btn sm pri" onclick="closeSheet();startReady(${i})">${ic('play')}</button></div>
+      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">${x.items.map(it => `<span class="mini" onclick="openMv('${it.mv}',1)">${mvImg(it.mv, 'thumb')}<small>${esc(mvName(it))}</small></span>`).join('')}</div></div>`).join('')}
+    <button class="btn pri w" style="margin-top:14px" onclick="S.prog={id:'sp_${k}',start:today(),done:[]};save();closeSheet();go('home');toast('Préparation ${esc(s.nom)} lancée 💪')">Suivre la préparation (6 semaines, 2×/sem.)</button>
+    <p class="mu tiny" style="margin-top:12px">Sources : ${s.src.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--ac2)">${esc(t)}</a>`).join(' · ')}</p>
+    <p class="mu tiny">En cas de douleur ou de blessure, demandez l’avis d’un kiné ou d’un médecin.</p>`);
 }
 // adapte une séance aux résultats du test (répétitions, durées, allures)
 function personalize(s) {
@@ -703,6 +788,9 @@ function vProfil() {
   const missed = S.goals.filter(g => goalProgress(g, -1).p < 1 && S.sessions.some(x => parseD(x.date) < weekStats(-1).a));
   let h = `<h1 class="vt">Profil</h1><div class="card"><div class="row"><div class="em" style="font-size:30px">👤</div><div style="flex:1"><b style="font-size:17px">${esc(P.prenom || 'Sportif')}</b><div class="mu small">${P.age ? P.age + ' ans · ' : ''}${OBJ[P.obj]} · ${P.jours} séances/sem.</div></div><button class="btn sm" onclick="editProfile()">${ic('edit')}</button></div>
     <div class="grid3" style="margin-top:12px"><div class="kpi"><div class="l">Séances</div><div class="v">${S.sessions.length}</div></div><div class="kpi"><div class="l">Temps total</div><div class="v" style="font-size:19px">${hmin(S.sessions.reduce((a, x) => a + (+x.dur || 0), 0))}</div></div><div class="kpi"><div class="l">Objectifs tenus</div><div class="v">${rate}</div></div></div></div>`;
+  const prt = S.profile.pratique || [];
+  h += `<h3 class="sec">Mes sports pratiqués <a onclick="sportsPicker()">Modifier</a></h3><div class="card">${prt.length ? `<div class="chips" style="flex-wrap:wrap">${prt.map(k => `<button class="chip on" onclick="openSpec('${k}')">${SPEC[k].ic} ${SPEC[k].nom}</button>`).join('')}</div>` : '<p class="mu small" style="margin:0">Ajoutez votre sport pour recevoir une préparation spécifique.</p>'}</div>
+    <h3 class="sec">Ma semaine</h3><div class="card"><p class="mu small" style="margin-top:0">Indiquez vos jours indisponibles ou chargés : les séances sont réparties automatiquement.</p><div class="grid2"><button class="btn" onclick="openPlanner(0)">📅 Cette semaine</button><button class="btn" onclick="openPlanner(1)">📅 Semaine prochaine</button></div></div>`;
   h += bodySection() + remindSection();
   h += `<h3 class="sec">Objectifs de la semaine <a onclick="goalForm()">+ Ajouter</a></h3>`;
   h += S.goals.map(g => { const r = goalProgress(g); return `<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(g.titre)}</b><button class="btn sm ghost" onclick="S.goals=S.goals.filter(x=>x.id!=='${g.id}');save();render()">${ic('trash')}</button></div>
@@ -711,7 +799,7 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.3 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.4 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
   bodyChart(); loadThumbs();
 }
@@ -745,7 +833,7 @@ function bodySection() {
   if (!B.length) return h + `<div class="card empty"><div class="e">⚖️</div>Notez votre poids et vos mensurations (et des photos) pour suivre votre transformation.<br><button class="btn pri" style="margin-top:12px" onclick="bodyForm()">${ic('plus')}Première mesure</button></div>`;
   const first = B.find(b => b[bodyM] != null && b[bodyM] !== ''), last = [...B].reverse().find(b => b[bodyM] != null && b[bodyM] !== ''), d = last && first ? last[bodyM] - first[bodyM] : 0;
   const P = S.profile, imc = last && last.poids && P.taille ? last.poids / (P.taille / 100) ** 2 : 0;
-  h += `<div class="card"><div class="chips" style="margin-bottom:10px">${keys.map(k => `<button class="chip ${k === bodyM ? 'on' : ''}" onclick="bodyM='${k}';lastKey='';render()">${MES[k][0]}</button>`).join('')}</div>
+  h += `<div class="card"><div class="chips" style="margin-bottom:10px">${keys.map(k => `<button class="chip ${k === bodyM ? 'on' : ''}" onclick="bodyM='${k}';render()">${MES[k][0]}</button>`).join('')}</div>
     <div class="grid3"><div class="kpi"><div class="l">Actuel</div><div class="v">${last ? String(last[bodyM]).replace('.', ',') : '—'}<small> ${MES[bodyM][1]}</small></div></div>
     <div class="kpi"><div class="l">Évolution</div><div class="v" style="color:${d <= 0 ? '#4ade80' : '#fbbf24'}">${d > 0 ? '+' : ''}${d.toFixed(1).replace('.', ',')}<small> ${MES[bodyM][1]}</small></div></div>
     <div class="kpi"><div class="l">${imc ? 'IMC' : 'Mesures'}</div><div class="v">${imc ? imc.toFixed(1).replace('.', ',') : B.length}</div></div></div>
@@ -753,7 +841,7 @@ function bodySection() {
   const ph = B.filter(b => b.photo);
   h += `<div class="card"><div class="row" style="justify-content:space-between"><b>📸 Photos de progression</b>${ph.length >= 2 ? `<button class="btn sm" onclick="compareForm()">Avant / après</button>` : ''}</div>
     ${ph.length ? `<div class="thumbs">${ph.slice(-8).reverse().map(b => `<button class="th" onclick="viewPhoto('${b.id}')"><img data-ph="${b.photo}" alt=""><span>${fmtDate(b.date, { day: 'numeric', month: 'short' })}</span></button>`).join('')}</div>` : '<p class="mu small">Ajoutez une photo à vos mesures (même pose, même lumière) pour comparer.</p>'}</div>`;
-  h += [...B].reverse().slice(0, 6).map(b => `<div class="li" style="cursor:default"><span class="em">⚖️</span><span class="t"><b>${fmtDate(b.date, { day: 'numeric', month: 'long', year: 'numeric' })}</b><small>${Object.keys(MES).filter(k => b[k] != null && b[k] !== '').map(k => `${MES[k][0]} ${String(b[k]).replace('.', ',')} ${MES[k][1]}`).join(' · ')}${b.photo ? ' · 📸' : ''}</small></span><button class="btn sm ghost" onclick="if(confirm('Supprimer cette mesure ?')){delPhoto('${b.photo || ''}');S.body=S.body.filter(x=>x.id!=='${b.id}');save();lastKey='';render()}">${ic('trash')}</button></div>`).join('');
+  h += [...B].reverse().slice(0, 6).map(b => `<div class="li" style="cursor:default"><span class="em">⚖️</span><span class="t"><b>${fmtDate(b.date, { day: 'numeric', month: 'long', year: 'numeric' })}</b><small>${Object.keys(MES).filter(k => b[k] != null && b[k] !== '').map(k => `${MES[k][0]} ${String(b[k]).replace('.', ',')} ${MES[k][1]}`).join(' · ')}${b.photo ? ' · 📸' : ''}</small></span><button class="btn sm ghost" onclick="if(confirm('Supprimer cette mesure ?')){delPhoto('${b.photo || ''}');S.body=S.body.filter(x=>x.id!=='${b.id}');save();render()}">${ic('trash')}</button></div>`).join('');
   return h;
 }
 function bodyChart() { const c = $('#bodyChart'); if (!c) return; const B = [...S.body].filter(b => b[bodyM] != null && b[bodyM] !== '').sort((a, b) => a.date.localeCompare(b.date)); drawLine(c, B.map(b => [b.date, +b[bodyM]]), '#22c55e', false, true); }
@@ -820,7 +908,7 @@ function remindForm() {
     <label class="f">Jours d’entraînement</label><div class="chips" style="flex-wrap:wrap" id="rD">${JOURS.map((j, i) => `<button class="chip ${R0.days.includes(i) ? 'on' : ''}" data-d="${i}" onclick="this.classList.toggle('on')">${j}</button>`).join('')}</div>
     <div class="grid2"><label class="f">Heure<input class="in" type="time" id="rT" value="${R0.time}"></label><label class="f">Alerte<select class="in" id="rA">${[[0, 'À l’heure'], [15, '15 min avant'], [30, '30 min avant'], [60, '1 h avant']].map(([v, l]) => `<option value="${v}" ${R0.alert === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div>
     <button class="btn pri w" style="margin-top:14px" onclick="remindSave()">📅 Ajouter à mon calendrier</button>
-    ${S.remind ? `<button class="btn dan w" style="margin-top:8px" onclick="S.remind=null;save();closeSheet();lastKey='';render();toast('Rappels désactivés dans l’appli (supprimez aussi l’événement du calendrier)')">Désactiver les rappels</button>` : ''}
+    ${S.remind ? `<button class="btn dan w" style="margin-top:8px" onclick="S.remind=null;save();closeSheet();render();toast('Rappels désactivés dans l’appli (supprimez aussi l’événement du calendrier)')">Désactiver les rappels</button>` : ''}
     <p class="mu tiny" style="margin-top:10px">Sur iPhone : touchez le fichier téléchargé puis « Ajouter tout ». Pour changer d’horaire, supprimez l’ancien événement « ApexFit » de votre calendrier.</p>`);
 }
 function remindSave() {

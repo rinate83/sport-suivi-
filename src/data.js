@@ -302,4 +302,233 @@ const QUAL = { force_haut: 'Force haut du corps', force_bas: 'Force jambes', gai
 
 // ===================== IMAGES DES MOUVEMENTS =====================
 // [format, nombre d'images] : photos départ/arrivée (free-exercise-db, domaine public) ou dessins sur mesure
-const IMG = {"dc":["jpg",2],"dih":["jpg",2],"pompe":["jpg",2],"dips":["jpg",2],"ecarte":["jpg",2],"tractions":["jpg",2],"rowb":["jpg",2],"rowh":["jpg",2],"tirage":["jpg",2],"sdt":["jpg",2],"sdtr":["jpg",2],"squat":["jpg",2],"goblet":["jpg",2],"fentes":["jpg",2],"presse":["jpg",2],"hipthrust":["jpg",2],"legcurl":["jpg",2],"mollets":["jpg",2],"dm":["jpg",2],"elev":["jpg",2],"facepull":["jpg",2],"curl":["jpg",2],"marteau":["jpg",2],"triceps":["jpg",2],"gainage":["jpg",2],"gainlat":["jpg",2],"releve":["jpg",2],"swing":["jpg",2],"ef":["jpg",2],"fc":["jpg",2],"fl":["jpg",2],"seuil":["jpg",2],"sl":["jpg",2],"cotes":["svg",2],"talons":["jpg",2],"skipping":["jpg",2],"bondissantes":["jpg",2],"chasses":["svg",2],"lignes":["svg",2],"technique":["jpg",2],"z2":["svg",2],"sweet":["jpg",2],"sprints":["svg",2],"velocite":["jpg",2],"danseuse":["svg",2],"reglage":["svg",1],"crawl":["svg",2],"brasse":["svg",2],"dos":["svg",2],"papillon":["svg",2],"rattrape":["svg",2],"planche":["svg",2],"pull":["svg",2],"resp3":["svg",2],"burpee":["svg",2],"jj":["jpg",2],"mc":["jpg",2],"squatjump":["jpg",2],"thruster":["jpg",2],"boxjump":["jpg",2],"corde":["jpg",2],"fentesaut":["jpg",2],"commando":["svg",2],"wallball":["svg",2],"rameur":["jpg",2],"chien":["svg",1],"cobra":["svg",1],"enfant":["jpg",2],"guerrier1":["svg",1],"guerrier2":["svg",1],"pigeon":["svg",1],"chatvache":["jpg",2],"fentebasse":["jpg",2],"ischios":["jpg",2],"thoracique":["jpg",2],"9090":["svg",1],"pont":["jpg",2],"active":["svg",2],"nordique":["svg",2],"montee":["svg",2],"test_squat":["jpg",2],"test_souplesse":["jpg",2]};
+const IMG = {"dc":["jpg",2],"dih":["jpg",2],"pompe":["jpg",2],"dips":["jpg",2],"ecarte":["jpg",2],"tractions":["jpg",2],"rowb":["jpg",2],"rowh":["jpg",2],"tirage":["jpg",2],"sdt":["jpg",2],"sdtr":["jpg",2],"squat":["jpg",2],"goblet":["jpg",2],"fentes":["jpg",2],"presse":["jpg",2],"hipthrust":["jpg",2],"legcurl":["jpg",2],"mollets":["jpg",2],"dm":["jpg",2],"elev":["jpg",2],"facepull":["jpg",2],"curl":["jpg",2],"marteau":["jpg",2],"triceps":["jpg",2],"gainage":["jpg",2],"gainlat":["jpg",2],"releve":["jpg",2],"swing":["jpg",2],"ef":["jpg",2],"fc":["jpg",2],"fl":["jpg",2],"seuil":["jpg",2],"sl":["jpg",2],"cotes":["svg",2],"talons":["jpg",2],"skipping":["jpg",2],"bondissantes":["jpg",2],"chasses":["svg",2],"lignes":["svg",2],"technique":["jpg",2],"z2":["svg",2],"sweet":["jpg",2],"sprints":["svg",2],"velocite":["jpg",2],"danseuse":["svg",2],"reglage":["svg",1],"crawl":["svg",2],"brasse":["svg",2],"dos":["svg",2],"papillon":["svg",2],"rattrape":["svg",2],"planche":["svg",2],"pull":["svg",2],"resp3":["svg",2],"burpee":["svg",2],"jj":["jpg",2],"mc":["jpg",2],"squatjump":["jpg",2],"thruster":["jpg",2],"boxjump":["jpg",2],"corde":["jpg",2],"fentesaut":["jpg",2],"commando":["svg",2],"wallball":["svg",2],"rameur":["jpg",2],"chien":["svg",1],"cobra":["svg",1],"enfant":["jpg",2],"guerrier1":["svg",1],"guerrier2":["svg",1],"pigeon":["svg",1],"chatvache":["jpg",2],"fentebasse":["jpg",2],"ischios":["jpg",2],"thoracique":["jpg",2],"9090":["svg",1],"pont":["jpg",2],"active":["svg",2],"nordique":["svg",2],"montee":["svg",2],"test_squat":["jpg",2],"test_souplesse":["jpg",2],"bandpa":["jpg",2],"rotext":["jpg",2],"oiseauel":["jpg",2],"pallof":["jpg",2],"kickback":["jpg",2],"deadbug":["jpg",2],"superman":["jpg",2],"russian":["jpg",2],"nordic":["jpg",2],"molletexc":["jpg",2],"medrot":["jpg",2],"cou":["jpg",2],"poignet":["jpg",2],"glutepont1":["jpg",2],"worlds":["jpg",2],"hipcircles":["jpg",2],"chevilles":["jpg",2],"quadetir":["jpg",2],"pecsetir":["jpg",2],"molletsetir":["jpg",2],"couetir":["jpg",2],"epaulesmob":["jpg",2],"torsion":["jpg",2],"monster":["svg",2],"clam":["svg",2],"ytw":["svg",2],"birddog":["svg",2],"hollow":["svg",2],"shtaps":["svg",2],"copenhague":["svg",2],"equilibre":["svg",2],"stepdown":["svg",2],"chaise":["svg",1],"extdoigts":["svg",2],"tenue":["svg",1],"cossack":["svg",2],"squatprof":["svg",1],"sleeper":["svg",2],"etirpoignet":["svg",1]};
+
+// ===================== RENFORCEMENT : ÉLASTIQUES, GAINAGE, PRÉVENTION =====================
+M('muscu', 'bandpa', 'Écartés à l’élastique (pull-apart)', 'Élastiques', 'Élastique', 1, 'Arrière d’épaule, haut du dos',
+  ['Bras tendus devant à hauteur d’épaules, élastique en main.', 'Écartez les bras jusqu’à toucher la poitrine avec l’élastique, omoplates serrées.', 'Revenez lentement sans laisser claquer l’élastique.'],
+  ['Hausser les épaules', 'Cambrer le dos'], 'Le meilleur exercice pour compenser les épaules qui s’enroulent.', '3 × 15–20');
+M('muscu', 'rotext', 'Rotation externe d’épaule à l’élastique', 'Élastiques', 'Élastique', 1, 'Coiffe des rotateurs (infra-épineux)',
+  ['Élastique attaché à hauteur du coude, coude collé au corps à 90°.', 'Tournez l’avant-bras vers l’extérieur sans décoller le coude.', 'Revenez lentement en 2–3 s.'],
+  ['Coude qui s’écarte', 'Élastique trop dur'], 'Charge légère, sensation de brûlure mais jamais de douleur. Idéal après la pratique (tennis, padel, hand, volley).', '3 × 12–15 par bras');
+M('muscu', 'ytw', 'Y-T-W à l’élastique', 'Élastiques', 'Élastique', 1, 'Trapèzes moyens et inférieurs, omoplates',
+  ['Bras tendus au-dessus de la tête en Y, élastique tendu.', 'Ouvrez en T à hauteur d’épaules, puis ramenez les coudes en W.', 'Serrez les omoplates vers le bas à chaque position.'],
+  ['Cambrer le bas du dos', 'Monter les épaules aux oreilles'], 'Parfait en échauffement d’épaules.', '3 × 8 cycles');
+M('muscu', 'oiseauel', 'Oiseau à l’élastique', 'Élastiques', 'Élastique', 1, 'Arrière d’épaule, rhomboïdes',
+  ['Buste penché, élastique sous les pieds.', 'Ouvrez les bras sur les côtés, coudes légèrement fléchis.', 'Revenez lentement.'],
+  ['Dos rond', 'Élan'], 'Gardez la nuque dans l’alignement.', '3 × 15');
+M('muscu', 'monster', 'Marche latérale avec élastique', 'Élastiques', 'Mini-bande', 1, 'Moyen fessier, stabilité du genou',
+  ['Mini-bande au-dessus des genoux ou aux chevilles, demi-squat.', 'Faites des pas latéraux en gardant l’élastique tendu.', 'Genoux poussés vers l’extérieur tout le long.'],
+  ['Genoux qui rentrent', 'Se redresser'], 'Protège les genoux des sports d’appuis (foot, ski, basket).', '3 × 10 pas de chaque côté');
+M('muscu', 'clam', 'Ouverture de hanche (clamshell)', 'Élastiques', 'Mini-bande', 1, 'Moyen fessier, rotateurs de hanche',
+  ['Allongé sur le côté, genoux fléchis, mini-bande au-dessus des genoux.', 'Ouvrez le genou du dessus sans bouger le bassin.', 'Revenez lentement.'],
+  ['Bassin qui bascule en arrière', 'Mouvement trop rapide'], 'Main sur la hanche pour vérifier qu’elle ne bouge pas.', '3 × 15 par côté');
+M('muscu', 'pallof', 'Pallof press (anti-rotation)', 'Élastiques', 'Élastique ou poulie', 2, 'Gainage, obliques',
+  ['De profil par rapport à l’ancrage, élastique tenu contre la poitrine.', 'Poussez les bras tendus devant vous sans laisser le buste tourner.', 'Tenez 2 s puis ramenez.'],
+  ['Laisser le buste pivoter', 'Pieds trop serrés'], 'Gainage « anti-rotation » : essentiel pour les sports de rotation (golf, tennis, boxe).', '3 × 10 par côté');
+M('muscu', 'kickback', 'Extension de hanche (kickback)', 'Élastiques', 'Élastique ou poulie', 1, 'Grand fessier',
+  ['À quatre pattes ou debout, élastique autour du pied.', 'Poussez la jambe vers l’arrière en serrant le fessier.', 'Revenez sans cambrer.'],
+  ['Cambrer le bas du dos', 'Balancer la jambe'], 'Ventre rentré pendant tout le mouvement.', '3 × 15 par jambe');
+M('muscu', 'deadbug', 'Dead bug', 'Abdos / gainage', 'Tapis', 1, 'Abdominaux profonds',
+  ['Sur le dos, bras vers le plafond, genoux à 90° au-dessus des hanches.', 'Allongez bras et jambe opposés en gardant le bas du dos plaqué.', 'Revenez et changez de côté.'],
+  ['Dos qui se décolle', 'Aller trop vite'], 'Expirez longuement en allongeant les membres.', '3 × 8 par côté');
+M('muscu', 'birddog', 'Bird dog', 'Abdos / gainage', 'Tapis', 1, 'Lombaires, fessiers, gainage',
+  ['À quatre pattes, dos plat.', 'Tendez le bras et la jambe opposés à l’horizontale.', 'Tenez 2 s sans bouger le bassin, puis changez.'],
+  ['Bassin qui tourne', 'Lever la jambe trop haut'], 'Imaginez un verre d’eau posé sur le bas du dos.', '3 × 8 par côté');
+M('muscu', 'hollow', 'Hollow body (position creuse)', 'Abdos / gainage', 'Tapis', 2, 'Abdominaux',
+  ['Sur le dos, bas du dos plaqué au sol.', 'Décollez épaules et jambes tendues, bras au-dessus de la tête.', 'Tenez la position en respirant.'],
+  ['Dos qui se cambre', 'Jambes trop basses'], 'Trop dur ? Pliez les genoux ou gardez les bras le long du corps.', '3 × 20–40 s');
+M('muscu', 'shtaps', 'Planche avec toucher d’épaule', 'Abdos / gainage', 'Tapis', 2, 'Gainage, dentelé, épaules',
+  ['Position de pompe bras tendus, pieds écartés.', 'Touchez l’épaule opposée avec une main sans que le bassin bouge.', 'Alternez lentement.'],
+  ['Bassin qui se balance', 'Fesses hautes'], 'Plus les pieds sont serrés, plus c’est difficile.', '3 × 20 touches');
+M('muscu', 'superman', 'Superman', 'Abdos / gainage', 'Tapis', 1, 'Lombaires, fessiers',
+  ['Allongé sur le ventre, bras devant.', 'Décollez bras et jambes quelques centimètres.', 'Tenez 3 s, redescendez.'],
+  ['Relever la tête', 'Monter trop haut'], 'Regard vers le sol, nuque longue.', '3 × 10');
+M('muscu', 'russian', 'Russian twist', 'Abdos / gainage', 'Poids léger (facultatif)', 2, 'Obliques',
+  ['Assis, buste incliné en arrière, pieds au sol ou décollés.', 'Tournez les épaules d’un côté à l’autre.', 'Gardez le dos droit.'],
+  ['Dos rond', 'Bouger seulement les bras'], 'C’est la poitrine qui tourne, pas seulement les mains.', '3 × 20');
+M('muscu', 'copenhague', 'Gainage Copenhague (adducteurs)', 'Prévention', 'Banc', 3, 'Adducteurs, obliques',
+  ['Gainage latéral, jambe du dessus posée sur un banc (genou pour débuter, cheville pour progresser).', 'Montez le bassin jusqu’à l’alignement.', 'Redescendez lentement.'],
+  ['Bassin qui tombe', 'Douleur à l’aine (arrêtez)'], 'Ajouté au FIFA 11+, il renforce nettement les adducteurs des footballeurs.', '3 × 5–10 par côté');
+M('muscu', 'nordic', 'Nordic hamstring', 'Prévention', 'Partenaire ou cale-pieds', 3, 'Ischio-jambiers (excentrique)',
+  ['À genoux sur un coussin, chevilles tenues par un partenaire.', 'Descendez le buste vers l’avant le plus lentement possible, corps droit.', 'Rattrapez-vous avec les mains, remontez en poussant.'],
+  ['Plier les hanches', 'Descente trop rapide'], 'L’exercice le plus étudié contre les blessures aux ischios. Commencez à 3–5 répétitions.', '2–3 × 3–8');
+M('muscu', 'equilibre', 'Équilibre sur une jambe', 'Prévention', 'Aucun (coussin pour progresser)', 1, 'Chevilles, proprioception',
+  ['Debout sur une jambe, genou légèrement fléchi.', 'Tenez 30 s sans poser l’autre pied.', 'Progression : yeux fermés, sur coussin, en lançant une balle.'],
+  ['Genou verrouillé', 'Regarder ses pieds'], '5 à 15 minutes, 2 à 3 fois par semaine, réduit les entorses de cheville.', '3 × 30 s par jambe');
+M('muscu', 'stepdown', 'Descente de marche (excentrique)', 'Prévention', 'Marche ou box', 2, 'Quadriceps (excentrique), stabilité du genou',
+  ['Debout sur une marche, sur une jambe.', 'Descendez l’autre talon vers le sol en 3–4 s, genou dans l’axe du pied.', 'Effleurez le sol et remontez.'],
+  ['Genou qui rentre', 'Descente trop rapide'], 'Prépare les cuisses aux descentes (trail, rando, ski).', '3 × 8 par jambe');
+M('muscu', 'chaise', 'Chaise au mur', 'Prévention', 'Mur', 1, 'Quadriceps (isométrie)',
+  ['Dos contre le mur, cuisses parallèles au sol, genoux au-dessus des chevilles.', 'Tenez la position en respirant.', 'Relevez-vous en glissant le long du mur.'],
+  ['Genoux devant les orteils', 'Mains sur les cuisses'], 'Progressez jusqu’à 90–120 s, la durée d’une descente à ski.', '3 × 45–120 s');
+M('muscu', 'molletexc', 'Mollet excentrique unipodal', 'Prévention', 'Marche', 2, 'Mollets, tendon d’Achille',
+  ['Montez sur la pointe avec les deux pieds.', 'Retirez un pied et descendez sur une jambe en 3 s, talon sous la marche.', 'Remontez à deux pieds.'],
+  ['Descendre trop vite', 'Genou verrouillé'], 'Protège le tendon d’Achille des coureurs.', '3 × 12 par jambe');
+M('muscu', 'medrot', 'Lancer rotatif de médecine-ball', 'Puissance', 'Médecine-ball + mur', 2, 'Obliques, hanches, puissance',
+  ['De profil face à un mur, ballon à hauteur de hanche.', 'Pivotez en poussant avec la jambe arrière et lancez fort contre le mur.', 'Rattrapez et recommencez.'],
+  ['Lancer avec les bras', 'Pieds immobiles'], 'Le mouvement part des jambes et des hanches : idéal pour la frappe (boxe, tennis, golf).', '4 × 6 par côté');
+M('muscu', 'cou', 'Renforcement isométrique du cou', 'Prévention', 'Mains', 1, 'Muscles du cou',
+  ['Assis, tête droite, main sur le front.', 'Poussez la tête contre la main sans bouger, 5–8 s.', 'Répétez à l’arrière et sur les deux côtés.'],
+  ['Pousser trop fort d’un coup', 'Bloquer la respiration'], 'Montez progressivement la force. Utile en rugby et sports de combat.', '3 × 4 directions × 8 s');
+M('muscu', 'poignet', 'Renforcement des avant-bras', 'Prévention', 'Haltère léger', 1, 'Fléchisseurs et extenseurs du poignet',
+  ['Avant-bras posé sur la cuisse, poignet dans le vide.', 'Montez et descendez le poignet lentement, paume vers le bas puis vers le haut.', 'Charge légère, mouvement complet.'],
+  ['Charge trop lourde', 'Bouger l’avant-bras'], 'Prévient le « tennis elbow » et renforce la tenue (raquette, escalade, tir).', '3 × 15 par sens');
+M('muscu', 'extdoigts', 'Extension des doigts à l’élastique', 'Prévention', 'Élastique', 1, 'Extenseurs des doigts',
+  ['Placez un élastique autour du bout des doigts.', 'Écartez les doigts au maximum.', 'Revenez lentement.'],
+  ['Mouvement saccadé'], 'Antagoniste indispensable pour les grimpeurs.', '3 × 25');
+M('muscu', 'tenue', 'Tenue de bras (isométrie)', 'Prévention', 'Haltère léger ou bouteille', 1, 'Épaule, endurance de tenue',
+  ['Debout, bras tendu à l’horizontale, petite charge en main (1–2 kg).', 'Tenez immobile en respirant calmement.', 'Reposez 30 s, changez de bras.'],
+  ['Hausser l’épaule', 'Bloquer la respiration'], 'Spécifique au tir : améliore l’endurance de la tenue de l’arme.', '4 × 30–45 s');
+M('muscu', 'glutepont1', 'Pont fessier sur une jambe', 'Prévention', 'Tapis', 2, 'Fessiers, ischios',
+  ['Sur le dos, un pied au sol, l’autre jambe tendue.', 'Montez le bassin sans le laisser pencher.', 'Redescendez lentement.'],
+  ['Bassin qui bascule', 'Pousser avec les lombaires'], 'Bon test de symétrie gauche/droite.', '3 × 10 par jambe');
+// ---- Mobilité & souplesse
+M('mobilite', 'worlds', 'Le meilleur étirement du monde', 'Corps entier', 'Tapis', 1, 'Hanches, ischios, haut du dos',
+  ['Fente avant, main du même côté au sol à l’intérieur du pied.', 'Tournez le buste et tendez le bras vers le plafond.', 'Revenez, puis tendez la jambe avant (étirement des ischios).'],
+  ['Genou arrière qui s’effondre'], 'Échauffement complet en une minute.', '5 par côté');
+M('mobilite', 'hipcircles', 'Cercles de hanches', 'Hanches', 'Aucun', 1, 'Mobilité de hanche',
+  ['Debout, mains sur les hanches ou sur un mur.', 'Décrivez de grands cercles avec le genou levé.', '10 dans un sens, 10 dans l’autre.'],
+  ['Bouger le buste'], 'Lent et contrôlé : allez au bout de l’amplitude.', '2 × 10 par sens');
+M('mobilite', 'chevilles', 'Mobilité des chevilles', 'Jambes', 'Aucun', 1, 'Chevilles',
+  ['Assis ou debout sur une jambe.', 'Faites des cercles complets avec la cheville.', 'Puis genou vers le mur pied à plat (flexion de cheville).'],
+  ['Talon qui décolle'], 'Une bonne flexion de cheville améliore squat et course.', '2 × 10 par sens');
+M('mobilite', 'quadetir', 'Étirement des quadriceps', 'Jambes', 'Aucun', 1, 'Quadriceps, psoas',
+  ['Debout, attrapez la cheville derrière vous.', 'Genoux serrés, bassin légèrement en avant.', 'Tenez en respirant.'],
+  ['Cambrer le dos', 'Genou qui part sur le côté'], 'Tenez-vous à un mur pour l’équilibre.', '2 × 30 s par jambe');
+M('mobilite', 'pecsetir', 'Étirement pectoraux et épaules', 'Épaules', 'Mur ou cadre de porte', 1, 'Pectoraux, avant d’épaule',
+  ['Avant-bras contre un mur ou un cadre de porte, coude à hauteur d’épaule.', 'Tournez doucement le buste à l’opposé.', 'Tenez sans forcer.'],
+  ['Hausser l’épaule'], 'Contre la posture « épaules en avant » du bureau.', '2 × 30 s par côté');
+M('mobilite', 'molletsetir', 'Étirement des mollets', 'Jambes', 'Mur', 1, 'Mollets',
+  ['Mains au mur, une jambe tendue derrière, talon au sol.', 'Avancez le bassin jusqu’à sentir l’étirement.', 'Fléchissez ensuite le genou arrière pour le soléaire.'],
+  ['Talon qui décolle'], 'Indispensable pour les coureurs.', '2 × 30 s par jambe');
+M('mobilite', 'papillon', 'Papillon (adducteurs)', 'Hanches', 'Tapis', 1, 'Adducteurs',
+  ['Assis, plantes de pieds collées, talons vers le bassin.', 'Dos droit, laissez les genoux descendre.', 'Penchez-vous légèrement en avant.'],
+  ['Arrondir le dos', 'Appuyer fort sur les genoux'], 'Respirez et laissez la gravité faire.', '2 × 45 s');
+M('mobilite', 'couetir', 'Étirement du cou', 'Épaules', 'Aucun', 1, 'Trapèzes, cou',
+  ['Assis droit, inclinez l’oreille vers l’épaule.', 'Main sur la tête sans tirer, épaule opposée basse.', 'Tenez puis changez.'],
+  ['Tirer sur la tête'], 'Idéal après le travail sur écran.', '2 × 30 s par côté');
+M('mobilite', 'epaulesmob', 'Rotations d’épaules (mobilité)', 'Épaules', 'Bâton ou élastique', 1, 'Épaules',
+  ['Bâton ou élastique tenu bras tendus, prise large.', 'Passez les bras au-dessus de la tête jusqu’aux fesses.', 'Revenez devant, sans plier les coudes.'],
+  ['Prise trop serrée', 'Forcer'], 'Élargissez la prise si ça coince.', '2 × 10');
+M('mobilite', 'torsion', 'Torsion allongée', 'Dos', 'Tapis', 1, 'Lombaires, fessiers',
+  ['Allongé sur le dos, amenez un genou fléchi de l’autre côté.', 'Bras ouverts, épaules au sol.', 'Respirez et relâchez.'],
+  ['Épaule qui décolle'], 'Parfait en fin de séance.', '2 × 45 s par côté');
+M('mobilite', 'cossack', 'Squat cosaque', 'Hanches', 'Aucun', 2, 'Adducteurs, hanches',
+  ['Pieds très écartés.', 'Descendez sur une jambe en gardant l’autre tendue, pointe vers le haut.', 'Passez de l’autre côté sans vous relever complètement.'],
+  ['Talon qui décolle', 'Dos rond'], 'Tenez-vous à un support au début.', '2 × 8 par côté');
+M('mobilite', 'squatprof', 'Squat profond tenu', 'Hanches', 'Aucun', 1, 'Hanches, chevilles',
+  ['Descendez en squat le plus bas possible, talons au sol.', 'Coudes à l’intérieur des genoux, poussez-les vers l’extérieur.', 'Respirez dans la position.'],
+  ['Talons qui décollent'], 'Tenez une barre ou un cadre de porte pour commencer.', '3 × 45 s');
+M('mobilite', 'sleeper', 'Sleeper stretch (épaule)', 'Épaules', 'Tapis', 1, 'Rotation interne d’épaule',
+  ['Allongé sur le côté, bras du dessous à 90° devant vous, coude plié.', 'Avec l’autre main, poussez doucement l’avant-bras vers le sol.', 'Tenez sans douleur.'],
+  ['Forcer', 'Rouler sur le dos'], 'Recommandé pour l’épaule des joueurs de tennis et de padel.', '3 × 30 s');
+M('mobilite', 'etirpoignet', 'Étirement des poignets', 'Épaules', 'Aucun', 1, 'Avant-bras',
+  ['Bras tendu devant, paume vers l’avant.', 'Tirez doucement les doigts vers vous avec l’autre main.', 'Puis paume vers le bas, doigts vers le sol.'],
+  ['Tirer trop fort'], 'Pour les grimpeurs, les tireurs et le travail sur clavier.', '2 × 20 s par sens');
+
+// ---- nouveaux programmes
+PROGRAMS.push(
+  { id: 'gainel', nom: 'Gainage & élastiques', obj: 'muscle', niv: 1, sem: 6, freq: 3, mat: 'aucun', ic: '🟢',
+    desc: 'Renforcement profond, épaules et hanches solides, avec un simple élastique et un tapis. 25 minutes.',
+    prog: '+2 répétitions ou +5 s par semaine ; élastique plus dur quand c’est facile.',
+    seances: [
+      { nom: 'Tronc & épaules', sport: 'muscu', items: [T('deadbug', 3, 40, 30), I('pallof', 3, 10, 45), I('bandpa', 3, 15, 45), I('rotext', 3, 12, 45), I('birddog', 3, 8, 30), T('gainlat', 2, 30, 30)] },
+      { nom: 'Hanches & dos', sport: 'muscu', items: [I('monster', 3, 10, 45), I('clam', 3, 15, 30), I('kickback', 3, 15, 30), I('superman', 3, 10, 30), T('hollow', 3, 25, 30), I('shtaps', 3, 20, 45)] }
+    ] },
+  { id: 'mobfull', nom: 'Mobilité complète', obj: 'mobilite', niv: 1, sem: 4, freq: 5, mat: 'aucun', ic: '🌀',
+    desc: 'Une routine de 15 minutes pour toutes les articulations : à faire le matin ou en échauffement.',
+    prog: 'Cherchez un peu plus d’amplitude chaque semaine, sans douleur.',
+    seances: [
+      { nom: 'Routine articulaire', sport: 'mobilite', items: [T('chevilles', 1, 40, 5), T('hipcircles', 1, 40, 5), T('worlds', 2, 45, 10), T('9090', 2, 45, 10), T('epaulesmob', 1, 40, 10), T('thoracique', 2, 40, 10), T('squatprof', 2, 40, 15)] },
+      { nom: 'Bas du corps', sport: 'mobilite', items: [T('cossack', 2, 45, 15), T('fentebasse', 2, 40, 10), T('pigeon', 2, 45, 10), T('papillon', 1, 60, 10), T('molletsetir', 2, 30, 10)] }
+    ] },
+  { id: 'souple', nom: 'Souplesse — étirements profonds', obj: 'mobilite', niv: 1, sem: 6, freq: 3, mat: 'aucun', ic: '🤸',
+    desc: 'Étirements tenus pour gagner en souplesse, à faire après l’entraînement ou le soir.',
+    prog: 'Tenez chaque étirement 10 s de plus toutes les 2 semaines.',
+    seances: [
+      { nom: 'Souplesse jambes', sport: 'mobilite', items: [T('ischios', 2, 45, 10), T('quadetir', 2, 40, 10), T('papillon', 2, 45, 10), T('pigeon', 2, 60, 10), T('molletsetir', 2, 40, 10)] },
+      { nom: 'Souplesse haut du corps', sport: 'mobilite', items: [T('pecsetir', 2, 40, 10), T('sleeper', 2, 30, 10), T('couetir', 2, 30, 10), T('etirpoignet', 2, 20, 10), T('chien', 2, 40, 10), T('enfant', 1, 60, 0)] }
+    ] },
+  { id: 'dos', nom: 'Dos solide', obj: 'forme', niv: 1, sem: 6, freq: 3, mat: 'aucun', ic: '🛡️',
+    desc: 'Renforcement et mobilité du dos, contre les raideurs de la position assise.',
+    prog: 'Tenez 2 s de plus chaque position chaque semaine.',
+    seances: [
+      { nom: 'Dos & gainage', sport: 'muscu', items: [T('chatvache', 1, 60, 10), I('birddog', 3, 8, 30), T('deadbug', 3, 40, 30), I('pont', 3, 12, 30), I('superman', 3, 10, 30), T('gainlat', 2, 25, 30), T('torsion', 1, 60, 0)] }
+    ] }
+);
+
+// ===================== PRÉPARATION PHYSIQUE PAR SPORT PRATIQUÉ =====================
+// Contenus construits à partir de programmes de prévention publiés (FIFA 11+, prévention de l'épaule des sports de lancer,
+// entraînement des antagonistes en escalade, préparation au ski, mobilité du golfeur, tir sportif…)
+const SPEC = {
+  foot: { nom: 'Football', ic: '⚽', qual: 'Endurance intermittente, vitesse, changements de direction, frappe', risques: 'Ischio-jambiers, adducteurs, chevilles, genoux (LCA)',
+    tips: ['Faites le programme d’échauffement FIFA 11+ avant chaque entraînement : il réduit nettement les blessures.', 'Le Nordic hamstring est l’exercice le plus étudié contre les déchirures des ischios.', 'Ajoutez le gainage Copenhague pour les adducteurs.'],
+    src: [['FIFA 11+ : méta-analyse (BJSM)', 'https://bjsm.bmj.com/content/51/7/562'], ['Prévention en football (Aspetar)', 'https://www.aspetar.com/Journal/viewarticle.aspx?id=568']],
+    seances: [{ nom: 'Prévention (type FIFA 11+)', sport: 'muscu', items: [I('nordic', 3, 5, 90), I('copenhague', 3, 6, 60), T('equilibre', 3, 30, 20), T('gainage', 3, 40, 30), T('gainlat', 2, 30, 30), I('monster', 2, 10, 30)] },
+      { nom: 'Force & explosivité', sport: 'muscu', items: [I('squat', 4, 5, 150), I('fentes', 3, 8, 90), I('hipthrust', 3, 8, 90), I('boxjump', 4, 4, 90), I('mollets', 3, 15, 60), I('pallof', 3, 10, 45)] }] },
+  rugby: { nom: 'Rugby', ic: '🏉', qual: 'Force, puissance, résistance aux contacts', risques: 'Cou et commotions, épaules, genoux',
+    tips: ['Un programme régulier de renforcement du cou est associé à moins de blessures cervicales.', 'Montez la force du cou très progressivement, en isométrie.', 'Le travail de force maximale protège dans les impacts.'],
+    src: [['Renforcement du cou en rugby (JSSM)', 'https://pubmed.ncbi.nlm.nih.gov/?term=neck+strengthening+rugby+injury']],
+    seances: [{ nom: 'Force & cou', sport: 'muscu', items: [I('squat', 5, 5, 150), I('dc', 4, 6, 120), I('rowb', 4, 8, 90), I('cou', 3, 4, 45), T('gainage', 3, 45, 30)] },
+      { nom: 'Puissance & épaules', sport: 'muscu', items: [I('medrot', 4, 6, 90), I('boxjump', 4, 4, 90), I('tractions', 4, 6, 120), I('dm', 3, 8, 90), I('nordic', 3, 5, 90), I('rotext', 2, 15, 45)] }] },
+  basket: { nom: 'Basket', ic: '🏀', qual: 'Détente, appuis, changements de direction', risques: 'Chevilles (entorses), genoux, tendon rotulien',
+    tips: ['Un entraînement d’équilibre spécifique, 5 à 10 min 3 fois par semaine, a réduit les entorses de cheville chez des basketteurs.', 'Travaillez la réception de saut genoux dans l’axe.'],
+    src: [['Équilibre et entorses en basket (JSSM)', 'https://pubmed.ncbi.nlm.nih.gov/?term=balance+training+ankle+sprain+basketball']],
+    seances: [{ nom: 'Appuis & réceptions', sport: 'muscu', items: [T('equilibre', 3, 30, 20), I('squatjump', 4, 6, 60), I('stepdown', 3, 8, 45), I('molletexc', 3, 12, 45), I('monster', 3, 10, 30), T('gainlat', 2, 30, 30)] },
+      { nom: 'Force jambes & tronc', sport: 'muscu', items: [I('goblet', 4, 10, 90), I('fentes', 3, 10, 60), I('glutepont1', 3, 10, 45), I('pallof', 3, 10, 45), T('gainage', 3, 45, 30)] }] },
+  volley: { nom: 'Volley', ic: '🏐', qual: 'Détente, épaule du smash, réceptions', risques: 'Chevilles, épaules, genoux',
+    tips: ['Un programme de plateau d’équilibre a réduit les entorses de cheville chez des volleyeurs.', 'Renforcez la coiffe des rotateurs de l’épaule de frappe.'],
+    src: [['Plateau d’équilibre et entorses en volley (AJSM)', 'https://pubmed.ncbi.nlm.nih.gov/?term=balance+board+ankle+sprain+volleyball']],
+    seances: [{ nom: 'Chevilles & sauts', sport: 'muscu', items: [T('equilibre', 3, 30, 20), I('squatjump', 4, 6, 60), I('molletexc', 3, 12, 45), I('stepdown', 3, 8, 45), T('gainage', 3, 40, 30)] },
+      { nom: 'Épaules & force', sport: 'muscu', items: [I('rotext', 3, 15, 45), I('ytw', 3, 8, 45), I('bandpa', 3, 15, 45), I('goblet', 4, 10, 90), I('pallof', 3, 10, 45)] }] },
+  hand: { nom: 'Handball', ic: '🤾', qual: 'Lancer, contacts, appuis', risques: 'Genoux, chevilles, épaule du lanceur',
+    tips: ['Les programmes d’échauffement spécifiques au handball peuvent réduire le risque de blessure jusqu’à 50 %.', 'Renforcez les rotateurs externes de l’épaule et les omoplates.'],
+    src: [['Prévention en handball (Fit to Play)', 'https://fittoplay.org/sports/handball/handball']],
+    seances: [{ nom: 'Épaule du lanceur', sport: 'muscu', items: [I('rotext', 3, 15, 45), I('ytw', 3, 8, 45), I('oiseauel', 3, 15, 45), I('pompe', 3, 12, 60), I('pallof', 3, 10, 45)] },
+      { nom: 'Genoux & appuis', sport: 'muscu', items: [T('equilibre', 3, 30, 20), I('nordic', 3, 5, 90), I('stepdown', 3, 8, 45), I('squatjump', 3, 6, 60), I('monster', 3, 10, 30)] }] },
+  tennis: { nom: 'Tennis', ic: '🎾', qual: 'Rotation, appuis, épaule et coude', risques: 'Épaule (coiffe), coude, dos, chevilles',
+    tips: ['La force des rotateurs externes de l’épaule est essentielle au service.', 'Faites le renforcement de l’épaule après avoir joué, pas avant, pour ne pas la fatiguer.', 'Étirements conseillés : bras croisé et « sleeper stretch ».'],
+    src: [['Blessures de l’épaule au tennis (Human Kinetics)', 'https://us.humankinetics.com/blogs/excerpt/shoulder-injuries-in-tennis']],
+    seances: [{ nom: 'Épaule & coude (après le tennis)', sport: 'muscu', items: [I('rotext', 3, 15, 45), I('bandpa', 3, 15, 45), I('oiseauel', 3, 15, 45), I('poignet', 3, 15, 45), T('sleeper', 2, 30, 15)] },
+      { nom: 'Rotation & appuis', sport: 'muscu', items: [I('medrot', 4, 6, 60), I('pallof', 3, 10, 45), I('russian', 3, 20, 45), I('fentes', 3, 10, 60), T('equilibre', 3, 30, 20)] }] },
+  padel: { nom: 'Padel / badminton', ic: '🏸', qual: 'Appuis rapides, épaule, poignet', risques: 'Coude (épicondylite), épaule, chevilles, genoux',
+    tips: ['Renforcez la coiffe des rotateurs pour les smashs et les frappes au-dessus de la tête.', 'Gainage anti-rotation (Pallof press), dead bug et planche protègent le dos.', 'Équilibre unipodal, yeux fermés pour progresser, contre les entorses.'],
+    src: [['Blessures fréquentes au padel', 'https://padel-rules.pages.dev/player-guidelines/padel-injuries-prevention']],
+    seances: [{ nom: 'Épaule, coude & poignet', sport: 'muscu', items: [I('rotext', 3, 15, 45), I('ytw', 3, 8, 45), I('poignet', 3, 15, 45), I('bandpa', 3, 15, 45), T('etirpoignet', 2, 20, 10)] },
+      { nom: 'Tronc & appuis', sport: 'muscu', items: [I('pallof', 3, 10, 45), T('deadbug', 3, 40, 30), T('equilibre', 3, 30, 20), I('fentes', 3, 10, 60), I('glutepont1', 3, 10, 45)] }] },
+  combat: { nom: 'Boxe / sports de combat', ic: '🥊', qual: 'Puissance de rotation, cardio, gainage, cou', risques: 'Poignets et mains, épaules, cou',
+    tips: ['Avant la vitesse, construisez la force et la stabilité en rotation, avec du gainage « anti-rotation ».', 'Les lancers rotatifs de médecine-ball ressemblent au geste du coup de poing.'],
+    src: [['Puissance de rotation en boxe (Boxing Science)', 'https://boxingscience.co.uk/rotational-power-exercises/']],
+    seances: [{ nom: 'Puissance & rotation', sport: 'muscu', items: [I('medrot', 4, 6, 90), I('pallof', 3, 10, 45), I('pompe', 4, 12, 60), I('tractions', 4, 6, 90), I('cou', 3, 4, 45), I('poignet', 2, 15, 45)] },
+      { nom: 'Cardio de combat', sport: 'hiit', items: [T('corde', 3, 120, 60), T('burpee', 4, 30, 30), T('mc', 4, 30, 30), T('squatjump', 3, 30, 30), T('commando', 3, 30, 30)] }] },
+  escalade: { nom: 'Escalade', ic: '🧗', qual: 'Force de traction, doigts, gainage', risques: 'Doigts (poulies), épaules, coudes',
+    tips: ['L’escalade est un sport de traction : compensez avec les muscles antagonistes (extenseurs des doigts et du poignet, triceps, pectoraux, épaules).', 'Pompes, dips, développé et rotations d’épaule maintiennent l’épaule stable.', 'Débutant : n’abusez pas de la poutre (hangboard).'],
+    src: [['Entraîner les antagonistes (Gripped)', 'https://gripped.com/?p=29410'], ['Antagonistes et épaule (Nicros)', 'https://nicros.com/training/training-articles/physical/antagonist-muscle-training-to-prevent-injury/']],
+    seances: [{ nom: 'Antagonistes', sport: 'muscu', items: [I('pompe', 3, 12, 60), I('dm', 3, 10, 90), I('rotext', 3, 15, 45), I('extdoigts', 3, 25, 30), I('poignet', 3, 15, 45), I('shtaps', 3, 20, 45)] },
+      { nom: 'Traction & gainage', sport: 'muscu', items: [I('tractions', 4, 6, 120), T('hollow', 3, 30, 30), I('releve', 3, 10, 60), I('birddog', 3, 8, 30), I('facepull', 3, 15, 45)] }] },
+  ski: { nom: 'Ski', ic: '⛷️', qual: 'Force des cuisses en position fléchie, équilibre, gainage', risques: 'Genoux (entorses, LCA), poignets, épaules',
+    tips: ['Commencez la préparation 1 à 2 mois avant le séjour, 2 à 3 fois par semaine.', 'La chaise au mur jusqu’à 90–120 s imite une descente.', 'Faites aussi régler vos fixations par un professionnel : une grande partie des entorses du genou vient d’un mauvais réglage.'],
+    src: [['Préparation au ski (Suva)', 'https://www.suva.ch/fr-ch/prevention/loisirs/eviter-les-blessures-durant-les-sports-de-neige/programme-de-fitness-avec-loic?lang=fr-CH'], ['Préparer ses genoux au ski', 'https://lasante.net/fiches-conseil/bien-etre/vacances-et-bien-etre/preparer-ses-genoux-au-ski.htm']],
+    seances: [{ nom: 'Cuisses & genoux', sport: 'muscu', items: [T('chaise', 3, 60, 60), I('goblet', 4, 12, 60), I('stepdown', 3, 8, 45), I('monster', 3, 10, 30), I('fentes', 3, 10, 60)] },
+      { nom: 'Équilibre & explosivité', sport: 'muscu', items: [T('equilibre', 3, 30, 20), I('squatjump', 3, 8, 60), T('chasses', 3, 30, 30), T('gainlat', 3, 30, 30), T('gainage', 3, 45, 30)] }] },
+  golf: { nom: 'Golf', ic: '⛳', qual: 'Rotation du haut du dos, mobilité des hanches, stabilité', risques: 'Bas du dos, coude, épaule',
+    tips: ['Si le haut du dos et les hanches tournent mal, c’est le bas du dos qui compense : travaillez leur mobilité.', 'Le gainage anti-rotation stabilise le swing.'],
+    src: [['Exercices pour le swing (ACE)', 'https://acefitness.org/resources/everyone/blog/5943/exercises-to-improve-your-golf-swing'], ['Prévenir les blessures au golf', 'https://gaylord.org/patients-families/about/news/news-list/nyt-to-prevent-golfing-injuries-loosen-up-your-spine']],
+    seances: [{ nom: 'Mobilité du swing', sport: 'mobilite', items: [T('thoracique', 2, 45, 10), T('worlds', 2, 45, 10), T('9090', 2, 45, 10), T('hipcircles', 1, 40, 5), T('torsion', 1, 60, 0)] },
+      { nom: 'Stabilité & rotation', sport: 'muscu', items: [I('pallof', 3, 10, 45), T('deadbug', 3, 40, 30), I('medrot', 3, 6, 60), I('glutepont1', 3, 10, 45), T('equilibre', 3, 30, 20)] }] },
+  trail: { nom: 'Trail / rando sportive', ic: '🏔️', qual: 'Endurance, descentes, chevilles', risques: 'Quadriceps et genoux en descente, chevilles, tendon d’Achille',
+    tips: ['En descente, les quadriceps travaillent en excentrique (en s’allongeant) : entraînez-les spécifiquement.', 'Mollets en excentrique et équilibre pour les terrains instables.'],
+    src: [['Excentrique et descente (CTS)', 'https://trainright.com/eccentric-strength-training-for-improved-downhill-running-performance/']],
+    seances: [{ nom: 'Descentes & chevilles', sport: 'muscu', items: [I('stepdown', 3, 8, 45), I('molletexc', 3, 12, 45), T('equilibre', 3, 30, 20), I('fentes', 3, 10, 60), I('nordic', 2, 5, 90)] },
+      { nom: 'Tronc & hanches', sport: 'muscu', items: [T('deadbug', 3, 40, 30), I('birddog', 3, 8, 30), I('monster', 3, 10, 30), I('glutepont1', 3, 10, 45), T('gainlat', 2, 30, 30)] }] },
+  tir: { nom: 'Tir sportif', ic: '🎯', qual: 'Stabilité, endurance de tenue, gainage, calme', risques: 'Épaule, poignet, cou, dos (positions statiques)',
+    tips: ['La stabilité est la base de la précision : le gainage et l’équilibre réduisent les mouvements parasites.', 'Renforcez la tenue du poignet avec des exercices à l’élastique.', 'Une endurance cardio régulière aide à garder le calme et un rythme cardiaque bas.'],
+    src: [['Stabilité au pistolet', 'https://tirsportifchabris.fr/blog/entrainement-tir-pistolet'], ['Stand de tir : renforcement du poignet', 'https://tirsportifchabris.fr/blog/stand-de-tir-stab']],
+    seances: [{ nom: 'Stabilité & gainage', sport: 'muscu', items: [T('gainage', 3, 45, 30), T('gainlat', 2, 30, 30), T('deadbug', 3, 40, 30), I('birddog', 3, 8, 30), T('equilibre', 3, 30, 20), T('tenue', 4, 30, 30)] },
+      { nom: 'Épaules & poignets', sport: 'muscu', items: [I('rotext', 3, 15, 45), I('bandpa', 3, 15, 45), I('oiseauel', 3, 15, 45), I('poignet', 3, 15, 45), T('couetir', 2, 30, 10), T('etirpoignet', 2, 20, 10)] }] }
+};
+OBJ.sport = 'Préparation sportive';
+Object.entries(SPEC).forEach(([k, s]) => PROGRAMS.push({ id: 'sp_' + k, spec: k, nom: `Préparation ${s.nom}`, obj: 'sport', niv: 2, sem: 6, freq: 2, mat: 'aucun', ic: s.ic,
+  desc: `Préparation physique spécifique au ${s.nom.toLowerCase()} : ${s.qual.toLowerCase()}. Prévention : ${s.risques.toLowerCase()}.`,
+  prog: 'À faire 2 fois par semaine en plus de votre pratique, à distance des matchs. +1 série toutes les 2 semaines.', seances: s.seances }));
