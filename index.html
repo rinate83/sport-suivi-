@@ -1,586 +1,1122 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ApexFit Pro - Ultimate Sport Tracker</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome & Chart.js -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070b14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ApexFit">
+<title>ApexFit — Suivi sportif, programmes et test de capacités</title>
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#070b14;--bg2:#0c1220;--card:#111827;--card2:#162033;--line:#1f2a3d;--line2:#2b3850;--tx:#eef2f9;--mu:#93a0b8;--dim:#64708a;
+--ac:#22c55e;--ac2:#4ade80;--in:#818cf8;--warn:#f59e0b;--dan:#f43f5e;--r:20px;--nav:74px;
+--grad:linear-gradient(135deg,#22c55e,#14b8a6)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+body{margin:0;min-height:100vh;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 14px);
+background:radial-gradient(900px 420px at 100% -10%,rgba(34,197,94,.13),transparent 60%),radial-gradient(800px 380px at -10% 0,rgba(129,140,248,.12),transparent 60%),var(--bg);background-attachment:fixed}
+button,input,select,textarea{font:inherit;color:inherit}
+svg.i{width:22px;height:22px;flex:none}
+.hidden{display:none!important}
+/* en-tête */
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;background:rgba(7,11,20,.78);backdrop-filter:saturate(1.6) blur(16px);-webkit-backdrop-filter:saturate(1.6) blur(16px);border-bottom:1px solid rgba(31,42,61,.6)}
+.top img{width:38px;height:38px;border-radius:11px}
+.top b{font-size:18px;letter-spacing:-.02em}.top b span{color:var(--ac)}
+.top small{display:block;color:var(--mu);font-size:12px}
+.top .back{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer}
+.streak{margin-left:auto;display:flex;align-items:center;gap:6px;padding:7px 11px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-weight:700;font-size:13px}
+main{max-width:980px;margin:0 auto;padding:16px}
+h1.vt{font-size:26px;letter-spacing:-.03em;margin:4px 2px 14px}
+h2{font-size:17px;margin:0;letter-spacing:-.01em}
+h3.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin:22px 4px 10px;display:flex;align-items:center;justify-content:space-between}
+h3.sec a{color:var(--ac);text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:650;cursor:pointer}
+.card{background:linear-gradient(180deg,var(--card),#0f1624);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 10px 30px -18px rgba(0,0,0,.7)}
+.card+.card{margin-top:12px}
+.row{display:flex;align-items:center;gap:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(min-width:760px){.cols{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:start}}
+.mu{color:var(--mu)}.small{font-size:13px}.tiny{font-size:11.5px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:650;background:var(--card2);border:1px solid var(--line);color:var(--mu)}
+.pill.ok{color:#86efac;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.1)}
+.pill.warn{color:#fcd34d;border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.1)}
+.pill.dan{color:#fda4af;border-color:rgba(244,63,94,.35);background:rgba(244,63,94,.1)}
+/* tuiles stats */
+.kpi{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:12px}
+.kpi .l{font-size:11.5px;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:4px}.kpi .v small{font-size:13px;color:var(--mu);font-weight:600}
+/* héro récap */
+.hero{position:relative;overflow:hidden;background:linear-gradient(140deg,#0f2a1d,#0d1b2e 60%,#18153a);border:1px solid rgba(34,197,94,.25)}
+.hero:after{content:'';position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(34,197,94,.35),transparent 70%)}
+.ring{--p:0;width:96px;height:96px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--ac) calc(var(--p)*1%),rgba(255,255,255,.08) 0);position:relative}
+.ring:before{content:'';position:absolute;inset:9px;border-radius:50%;background:#0d1a26}
+.ring b{position:relative;font-size:22px}.ring small{position:relative;display:block;font-size:11px;color:var(--mu);text-align:center;margin-top:-4px}
+/* calendrier */
+.cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-h button{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:var(--card2);cursor:pointer;display:grid;place-items:center}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .dn{font-size:11px;color:var(--dim);text-align:center;font-weight:700;padding:4px 0}
+.cal .d{aspect-ratio:1/1.05;border-radius:12px;background:rgba(255,255,255,.025);border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5px 2px;font-size:13px;font-weight:650;cursor:pointer;position:relative}
+.cal .d.out{opacity:.25}.cal .d.today{border-color:var(--ac);color:var(--ac2)}
+.cal .d.act{background:linear-gradient(180deg,rgba(34,197,94,.16),rgba(34,197,94,.04))}
+.cal .d.plan:after{content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;border:1.5px solid var(--warn)}
+.dots{display:flex;gap:2px;justify-content:center;flex-wrap:wrap;min-height:7px}.dots i{width:6px;height:6px;border-radius:50%}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.legend span{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--mu)}.legend i{width:8px;height:8px;border-radius:50%}
+/* listes */
+.li{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--card2);border:1px solid var(--line);cursor:pointer;width:100%;text-align:left}
+.li+.li{margin-top:8px}
+.li .em{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:21px;flex:none;background:rgba(255,255,255,.05)}
+.li .t{flex:1;min-width:0}.li .t b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.li .t small{display:block;color:var(--mu);font-size:12.5px;margin-top:2px}
+.li .chev{color:var(--dim)}
+.sports{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:640px){.sports{grid-template-columns:repeat(4,1fr)}}
+.sp{position:relative;overflow:hidden;border-radius:18px;padding:14px;border:1px solid var(--line);background:var(--card);cursor:pointer;text-align:left;min-height:118px;display:flex;flex-direction:column;justify-content:space-between}
+.sp:before{content:'';position:absolute;inset:0;background:radial-gradient(160px 120px at 100% 0,var(--c),transparent 70%);opacity:.28}
+.sp .e{font-size:30px;position:relative}.sp b{position:relative;font-size:15px}.sp small{position:relative;color:var(--mu);font-size:12px}
+.sp.off{opacity:.45}
+/* onglets segment */
+.seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:var(--card2);border:1px solid var(--line);margin:14px 0}
+.seg button{flex:1;padding:10px 6px;border-radius:11px;border:0;background:transparent;color:var(--mu);font-weight:650;font-size:13.5px;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--tx);box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 13px;border-radius:99px;border:1px solid var(--line);background:var(--card2);color:var(--mu);font-size:13px;font-weight:650;cursor:pointer}
+.chip.on{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.5);color:#86efac}
+/* boutons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:15px;border:1px solid var(--line2);background:var(--card2);font-weight:700;font-size:15px;cursor:pointer;transition:transform .1s}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.45}
+.btn.pri{background:var(--grad);border-color:transparent;color:#04220f;box-shadow:0 10px 24px -12px rgba(34,197,94,.9)}
+.btn.dan{color:#fda4af;border-color:rgba(244,63,94,.35);background:rgba(244,63,94,.08)}
+.btn.w{width:100%}.btn.sm{padding:9px 12px;font-size:13.5px;border-radius:12px}
+.btn.ghost{background:transparent}
+/* formulaires */
+label.f{display:block;font-size:12.5px;color:var(--mu);font-weight:650;margin-top:12px}
+.in,select.in,textarea.in{width:100%;margin-top:6px;padding:12px 13px;border-radius:13px;border:1px solid var(--line2);background:#0a1120;color:var(--tx);font-size:16px;-webkit-appearance:none;appearance:none}
+.in:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+textarea.in{min-height:70px;resize:vertical}
+input[type=range]{width:100%;accent-color:var(--ac)}
+/* barre d'onglets */
+.nav{position:fixed;z-index:50;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));height:66px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;padding:6px;border-radius:24px;background:rgba(17,24,39,.86);backdrop-filter:saturate(1.6) blur(20px);-webkit-backdrop-filter:saturate(1.6) blur(20px);border:1px solid var(--line2);box-shadow:0 16px 40px -12px rgba(0,0,0,.8);max-width:560px;margin:0 auto}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:var(--dim);font-size:11px;font-weight:700;cursor:pointer;padding:6px 0;border-radius:16px}
+.nav button.on{color:var(--ac2)}
+.nav .plus{width:54px;height:54px;margin:auto;border-radius:18px;background:var(--grad);color:#04220f;box-shadow:0 10px 24px -8px rgba(34,197,94,.9);justify-content:center}
+.nav .plus svg{width:28px;height:28px}
+/* feuilles (modales) */
+.sheet-bg{position:fixed;inset:0;z-index:80;background:rgba(2,6,14,.6);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;animation:fd .2s}
+.sheet{width:100%;max-width:620px;max-height:92vh;overflow:auto;background:#0e1524;border:1px solid var(--line2);border-radius:26px 26px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));animation:up .25s cubic-bezier(.2,.8,.2,1)}
+@media(min-width:700px){.sheet-bg{align-items:center}.sheet{border-radius:26px}}
+.sheet .grab{width:42px;height:5px;border-radius:5px;background:var(--line2);margin:4px auto 12px}
+.sheet h2{font-size:21px;margin-bottom:4px}
+@keyframes up{from{transform:translateY(40px);opacity:0}}@keyframes fd{from{opacity:0}}
+/* séance en direct */
+.live{position:fixed;inset:0;z-index:70;background:var(--bg);overflow:auto;padding-bottom:140px}
+.live .lh{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;background:rgba(7,11,20,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.live .clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:18px;color:var(--ac2)}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin:12px 16px 0}
+.ex .eh{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ex .eh b{font-size:16px;flex:1}
+.ex .last{font-size:12px;color:var(--mu);margin:-4px 0 8px}
+.set{display:grid;grid-template-columns:32px 1fr 1fr 48px;gap:8px;align-items:center;margin-top:7px}
+.set.t3{grid-template-columns:32px 1fr 48px}
+.set .n{font-weight:800;color:var(--dim);text-align:center}
+.set input{width:100%;padding:11px 8px;border-radius:12px;border:1px solid var(--line2);background:#0a1120;text-align:center;font-size:16px;font-weight:700}
+.set .ok{height:44px;border-radius:13px;border:1px solid var(--line2);background:var(--card2);cursor:pointer;display:grid;place-items:center;color:var(--dim)}
+.set.done .ok{background:var(--ac);color:#04220f;border-color:transparent}
+.set.done input{border-color:rgba(34,197,94,.4);color:#86efac}
+.set .lab{font-size:11px;color:var(--dim);text-align:center}
+.restbar{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:75;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:20px;background:#0f2a1d;border:1px solid rgba(34,197,94,.5);box-shadow:0 18px 40px -10px rgba(0,0,0,.8)}
+.restbar .big{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ac2);min-width:76px}
+.restbar .prog{position:absolute;left:0;bottom:0;height:3px;background:var(--ac);border-radius:3px}
+.block{display:flex;gap:12px;align-items:flex-start;padding:13px;border-radius:16px;background:var(--card2);border:1px solid var(--line);margin-top:8px;cursor:pointer}
+.block .ck{width:26px;height:26px;border-radius:9px;border:2px solid var(--line2);flex:none;display:grid;place-items:center}
+.block.done .ck{background:var(--ac);border-color:var(--ac);color:#04220f}
+.block.done b{text-decoration:line-through;color:var(--mu)}
+.bigclock{font-size:56px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:8px 0}
+/* bibliothèque */
+.mv{display:flex;gap:12px;align-items:center}
+.lvl{display:inline-flex;gap:2px}.lvl i{width:6px;height:12px;border-radius:2px;background:var(--line2)}.lvl i.on{background:var(--ac)}
+ol.how{padding-left:20px;margin:8px 0}ol.how li{margin:6px 0;line-height:1.45}
+ul.err{padding-left:18px;margin:6px 0;color:#fda4af}ul.err li{margin:4px 0}
+.tip{padding:12px 14px;border-radius:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:#bbf7d0;font-size:14px;margin-top:10px}
+/* barres */
+.pbar{height:8px;border-radius:8px;background:rgba(255,255,255,.07);overflow:hidden}.pbar i{display:block;height:100%;background:var(--grad);border-radius:inherit}
+canvas.ch{width:100%;display:block}
+/* notifications */
+.toast{position:fixed;left:50%;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 22px);transform:translateX(-50%);z-index:200;background:#1f2937;border:1px solid var(--line2);color:#fff;padding:12px 16px;border-radius:14px;font-weight:650;font-size:14px;box-shadow:0 16px 30px -10px rgba(0,0,0,.8);max-width:92%;animation:up .25s}
+.empty{text-align:center;padding:26px 12px;color:var(--mu)}.empty .e{font-size:38px}
+.test-step{font-size:12px;color:var(--ac2);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.choice{display:grid;gap:8px;margin-top:10px}.choice button{text-align:left}
+.choice button.on{border-color:var(--ac);background:rgba(34,197,94,.12)}
+.score{display:flex;align-items:center;gap:10px;margin-top:8px}.score span{flex:1;font-size:14px}.score .pbar{flex:1.3}
+
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+<body>
+<header class="top" id="top"></header>
+<main id="view"></main>
+<nav class="nav" id="nav"></nav>
+<script>
+// ===================== SPORTS =====================
+const SPORTS = {
+  course:   { nom: 'Course à pied', ic: '🏃', c: '#22c55e', kind: 'cardio', dist: 'km', deniv: true },
+  muscu:    { nom: 'Musculation', ic: '🏋️', c: '#818cf8', kind: 'force' },
+  velo:     { nom: 'Vélo', ic: '🚴', c: '#f59e0b', kind: 'cardio', dist: 'km', deniv: true },
+  natation: { nom: 'Natation', ic: '🏊', c: '#38bdf8', kind: 'cardio', dist: 'm' },
+  hiit:     { nom: 'HIIT / Cross-training', ic: '🔥', c: '#f43f5e', kind: 'force' },
+  mobilite: { nom: 'Yoga / Mobilité', ic: '🧘', c: '#c084fc', kind: 'force' },
+  marche:   { nom: 'Marche / Rando', ic: '🥾', c: '#a3e635', kind: 'cardio', dist: 'km', deniv: true },
+  autre:    { nom: 'Autre sport', ic: '⚽', c: '#94a3b8', kind: 'libre' }
+};
 
-    <!-- TOP NAVIGATION -->
-    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-brand-500 text-slate-950 p-2 rounded-xl font-black text-xl flex items-center justify-center w-10 h-10 shadow-lg shadow-brand-500/20">
-                    <i class="fa-solid fa-bolt"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-wide">APEX<span class="text-brand-500">FIT</span></h1>
-                    <p class="text-xs text-slate-400">Niveau : <span id="userLevel" class="text-brand-400 font-semibold">Initié (Niv. 1)</span></p>
-                </div>
-            </div>
-            <!-- Streak & Status -->
-            <div class="flex items-center space-x-4">
-                <div class="hidden sm:flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700 text-sm">
-                    <i class="fa-solid fa-fire text-orange-500 animate-pulse"></i>
-                    <span>Série : <strong id="streakCount">0</strong> j</span>
-                </div>
-                <button onclick="exportData()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg border border-slate-700 transition">
-                    <i class="fa-solid fa-download mr-1"></i> Sauvegarder
-                </button>
-            </div>
-        </div>
-    </header>
+// ===================== BIBLIOTHÈQUE DE MOUVEMENTS =====================
+// M(sport, id, nom, groupe, matériel, niveau 1-3, muscles, [étapes], [erreurs], conseil, dose conseillée)
+const LIB = [];
+const M = (s, id, n, g, mat, niv, mu, how, err, tip, dose) => LIB.push({ s, id, n, g, mat, niv, mu, how, err, tip, dose });
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-24">
-        
-        <!-- TABS SWITCHER -->
-        <div class="flex space-x-2 overflow-x-auto pb-4 mb-6 border-b border-slate-800 scrollbar-none">
-            <button onclick="switchTab('dashboard')" class="tab-btn active px-4 py-2 rounded-xl font-medium text-sm transition flex items-center space-x-2 bg-brand-500 text-slate-950 shadow-lg shadow-brand-500/10">
-                <i class="fa-solid fa-chart-pie"></i><span>Tableau de Bord</span>
-            </button>
-            <button onclick="switchTab('calendar')" class="tab-btn px-4 py-2 rounded-xl font-medium text-sm transition flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-slate-400">
-                <i class="fa-solid fa-calendar-days"></i><span>Calendrier</span>
-            </button>
-            <button onclick="switchTab('workout')" class="tab-btn px-4 py-2 rounded-xl font-medium text-sm transition flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-slate-400">
-                <i class="fa-solid fa-dumbbell"></i><span>Séance & Chrono</span>
-            </button>
-            <button onclick="switchTab('progress')" class="tab-btn px-4 py-2 rounded-xl font-medium text-sm transition flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-slate-400">
-                <i class="fa-solid fa-chart-line"></i><span>Progression</span>
-            </button>
-            <button onclick="switchTab('goals')" class="tab-btn px-4 py-2 rounded-xl font-medium text-sm transition flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-slate-400">
-                <i class="fa-solid fa-skull text-red-400"></i><span>Objectifs & Pénalités</span>
-            </button>
-        </div>
+// ---- Musculation
+M('muscu', 'dc', 'Développé couché', 'Pectoraux', 'Barre + banc', 2, 'Pectoraux, triceps, épaules avant',
+  ['Allongé, yeux sous la barre, omoplates serrées et pieds bien à plat.', 'Descendez la barre contrôlée jusqu’au bas des pectoraux, coudes à ~45° du buste.', 'Poussez en expirant jusqu’aux bras tendus, sans décoller les fesses.'],
+  ['Coudes ouverts à 90° (épaules en danger)', 'Rebond de la barre sur la poitrine'], 'Gardez les omoplates « rangées dans les poches » tout le long.', '4 × 6–10, repos 2 min');
+M('muscu', 'dih', 'Développé incliné haltères', 'Pectoraux', 'Haltères + banc incliné', 2, 'Haut des pectoraux, épaules',
+  ['Banc à 30°, haltères au-dessus des épaules.', 'Descendez lentement jusqu’à sentir l’étirement des pectoraux.', 'Remontez en rapprochant les haltères sans les cogner.'],
+  ['Banc trop incliné (travail d’épaules)', 'Descente trop rapide'], 'Contrôlez 2–3 s à la descente.', '3 × 8–12, repos 90 s');
+M('muscu', 'pompe', 'Pompes', 'Pectoraux', 'Aucun', 1, 'Pectoraux, triceps, gainage',
+  ['Mains un peu plus larges que les épaules, corps aligné de la tête aux talons.', 'Descendez la poitrine à 2–3 cm du sol, coudes à ~45°.', 'Repoussez le sol en gardant le ventre serré.'],
+  ['Bassin qui s’affaisse', 'Amplitude réduite'], 'Trop dur ? Faites-les sur les genoux ou les mains sur un banc.', '3 × max − 2 reps');
+M('muscu', 'dips', 'Dips', 'Pectoraux', 'Barres parallèles', 3, 'Triceps, bas des pectoraux',
+  ['En appui bras tendus, buste légèrement penché.', 'Descendez jusqu’aux coudes à 90°.', 'Remontez sans verrouiller brutalement.'],
+  ['Descendre trop bas (épaules)', 'Balancer les jambes'], 'Débutant : faites-les sur un banc, pieds au sol.', '3 × 6–12');
+M('muscu', 'ecarte', 'Écarté à la poulie', 'Pectoraux', 'Poulie ou haltères', 1, 'Pectoraux',
+  ['Bras légèrement fléchis, ouvrez en arc de cercle.', 'Ramenez les mains devant la poitrine comme pour serrer un arbre.', 'Gardez le même angle de coude tout le mouvement.'],
+  ['Transformer le mouvement en développé', 'Charge trop lourde'], 'Mouvement d’isolation : la sensation prime sur la charge.', '3 × 12–15');
+M('muscu', 'tractions', 'Tractions', 'Dos', 'Barre fixe', 3, 'Grand dorsal, biceps',
+  ['Suspendu, mains en pronation un peu plus larges que les épaules.', 'Tirez les coudes vers les hanches jusqu’au menton au-dessus de la barre.', 'Redescendez lentement bras tendus.'],
+  ['Demi-amplitude', 'Élan avec les jambes'], 'Pas encore de traction ? Tractions négatives (5 s de descente) ou avec élastique.', '4 × max − 1');
+M('muscu', 'rowb', 'Rowing barre', 'Dos', 'Barre', 2, 'Dos, arrière d’épaule, biceps',
+  ['Buste penché à ~45°, dos plat, genoux légèrement fléchis.', 'Tirez la barre vers le nombril en serrant les omoplates.', 'Redescendez contrôlé sans arrondir le dos.'],
+  ['Dos rond', 'Se redresser pour tricher'], 'Imaginez tenir un crayon entre les omoplates en haut.', '4 × 8–10');
+M('muscu', 'rowh', 'Rowing haltère un bras', 'Dos', 'Haltère + banc', 1, 'Grand dorsal, rhomboïdes',
+  ['Un genou et une main sur le banc, dos plat.', 'Tirez l’haltère vers la hanche, coude près du corps.', 'Descendez en laissant l’épaule s’étirer.'],
+  ['Rotation du buste', 'Tirer avec le biceps'], 'Pensez « coude vers la poche arrière ».', '3 × 10–12 par bras');
+M('muscu', 'tirage', 'Tirage vertical', 'Dos', 'Poulie haute', 1, 'Grand dorsal',
+  ['Assis, cuisses calées, prise un peu plus large que les épaules.', 'Tirez la barre vers le haut de la poitrine, buste légèrement en arrière.', 'Remontez en contrôlant jusqu’aux bras tendus.'],
+  ['Tirer derrière la nuque', 'Se balancer'], 'Excellente préparation aux tractions.', '3 × 10–12');
+M('muscu', 'sdt', 'Soulevé de terre', 'Chaîne postérieure', 'Barre', 3, 'Fessiers, ischios, dos, trapèzes',
+  ['Pieds largeur de hanches, barre au-dessus du milieu du pied.', 'Dos plat, poitrine sortie, poussez le sol avec les jambes.', 'Verrouillez hanches et genoux en haut, redescendez la barre le long des jambes.'],
+  ['Dos rond', 'Barre loin du corps'], 'Gainez fort (inspiration bloquée) avant chaque répétition.', '3–5 × 3–6, repos 3 min');
+M('muscu', 'sdtr', 'Soulevé de terre roumain', 'Chaîne postérieure', 'Barre ou haltères', 2, 'Ischios, fessiers',
+  ['Debout, genoux légèrement fléchis et fixes.', 'Reculez les hanches en descendant la barre le long des cuisses, dos plat.', 'Remontez en poussant les hanches vers l’avant.'],
+  ['Plier les genoux comme un squat', 'Dos rond en bas'], 'Descendez jusqu’à la tension des ischios, pas plus bas.', '3 × 8–10');
+M('muscu', 'squat', 'Squat barre', 'Jambes', 'Barre + rack', 2, 'Quadriceps, fessiers, gainage',
+  ['Barre sur les trapèzes, pieds largeur d’épaules, pointes légèrement ouvertes.', 'Descendez hanches en arrière et genoux vers l’extérieur, au moins cuisses parallèles.', 'Remontez en poussant le sol, poitrine haute.'],
+  ['Genoux qui rentrent', 'Talons qui décollent'], 'Gainez avant chaque descente, regard droit devant.', '4 × 5–8, repos 2–3 min');
+M('muscu', 'goblet', 'Goblet squat', 'Jambes', 'Haltère ou kettlebell', 1, 'Quadriceps, fessiers',
+  ['Tenez la charge contre la poitrine, coudes vers le bas.', 'Descendez entre les jambes, buste droit.', 'Remontez en poussant dans les talons.'],
+  ['Buste qui plonge vers l’avant', 'Amplitude partielle'], 'Idéal pour apprendre le squat.', '3 × 10–15');
+M('muscu', 'fentes', 'Fentes', 'Jambes', 'Aucun ou haltères', 1, 'Quadriceps, fessiers',
+  ['Grand pas en avant, buste droit.', 'Descendez le genou arrière près du sol, genou avant au-dessus de la cheville.', 'Repoussez pour revenir ou avancer (fentes marchées).'],
+  ['Genou avant qui rentre', 'Pas trop court'], 'Variante : fentes bulgares, pied arrière sur un banc.', '3 × 10 par jambe');
+M('muscu', 'presse', 'Presse à cuisses', 'Jambes', 'Machine', 1, 'Quadriceps, fessiers',
+  ['Pieds largeur d’épaules au milieu du plateau.', 'Descendez jusqu’à ~90° de flexion sans décoller le bassin.', 'Poussez sans verrouiller les genoux en haut.'],
+  ['Bassin qui s’enroule en bas', 'Genoux verrouillés'], 'Pieds hauts = plus de fessiers, pieds bas = plus de quadriceps.', '3 × 10–15');
+M('muscu', 'hipthrust', 'Hip thrust', 'Jambes', 'Banc + barre ou haltère', 2, 'Fessiers',
+  ['Haut du dos sur un banc, charge sur les hanches.', 'Poussez les hanches jusqu’à l’alignement épaules-genoux.', 'Serrez les fessiers 1 s en haut puis redescendez.'],
+  ['Cambrer le bas du dos', 'Pousser avec les pointes'], 'Menton rentré, regard vers les genoux.', '3 × 10–12');
+M('muscu', 'legcurl', 'Leg curl', 'Jambes', 'Machine', 1, 'Ischios',
+  ['Réglez le boudin au-dessus des chevilles.', 'Fléchissez les genoux au maximum.', 'Revenez lentement.'],
+  ['Décoller les hanches', 'Mouvement saccadé'], 'Lent à la descente (3 s).', '3 × 12');
+M('muscu', 'mollets', 'Mollets debout', 'Jambes', 'Marche ou machine', 1, 'Mollets',
+  ['Avant des pieds sur une marche, talons dans le vide.', 'Montez sur la pointe des pieds au maximum.', 'Descendez lentement sous le niveau de la marche.'],
+  ['Rebondir', 'Amplitude réduite'], 'Pause d’1 s en haut et en bas.', '4 × 12–20');
+M('muscu', 'dm', 'Développé militaire', 'Épaules', 'Barre ou haltères', 2, 'Épaules, triceps',
+  ['Debout, barre au niveau des clavicules, fessiers et abdos serrés.', 'Poussez la barre au-dessus de la tête en passant la tête sous la barre.', 'Redescendez contrôlé aux clavicules.'],
+  ['Cambrer le dos', 'Pousser la barre loin devant'], 'Le gainage fait tout : serrez les fessiers.', '4 × 6–10');
+M('muscu', 'elev', 'Élévations latérales', 'Épaules', 'Haltères', 1, 'Épaules (faisceau moyen)',
+  ['Debout, haltères le long du corps, coudes légèrement fléchis.', 'Montez les bras sur les côtés jusqu’à l’horizontale.', 'Redescendez lentement.'],
+  ['Monter avec élan', 'Hausser les épaules'], 'Charges légères, sensation avant tout.', '3 × 12–20');
+M('muscu', 'facepull', 'Face pull', 'Épaules', 'Poulie + corde', 1, 'Arrière d’épaule, coiffe des rotateurs',
+  ['Poulie à hauteur du visage, corde en main.', 'Tirez vers le front en écartant les mains, coudes hauts.', 'Revenez doucement.'],
+  ['Tirer trop bas', 'Charge trop lourde'], 'Excellent pour la santé des épaules : à faire souvent.', '3 × 15');
+M('muscu', 'curl', 'Curl biceps', 'Bras', 'Haltères ou barre', 1, 'Biceps',
+  ['Debout, coudes collés au corps.', 'Fléchissez en tournant la paume vers le haut.', 'Redescendez complètement.'],
+  ['Balancer le buste', 'Coudes qui avancent'], 'Descente lente = plus efficace.', '3 × 10–12');
+M('muscu', 'marteau', 'Curl marteau', 'Bras', 'Haltères', 1, 'Biceps, avant-bras',
+  ['Prise neutre (pouces vers le haut).', 'Fléchissez sans bouger les coudes.', 'Redescendez lentement.'],
+  ['Élan', 'Poignets cassés'], 'Renforce aussi la prise.', '3 × 10–12');
+M('muscu', 'triceps', 'Extension triceps poulie', 'Bras', 'Poulie', 1, 'Triceps',
+  ['Coudes collés au corps, avant-bras à l’horizontale.', 'Tendez complètement les bras vers le bas.', 'Remontez jusqu’à 90°.'],
+  ['Coudes qui bougent', 'Se pencher sur la charge'], 'Écartez la corde en bas pour plus de contraction.', '3 × 12–15');
+M('muscu', 'gainage', 'Gainage planche', 'Abdos / gainage', 'Aucun', 1, 'Abdominaux profonds, lombaires',
+  ['Sur les avant-bras et les pointes de pied, coudes sous les épaules.', 'Corps aligné, ventre et fessiers serrés.', 'Respirez calmement en tenant la position.'],
+  ['Fesses trop hautes', 'Bas du dos qui creuse'], 'Mieux vaut 30 s parfaites que 2 min avachies.', '3 × 30–60 s');
+M('muscu', 'gainlat', 'Gainage latéral', 'Abdos / gainage', 'Aucun', 1, 'Obliques',
+  ['Sur un avant-bras, pieds empilés.', 'Montez le bassin jusqu’à l’alignement.', 'Tenez sans laisser tomber la hanche.'],
+  ['Hanche qui descend', 'Épaule écrasée'], 'Débutant : genoux au sol.', '3 × 20–45 s par côté');
+M('muscu', 'releve', 'Relevés de jambes', 'Abdos / gainage', 'Sol ou barre', 2, 'Abdominaux (bas)',
+  ['Allongé, mains sous les fesses (ou suspendu à une barre).', 'Montez les jambes tendues jusqu’à la verticale.', 'Redescendez sans toucher le sol, bas du dos plaqué.'],
+  ['Dos qui se cambre', 'Élan'], 'Jambes fléchies pour faciliter.', '3 × 10–15');
+M('muscu', 'swing', 'Kettlebell swing', 'Chaîne postérieure', 'Kettlebell', 2, 'Fessiers, ischios, cardio',
+  ['Pieds un peu plus larges que les hanches, kettlebell devant.', 'Charnière de hanche : la kettlebell passe entre les jambes.', 'Projetez les hanches vers l’avant : la kettlebell monte à hauteur d’épaules.'],
+  ['Squatter au lieu de basculer les hanches', 'Lever avec les bras'], 'Les bras ne font que guider, ce sont les hanches qui lancent.', '5 × 15');
 
-        <!-- TAB 1: DASHBOARD -->
-        <section id="tab-dashboard" class="space-y-6 tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl">
-                    <p class="text-xs text-slate-400 uppercase tracking-wider">Séances Totales</p>
-                    <h3 id="statTotalWorkouts" class="text-3xl font-black mt-2 text-white">0</h3>
-                </div>
-                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl">
-                    <p class="text-xs text-slate-400 uppercase tracking-wider">Running (Km)</p>
-                    <h3 id="statTotalRunning" class="text-3xl font-black mt-2 text-brand-400">0 km</h3>
-                </div>
-                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl">
-                    <p class="text-xs text-slate-400 uppercase tracking-wider">Dénivelé Total</p>
-                    <h3 id="statTotalElevation" class="text-3xl font-black mt-2 text-indigo-400">0 m</h3>
-                </div>
-                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl">
-                    <p class="text-xs text-slate-400 uppercase tracking-wider">Respect Objectifs</p>
-                    <h3 id="statGoalRate" class="text-3xl font-black mt-2 text-emerald-400">100%</h3>
-                </div>
-            </div>
+// ---- Course à pied (gammes, séances, technique)
+M('course', 'ef', 'Footing en endurance fondamentale', 'Séance', 'Aucun', 1, 'Système cardio-respiratoire',
+  ['Courez à une allure où vous pouvez parler en phrases complètes (≈ 65–75 % de la VMA).', 'Gardez une foulée relâchée et une cadence régulière.', 'Finissez en marchant 2–3 min.'],
+  ['Courir trop vite « pour que ça compte »', 'Partir sans échauffement'], 'C’est la base de 70–80 % de l’entraînement d’un coureur.', '30–60 min');
+M('course', 'fc', 'Fractionné court 30/30', 'Séance', 'Aucun', 2, 'VMA, cardio',
+  ['Échauffement 15–20 min de footing + quelques gammes.', 'Alternez 30 s rapide (≈ 100 % VMA) / 30 s trottinement, 2 × 8–10 répétitions.', 'Récupérez 3 min entre les blocs, retour au calme 10 min.'],
+  ['Partir trop vite sur les premières', 'Marcher pendant les récupérations'], 'Les 30 s doivent toutes être courues à la même vitesse.', '2 × 10 × 30/30');
+M('course', 'fl', 'Fractionné long (VMA longue)', 'Séance', 'Piste ou parcours mesuré', 3, 'VMA, endurance de vitesse',
+  ['Échauffement 20 min + gammes + 2 accélérations.', '5–6 × 1000 m à ≈ 90–95 % VMA, récupération 2 min en trottinant.', 'Retour au calme 10 min.'],
+  ['Allure irrégulière', 'Récupérations trop courtes'], 'Visez des répétitions toutes au même chrono.', '5 × 1000 m');
+M('course', 'seuil', 'Séance au seuil', 'Séance', 'Aucun', 2, 'Seuil anaérobie',
+  ['Échauffement 15 min.', '3 × 8–10 min à allure « confortablement difficile » (≈ 85 % VMA), 2 min de récup.', 'Retour au calme 10 min.'],
+  ['Courir au seuil trop souvent', 'Allure trop rapide'], 'Vous devez pouvoir dire quelques mots, pas tenir une conversation.', '3 × 10 min');
+M('course', 'sl', 'Sortie longue', 'Séance', 'Aucun', 2, 'Endurance, économie de course',
+  ['Courez 1 h à 1 h 45 en endurance fondamentale.', 'Hydratez-vous toutes les 20–30 min si > 1 h.', 'Les 10 dernières minutes peuvent être un peu plus rapides si vous êtes bien.'],
+  ['Allure trop rapide', 'Augmenter la durée de plus de 10 % par semaine'], 'Une fois par semaine maximum.', '60–105 min');
+M('course', 'cotes', 'Côtes', 'Séance', 'Une côte de 5–8 %', 2, 'Puissance, foulée',
+  ['Échauffement 20 min.', '8–10 montées de 30–45 s en accentuant le travail des bras et des genoux.', 'Redescendez en trottinant, puis retour au calme.'],
+  ['Se pencher en avant à l’excès', 'Courtes foulées écrasées'], 'Excellent renforcement musculaire spécifique.', '8–10 × 30 s');
+M('course', 'talons', 'Talons-fesses', 'Gammes', 'Aucun', 1, 'Ischios, coordination',
+  ['En trottinant, ramenez les talons vers les fesses.', 'Restez sur l’avant du pied, buste droit.', 'Cadence rapide, petits pas.'],
+  ['Se pencher en arrière', 'Pas trop longs'], 'À faire après 10 min d’échauffement.', '2 × 30 m');
+M('course', 'skipping', 'Montées de genoux (skipping)', 'Gammes', 'Aucun', 1, 'Fléchisseurs de hanche, cadence',
+  ['Montez les genoux à hauteur des hanches en avançant lentement.', 'Bras actifs, coudes à 90°.', 'Appuis brefs sur l’avant du pied.'],
+  ['Buste en arrière', 'Talons au sol'], 'Pensez « sol brûlant ».', '2 × 30 m');
+M('course', 'bondissantes', 'Foulées bondissantes', 'Gammes', 'Aucun', 2, 'Puissance, mollets, fessiers',
+  ['Enchaînez de grandes foulées en restant longtemps en l’air.', 'Poussez fort avec la jambe d’appui, genou opposé haut.', 'Bras en opposition.'],
+  ['Atterrir talon', 'Manquer de gainage'], 'Sur herbe pour limiter les chocs.', '3 × 30 m');
+M('course', 'chasses', 'Pas chassés', 'Gammes', 'Aucun', 1, 'Adducteurs, abducteurs, appuis',
+  ['De profil, déplacez-vous latéralement sans croiser les pieds.', 'Restez légèrement fléchi, sur l’avant du pied.', 'Alternez le côté.'],
+  ['Croiser les jambes', 'Se redresser'], 'Bon pour la stabilité de la cheville.', '2 × 20 m par côté');
+M('course', 'lignes', 'Accélérations progressives', 'Gammes', 'Aucun', 1, 'Vitesse, foulée',
+  ['Sur 80 m, partez en trottinant et accélérez progressivement.', 'Atteignez ≈ 90 % de votre vitesse max sur les 20 derniers mètres.', 'Revenez en marchant.'],
+  ['Démarrer trop fort', 'Crispation des épaules'], 'Restez relâché : mâchoire et mains détendues.', '3–5 × 80 m');
+M('course', 'technique', 'Posture et cadence', 'Technique', 'Aucun', 1, 'Économie de course',
+  ['Buste grand, légère inclinaison vers l’avant depuis les chevilles.', 'Pied qui se pose sous le centre de gravité, pas loin devant.', 'Cadence autour de 165–180 pas/min.'],
+  ['Attaque talon loin devant', 'Épaules crispées'], 'Augmenter la cadence de 5 % réduit souvent les chocs.', 'À chaque sortie');
 
-            <!-- Quick Start Workout / Loggers Card -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Enregistrer Running -->
-                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
-                    <h2 class="text-lg font-bold flex items-center space-x-2 text-emerald-400">
-                        <i class="fa-solid fa-person-running"></i><span>Enregistrer une séance Running</span>
-                    </h2>
-                    <form id="runningForm" onsubmit="logRunning(event)" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-xs text-slate-400">Date</label>
-                                <input type="date" id="runDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1 focus:outline-none focus:border-brand-500">
-                            </div>
-                            <div>
-                                <label class="text-xs text-slate-400">Distance (km)</label>
-                                <input type="number" step="0.01" id="runDistance" placeholder="10.5" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1 focus:outline-none focus:border-brand-500">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-xs text-slate-400">Temps (minutes)</label>
-                                <input type="number" id="runDuration" placeholder="55" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1 focus:outline-none focus:border-brand-500">
-                            </div>
-                            <div>
-                                <label class="text-xs text-slate-400">Dénivelé (+m)</label>
-                                <input type="number" id="runElevation" placeholder="150" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1 focus:outline-none focus:border-brand-500">
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-brand-500/20">Enregistrer la course</button>
-                    </form>
-                </div>
+// ---- Vélo
+M('velo', 'z2', 'Sortie endurance (zone 2)', 'Séance', 'Vélo', 1, 'Endurance', ['Roulez à une intensité où la respiration reste facile.', 'Cadence 85–95 tr/min, braquet souple.', 'Mangez toutes les 45 min si > 1 h 30.'], ['Rouler trop fort en montée', 'Braquet trop dur'], 'Base de toute progression à vélo.', '1–3 h');
+M('velo', 'sweet', 'Intervalles au seuil (2 × 20)', 'Séance', 'Vélo ou home-trainer', 3, 'Seuil, puissance', ['Échauffement 15 min progressif.', '2 × 20 min à effort « difficile mais tenable », 5 min récup.', 'Retour au calme 10 min.'], ['Partir trop fort', 'Cadence trop basse'], 'Gardez une cadence > 85 tr/min.', '2 × 20 min');
+M('velo', 'sprints', 'Sprints', 'Séance', 'Vélo', 2, 'Puissance', ['Après 20 min d’échauffement, sprintez 10–15 s à fond.', 'Récupérez 3–5 min en roulant souple.', 'Faites 6 à 8 sprints.'], ['Récup trop courte', 'Rester assis sur braquet trop dur'], 'Qualité > quantité.', '6–8 × 12 s');
+M('velo', 'velocite', 'Vélocité (cadence haute)', 'Technique', 'Vélo', 1, 'Coordination', ['Braquet léger, montez progressivement la cadence à 110–120 tr/min.', 'Gardez le bassin immobile sur la selle.', '5 × 1 min, récup 2 min.'], ['Sautiller sur la selle', 'Crisper le haut du corps'], 'Améliore l’efficacité du coup de pédale.', '5 × 1 min');
+M('velo', 'danseuse', 'Montée en danseuse', 'Technique', 'Vélo', 2, 'Puissance, gainage', ['Montez d’une ou deux dents, levez-vous de la selle.', 'Balancez légèrement le vélo de gauche à droite, pas le corps.', 'Alternez assis/danseuse pour gérer l’effort.'], ['Se pencher trop en avant', 'Braquet trop léger'], 'Utile pour relancer et changer de muscles.', 'Sur les bosses');
+M('velo', 'reglage', 'Réglage de la position', 'Technique', 'Vélo', 1, 'Confort, prévention', ['Hauteur de selle : jambe presque tendue, talon sur la pédale en bas.', 'Recul : genou à l’aplomb de l’axe de pédale à l’horizontale.', 'Guidon : buste à ~45°, bras légèrement fléchis.'], ['Selle trop basse (genoux)', 'Selle trop haute (bassin qui bascule)'], 'Une douleur au genou vient souvent de la hauteur de selle.', 'Une fois');
 
-                <!-- Enregistrer Musculation -->
-                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
-                    <h2 class="text-lg font-bold flex items-center space-x-2 text-indigo-400">
-                        <i class="fa-solid fa-dumbbell"></i><span>Enregistrer une séance Muscu</span>
-                    </h2>
-                    <form id="muscuForm" onsubmit="logMuscu(event)" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-xs text-slate-400">Date</label>
-                                <input type="date" id="muscuDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1 focus:outline-none focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="text-xs text-slate-400">Exercice</label>
-                                <select id="muscuExercise" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1 focus:outline-none focus:border-indigo-500">
-                                    <option value="Développé Couché">Développé Couché (Pectoraux)</option>
-                                    <option value="Squat">Squat (Jambes)</option>
-                                    <option value="Tractions">Tractions (Dos)</option>
-                                    <option value="Développé Militaire">Développé Militaire (Épaules)</option>
-                                    <option value="Soulevé de Terre">Soulevé de Terre (Chaîne Post.)</option>
-                                    <option value="Curl Biceps">Curl Biceps (Bras)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-3 gap-3">
-                            <div>
-                                <label class="text-xs text-slate-400">Poids (kg)</label>
-                                <input type="number" step="0.5" id="muscuWeight" placeholder="80" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1">
-                            </div>
-                            <div>
-                                <label class="text-xs text-slate-400">Séries</label>
-                                <input type="number" id="muscuSets" placeholder="4" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1">
-                            </div>
-                            <div>
-                                <label class="text-xs text-slate-400">Répétitions</label>
-                                <input type="number" id="muscuReps" placeholder="10" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm mt-1">
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-500/20">Enregistrer l'exercice</button>
-                    </form>
-                </div>
-            </div>
-        </section>
+// ---- Natation
+M('natation', 'crawl', 'Crawl', 'Nages', 'Piscine', 2, 'Dos, épaules, gainage', ['Corps allongé, tête dans l’axe, regard vers le fond.', 'Main qui entre devant l’épaule, tirez jusqu’à la hanche.', 'Respirez sur le côté tous les 2 ou 3 temps.'], ['Tête trop haute (jambes qui coulent)', 'Mains qui croisent l’axe'], 'Expirez dans l’eau en continu.', '4 × 50 m');
+M('natation', 'brasse', 'Brasse', 'Nages', 'Piscine', 1, 'Pectoraux, cuisses', ['Tirez les bras en cœur, respirez quand la tête sort.', 'Ramenez les talons vers les fesses, pieds en « canard ».', 'Fouettez puis glissez bras tendus.'], ['Ne pas glisser', 'Genoux trop écartés'], 'Le temps de glisse fait la vitesse.', '4 × 50 m');
+M('natation', 'dos', 'Dos crawlé', 'Nages', 'Piscine', 2, 'Dos, épaules', ['Sur le dos, oreilles dans l’eau, hanches hautes.', 'Bras tendu qui entre auriculaire en premier.', 'Battements de jambes réguliers depuis la hanche.'], ['Assis dans l’eau', 'Genoux qui sortent'], 'Regardez le plafond, pas vos pieds.', '4 × 50 m');
+M('natation', 'papillon', 'Papillon', 'Nages', 'Piscine', 3, 'Épaules, gainage', ['Ondulation du corps depuis la poitrine.', 'Deux battements de jambes par cycle de bras.', 'Respiration devant, menton qui glisse sur l’eau.'], ['Ondulation trop ample', 'Bras qui sortent fléchis'], 'Commencez par l’ondulation seule.', '4 × 25 m');
+M('natation', 'rattrape', 'Éducatif : crawl rattrapé', 'Éducatifs', 'Piscine', 1, 'Technique', ['Un bras attend devant que l’autre bras le rejoigne.', 'Allongez au maximum chaque mouvement.', 'Respirez du côté du bras qui tire.'], ['Bras qui tombent', 'Pas de rotation'], 'Améliore la glisse et la longueur de coulée.', '4 × 25 m');
+M('natation', 'planche', 'Battements avec planche', 'Éducatifs', 'Planche', 1, 'Jambes', ['Bras tendus sur la planche, visage dans l’eau si possible.', 'Battements depuis la hanche, pieds en extension.', 'Petite amplitude rapide.'], ['Pédaler', 'Plier les genoux'], 'Chevilles souples, comme des palmes.', '4 × 25 m');
+M('natation', 'pull', 'Pull-buoy', 'Éducatifs', 'Pull-buoy', 1, 'Bras, dos', ['Pull-buoy entre les cuisses, nagez en crawl bras seuls.', 'Concentrez-vous sur la traction.', 'Gardez le corps aligné.'], ['Bassin qui balance', 'Traction courte'], 'Idéal pour travailler le haut du corps.', '4 × 50 m');
+M('natation', 'resp3', 'Respiration 3 temps', 'Éducatifs', 'Piscine', 2, 'Respiration, symétrie', ['Respirez tous les 3 mouvements de bras, alternativement à gauche et à droite.', 'Expirez lentement dans l’eau.', 'Tournez la tête, ne la levez pas.'], ['Bloquer la respiration', 'Lever la tête'], 'Rend la nage plus symétrique.', '4 × 50 m');
 
-        <!-- TAB 2: CALENDAR -->
-        <section id="tab-calendar" class="space-y-6 tab-content hidden">
-            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 id="calendarMonthTitle" class="text-xl font-bold">Calendrier des Activités</h2>
-                    <div class="flex items-center space-x-2 text-xs">
-                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block mr-1"></span> Running</span>
-                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-indigo-500 inline-block mr-1"></span> Musculation</span>
-                    </div>
-                </div>
-                <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-center">
-                    <!-- Généré en JS -->
-                </div>
-            </div>
-        </section>
+// ---- HIIT / Cross-training
+M('hiit', 'burpee', 'Burpees', 'Corps entier', 'Aucun', 2, 'Corps entier, cardio', ['Debout, posez les mains au sol et lancez les pieds en arrière.', 'Pompe (optionnelle), ramenez les pieds sous vous.', 'Sautez bras en l’air.'], ['Dos qui s’affaisse', 'Atterrir jambes tendues'], 'Version douce : sans pompe ni saut.', '40 s / 20 s');
+M('hiit', 'jj', 'Jumping jacks', 'Cardio', 'Aucun', 1, 'Cardio', ['Sautez en écartant pieds et bras.', 'Revenez pieds joints, bras le long du corps.', 'Rythme régulier.'], ['Atterrir talons', 'Bras mous'], 'Parfait pour s’échauffer.', '45 s');
+M('hiit', 'mc', 'Mountain climbers', 'Cardio', 'Aucun', 1, 'Gainage, cardio', ['Position de pompe, mains sous les épaules.', 'Ramenez les genoux vers la poitrine en alternance rapide.', 'Bassin bas et stable.'], ['Fesses en l’air', 'Mains trop avancées'], 'Plus vite = plus cardio, plus lent = plus gainage.', '30–40 s');
+M('hiit', 'squatjump', 'Squat sauté', 'Jambes', 'Aucun', 2, 'Jambes, explosivité', ['Descendez en squat.', 'Sautez le plus haut possible.', 'Réceptionnez souplement en squat.'], ['Genoux qui rentrent à la réception', 'Atterrir jambes tendues'], 'Atterrissez silencieusement.', '30 s');
+M('hiit', 'thruster', 'Thrusters', 'Corps entier', 'Haltères ou barre', 2, 'Jambes, épaules', ['Charge aux épaules, descendez en squat.', 'Remontez explosif et poussez la charge au-dessus de la tête.', 'Enchaînez sans pause.'], ['Pousser avec les bras seulement', 'Squat partiel'], 'Utilisez l’élan des jambes.', '3 × 12');
+M('hiit', 'boxjump', 'Box jump', 'Jambes', 'Box', 2, 'Explosivité', ['Face à la box, bras en arrière.', 'Sautez et atterrissez en squat sur la box.', 'Redescendez en marchant.'], ['Box trop haute', 'Redescendre en sautant (tendons)'], 'Hauteur modérée, qualité du saut.', '5 × 5');
+M('hiit', 'corde', 'Corde à sauter', 'Cardio', 'Corde', 1, 'Mollets, cardio, coordination', ['Coudes près du corps, rotation par les poignets.', 'Petits sauts sur l’avant du pied.', 'Regard droit devant.'], ['Sauter trop haut', 'Bras qui tournent'], 'Excellente pour la cheville du coureur.', '3 × 1 min');
+M('hiit', 'fentesaut', 'Fentes sautées', 'Jambes', 'Aucun', 3, 'Jambes, cardio', ['Position de fente.', 'Sautez et changez de jambe en l’air.', 'Réceptionnez en fente contrôlée.'], ['Genou arrière qui tape', 'Buste penché'], 'Remplacez par des fentes alternées si trop dur.', '30 s');
+M('hiit', 'commando', 'Planche commando', 'Gainage', 'Aucun', 2, 'Gainage, triceps', ['Planche sur les avant-bras.', 'Montez main par main en planche haute, puis redescendez.', 'Alternez le bras de départ.'], ['Bassin qui tourne', 'Fesses hautes'], 'Pieds écartés = plus stable.', '30 s');
+M('hiit', 'wallball', 'Wall ball', 'Corps entier', 'Medecine-ball + mur', 2, 'Jambes, épaules', ['Ballon contre la poitrine, squat.', 'Remontez et lancez le ballon sur une cible haute.', 'Rattrapez et enchaînez le squat.'], ['Squat partiel', 'Lancer avec les bras'], 'Le lancer part des jambes.', '3 × 15');
+M('hiit', 'rameur', 'Rameur', 'Cardio', 'Rameur', 1, 'Corps entier', ['Poussez avec les jambes, puis basculez le buste, puis tirez les bras.', 'Retour dans l’ordre inverse : bras, buste, jambes.', 'Cadence 24–30 coups/min.'], ['Tirer avec les bras d’abord', 'Dos rond'], '60 % jambes, 20 % buste, 20 % bras.', '500 m');
 
-        <!-- TAB 3: WORKOUT & REST TIMER -->
-        <section id="tab-workout" class="space-y-6 tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Chrono de Repos Interactif -->
-                <div class="bg-slate-900/85 border border-slate-800 p-6 rounded-2xl flex flex-col items-center justify-center text-center space-y-6">
-                    <h2 class="text-xl font-bold flex items-center space-x-2">
-                        <i class="fa-solid fa-stopwatch text-brand-400"></i><span>Chronomètre de Repos</span>
-                    </h2>
-                    <div class="relative flex items-center justify-center">
-                        <div class="w-48 h-48 rounded-full border-4 border-slate-800 flex items-center justify-center bg-slate-950 shadow-inner">
-                            <span id="timerDisplay" class="text-5xl font-black font-mono text-brand-400">01:30</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap justify-center gap-2">
-                        <button onclick="setTimer(30)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold">30s</button>
-                        <button onclick="setTimer(60)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold">60s</button>
-                        <button onclick="setTimer(90)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold">90s</button>
-                        <button onclick="setTimer(120)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold">120s</button>
-                    </div>
-                    <div class="flex space-x-3 w-full">
-                        <button onclick="startTimer()" class="flex-1 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold py-3 rounded-xl transition">Lancer</button>
-                        <button onclick="pauseTimer()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition">Pause</button>
-                        <button onclick="resetTimer()" class="flex-1 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 font-bold py-3 rounded-xl transition border border-rose-900/50">Reset</button>
-                    </div>
-                </div>
+// ---- Yoga / Mobilité
+M('mobilite', 'chien', 'Chien tête en bas', 'Postures', 'Tapis', 1, 'Ischios, mollets, épaules', ['À quatre pattes, montez les hanches vers le ciel.', 'Allongez le dos, talons vers le sol (genoux fléchis si besoin).', 'Respirez lentement 5 fois.'], ['Dos rond', 'Épaules qui remontent aux oreilles'], 'Priorité au dos long, pas aux jambes tendues.', '5 respirations');
+M('mobilite', 'cobra', 'Cobra', 'Postures', 'Tapis', 1, 'Abdos (étirement), dos', ['Allongé sur le ventre, mains sous les épaules.', 'Décollez la poitrine en gardant le pubis au sol.', 'Épaules basses, coudes légèrement fléchis.'], ['Écraser les lombaires', 'Hausser les épaules'], 'Montez seulement jusqu’où c’est confortable.', '5 respirations');
+M('mobilite', 'enfant', 'Posture de l’enfant', 'Postures', 'Tapis', 1, 'Dos, hanches', ['À genoux, asseyez-vous sur les talons.', 'Allongez les bras devant, front au sol.', 'Respirez dans le dos.'], ['Forcer sur les genoux'], 'Posture de récupération à tout moment.', '1 min');
+M('mobilite', 'guerrier1', 'Guerrier I', 'Postures', 'Tapis', 1, 'Jambes, psoas', ['Fente avant, pied arrière tourné à 45°.', 'Bassin face à l’avant, bras au-dessus de la tête.', 'Genou avant au-dessus de la cheville.'], ['Genou qui dépasse', 'Dos cambré'], 'Rentrez légèrement le ventre.', '5 respirations par côté');
+M('mobilite', 'guerrier2', 'Guerrier II', 'Postures', 'Tapis', 1, 'Jambes, hanches', ['Grand écart des pieds, pied avant ouvert à 90°.', 'Fléchissez le genou avant, bras à l’horizontale.', 'Regard au-dessus de la main avant.'], ['Buste penché vers l’avant', 'Genou qui rentre'], 'Pensez à grandir le buste.', '5 respirations par côté');
+M('mobilite', 'pigeon', 'Pigeon', 'Hanches', 'Tapis', 2, 'Fessiers, rotateurs de hanche', ['Depuis le chien, amenez un genou derrière le poignet.', 'Allongez la jambe arrière, bassin à plat.', 'Penchez-vous vers l’avant.'], ['Bassin qui bascule sur le côté', 'Douleur au genou (arrêtez)'], 'Coussin sous la fesse si besoin.', '1 min par côté');
+M('mobilite', 'chatvache', 'Chat-vache', 'Dos', 'Tapis', 1, 'Colonne vertébrale', ['À quatre pattes.', 'Inspirez en creusant le dos, regard devant.', 'Expirez en arrondissant le dos, menton vers la poitrine.'], ['Mouvement trop rapide', 'Bras pliés'], 'Synchronisez avec la respiration.', '10 cycles');
+M('mobilite', 'fentebasse', 'Fente basse (psoas)', 'Hanches', 'Tapis', 1, 'Fléchisseurs de hanche', ['Genou arrière au sol, pied avant devant.', 'Avancez le bassin en serrant le fessier arrière.', 'Restez grand.'], ['Cambrer le bas du dos'], 'Indispensable si vous êtes assis longtemps.', '45 s par côté');
+M('mobilite', 'ischios', 'Étirement des ischios', 'Jambes', 'Tapis ou sangle', 1, 'Ischios', ['Allongé, une jambe tendue vers le ciel avec une sangle.', 'Gardez l’autre jambe au sol.', 'Rapprochez doucement sans arrondir le bassin.'], ['Tirer brutalement', 'Décoller le bassin'], 'Respirez, ne forcez pas.', '45 s par jambe');
+M('mobilite', 'thoracique', 'Ouverture thoracique', 'Dos', 'Tapis', 1, 'Haut du dos', ['Couché sur le côté, genoux à 90°, bras tendus devant.', 'Ouvrez le bras du dessus vers l’arrière en suivant la main du regard.', 'Revenez lentement.'], ['Genoux qui se séparent'], 'Excellent pour la posture.', '8 par côté');
+M('mobilite', '9090', 'Rotation de hanches 90/90', 'Hanches', 'Tapis', 2, 'Mobilité de hanche', ['Assis, une jambe devant à 90°, l’autre sur le côté à 90°.', 'Basculez les genoux de l’autre côté sans les mains.', 'Gardez le buste droit.'], ['S’aider des mains trop tôt'], 'Mains au sol derrière au début.', '10 rotations');
+M('mobilite', 'pont', 'Pont fessier', 'Hanches', 'Tapis', 1, 'Fessiers, lombaires', ['Allongé, pieds au sol près des fesses.', 'Montez le bassin en serrant les fessiers.', 'Redescendez vertèbre par vertèbre.'], ['Cambrer'], 'Pause 2 s en haut.', '3 × 12');
 
-                <!-- Live Exercise Guide & Image Simulation -->
-                <div class="bg-slate-900/85 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between space-y-4">
-                    <div>
-                        <h2 class="text-xl font-bold mb-1">Guide de l'Exercice en cours</h2>
-                        <p class="text-xs text-slate-400">Aide visuelle interactive et consignes de posture.</p>
-                    </div>
-                    <div id="exercisePreviewContainer" class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-3 h-56 relative overflow-hidden">
-                        <div id="exerciseIcon" class="text-5xl text-indigo-400">
-                            <i class="fa-solid fa-dumbbell"></i>
-                        </div>
-                        <h3 id="previewTitle" class="font-bold text-lg">Sélectionnez un exercice</h3>
-                        <p id="previewDesc" class="text-xs text-slate-400 max-w-xs">Le suivi s'ajustera automatiquement selon vos performances et votre niveau adaptatif.</p>
-                    </div>
-                    <div class="text-xs text-slate-500 text-center">
-                        <i class="fa-solid fa-circle-info mr-1"></i> Respectez les temps de repos pour optimiser l'hypertrophie.
-                    </div>
-                </div>
-            </div>
-        </section>
+// ---- Marche / Rando
+M('marche', 'active', 'Marche active', 'Séance', 'Aucun', 1, 'Cardio', ['Marchez à un rythme où vous êtes légèrement essoufflé.', 'Bras qui balancent, pas déroulés du talon à la pointe.', 'Ajoutez 5 min chaque semaine.'], ['Pas trop longs', 'Regarder ses pieds'], 'Idéal pour reprendre.', '30–45 min');
+M('marche', 'nordique', 'Marche nordique', 'Séance', 'Bâtons', 2, 'Corps entier', ['Bâtons plantés en arrière, poussée active des bras.', 'Coordination bras-jambes opposés.', 'Déroulez bien le pied.'], ['Planter les bâtons devant', 'Bras raides'], 'Sollicite 80 % des muscles.', '45–60 min');
+M('marche', 'montee', 'Montée et descente en rando', 'Technique', 'Chaussures de rando', 2, 'Jambes', ['Montée : petits pas réguliers, respiration calée sur le pas.', 'Descente : genoux fléchis, pas courts, bâtons devant.', 'Faites une pause courte toutes les heures.'], ['Partir trop vite', 'Descente jambes tendues'], 'Rythme régulier = on va plus loin.', 'Selon le dénivelé');
 
-        <!-- TAB 4: PROGRESS -->
-        <section id="tab-progress" class="space-y-6 tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl">
-                    <h3 class="font-bold text-lg mb-4 text-brand-400">Évolution Running (Distance par séance)</h3>
-                    <div class="h-64"><canvas id="runningChart"></canvas></div>
-                </div>
-                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl">
-                    <h3 class="font-bold text-lg mb-4 text-indigo-400">Évolution Musculation (Charge max en kg)</h3>
-                    <div class="h-64"><canvas id="muscuChart"></canvas></div>
-                </div>
-            </div>
-        </section>
+// ===================== SESSIONS / PROGRAMMES =====================
+// élément de séance : { mv, sets, reps | sec, kg, rest }  ;  bloc cardio : { t, d }
+const I = (mv, sets, reps, rest = 90, extra = {}) => Object.assign({ mv, sets, reps, rest }, extra);
+const T = (mv, sets, sec, rest = 30) => ({ mv, sets, sec, rest });
+const B = (t, d) => ({ t, d });
 
-        <!-- TAB 5: GOALS & PENALTIES -->
-        <section id="tab-goals" class="space-y-6 tab-content hidden">
-            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-xl font-bold text-red-400 flex items-center space-x-2">
-                            <i class="fa-solid fa-triangle-exclamation"></i><span>Objectifs & Pénalités Hebdomadaires</span>
-                        </h2>
-                        <p class="text-xs text-slate-400">Si l'objectif n'est pas rempli à la fin de la semaine, la pénalité s'applique.</p>
-                    </div>
-                    <button onclick="openGoalModal()" class="bg-red-600/20 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-xl hover:bg-red-600/30 transition">
-                        <i class="fa-solid fa-plus mr-1"></i> Définir un contrat
-                    </button>
-                </div>
-                <div id="goalsContainer" class="space-y-3">
-                    <!-- Dynamique -->
-                </div>
-            </div>
-        </section>
+const PROGRAMS = [
+  { id: 'remise', nom: 'Remise en forme', obj: 'forme', niv: 1, sem: 6, freq: 3, mat: 'aucun', ic: '🌱',
+    desc: 'Pour reprendre en douceur : renforcement au poids du corps et cardio progressif.',
+    prog: 'Ajoutez 1 répétition par série chaque semaine, et 5 min de marche/course.',
+    seances: [
+      { nom: 'Corps entier A', sport: 'muscu', items: [T('jj', 2, 45, 30), I('goblet', 3, 12, 60), I('pompe', 3, 8, 60), I('pont', 3, 12, 45), T('gainage', 3, 25, 30)] },
+      { nom: 'Cardio doux', sport: 'marche', blocks: [B('Échauffement', '5 min de marche tranquille'), B('Corps', '25 min de marche active (légèrement essoufflé)'), B('Retour au calme', '5 min lent + étirements')] },
+      { nom: 'Corps entier B', sport: 'muscu', items: [T('jj', 2, 45, 30), I('fentes', 3, 8, 60), I('rowh', 3, 10, 60), I('pont', 3, 15, 45), T('gainlat', 2, 20, 30)] }
+    ] },
+  { id: 'fb', nom: 'Prise de muscle — Full body', obj: 'muscle', niv: 2, sem: 8, freq: 3, mat: 'salle', ic: '💪',
+    desc: 'Tout le corps 3 fois par semaine : idéal pour progresser vite en hypertrophie.',
+    prog: 'Double progression : quand toutes les séries atteignent le haut de la fourchette, +2,5 kg.',
+    seances: [
+      { nom: 'Full body A', sport: 'muscu', items: [I('squat', 4, 8, 150), I('dc', 4, 8, 120), I('rowb', 3, 10, 90), I('elev', 3, 15, 60), I('curl', 2, 12, 60), T('gainage', 3, 45, 45)] },
+      { nom: 'Full body B', sport: 'muscu', items: [I('sdtr', 3, 10, 120), I('dm', 4, 8, 120), I('tirage', 3, 10, 90), I('fentes', 3, 10, 90), I('triceps', 2, 12, 60), I('releve', 3, 12, 60)] },
+      { nom: 'Full body C', sport: 'muscu', items: [I('presse', 3, 12, 120), I('dih', 3, 10, 90), I('tractions', 3, 6, 120), I('hipthrust', 3, 10, 90), I('facepull', 3, 15, 60), I('marteau', 2, 12, 60)] }
+    ] },
+  { id: 'hb', nom: 'Prise de muscle — Haut / Bas', obj: 'muscle', niv: 3, sem: 8, freq: 4, mat: 'salle', ic: '🏆',
+    desc: '4 séances par semaine, plus de volume par muscle pour les pratiquants réguliers.',
+    prog: 'Double progression + 1 série supplémentaire sur les exercices principaux à partir de la semaine 5.',
+    seances: [
+      { nom: 'Haut A (force)', sport: 'muscu', items: [I('dc', 4, 6, 150), I('rowb', 4, 6, 150), I('dm', 3, 8, 120), I('tractions', 3, 8, 120), I('triceps', 3, 12, 60)] },
+      { nom: 'Bas A (force)', sport: 'muscu', items: [I('squat', 4, 6, 180), I('sdtr', 3, 8, 150), I('legcurl', 3, 12, 60), I('mollets', 4, 15, 60), T('gainage', 3, 60, 45)] },
+      { nom: 'Haut B (volume)', sport: 'muscu', items: [I('dih', 4, 10, 90), I('tirage', 4, 10, 90), I('elev', 4, 15, 60), I('ecarte', 3, 15, 60), I('curl', 3, 12, 60), I('facepull', 3, 15, 60)] },
+      { nom: 'Bas B (volume)', sport: 'muscu', items: [I('presse', 4, 12, 120), I('hipthrust', 4, 10, 90), I('fentes', 3, 10, 90), I('legcurl', 3, 15, 60), I('releve', 3, 15, 60)] }
+    ] },
+  { id: 'force', nom: 'Force 5 × 5', obj: 'force', niv: 2, sem: 8, freq: 3, mat: 'salle', ic: '🏋️',
+    desc: 'Les grands mouvements, peu de répétitions, charges lourdes. Simple et redoutable.',
+    prog: '+2,5 kg à chaque séance réussie (5 kg au soulevé de terre). Échec 3 fois : −10 %.',
+    seances: [
+      { nom: 'Séance A', sport: 'muscu', items: [I('squat', 5, 5, 180), I('dc', 5, 5, 180), I('rowb', 5, 5, 150)] },
+      { nom: 'Séance B', sport: 'muscu', items: [I('squat', 5, 5, 180), I('dm', 5, 5, 180), I('sdt', 1, 5, 180)] }
+    ] },
+  { id: 'perte', nom: 'Perte de poids — HIIT + cardio', obj: 'poids', niv: 1, sem: 6, freq: 4, mat: 'aucun', ic: '🔥',
+    desc: 'Dépense énergétique élevée, maintien du muscle, sans matériel.',
+    prog: 'Ajoutez 1 tour de circuit toutes les 2 semaines ; marche/footing +5 min par semaine.',
+    seances: [
+      { nom: 'Circuit HIIT', sport: 'hiit', items: [T('jj', 3, 40, 20), T('squatjump', 3, 30, 30), T('mc', 3, 30, 30), T('burpee', 3, 30, 30), T('gainage', 3, 30, 30)] },
+      { nom: 'Endurance', sport: 'course', blocks: [B('Échauffement', '5 min de marche rapide'), B('Corps', '30 min en endurance fondamentale (course lente ou alternance course/marche)'), B('Retour au calme', '5 min de marche')] },
+      { nom: 'Renfo + gainage', sport: 'muscu', items: [I('goblet', 3, 15, 60), I('pompe', 3, 10, 60), I('fentes', 3, 12, 60), I('swing', 3, 15, 60), T('gainlat', 3, 30, 30)] },
+      { nom: 'Marche longue', sport: 'marche', blocks: [B('Corps', '45–60 min de marche active ou marche nordique')] }
+    ] },
+  { id: '5k', nom: 'Premier 5 km', obj: 'endurance', niv: 1, sem: 8, freq: 3, mat: 'aucun', ic: '🎯',
+    desc: 'De la marche à 30 min de course continue en 8 semaines.', gen: 'c5k',
+    prog: 'Chaque semaine, plus de course et moins de marche. Répétez une semaine si elle était trop dure.', seances: [] },
+  { id: '10k', nom: '10 km — progresser', obj: 'endurance', niv: 2, sem: 8, freq: 3, mat: 'aucun', ic: '🏃',
+    desc: 'Une séance de qualité, une séance d’endurance, une sortie longue.',
+    prog: 'Sortie longue +5 min par semaine (max 75 min), fractionné +1 répétition toutes les 2 semaines.',
+    seances: [
+      { nom: 'Fractionné', sport: 'course', ref: 'fc', blocks: [B('Échauffement', '20 min footing + gammes (talons-fesses, skipping) + 3 accélérations'), B('Corps', '2 × 8 × 30/30 à VMA, 3 min de récup entre les blocs'), B('Retour au calme', '10 min footing lent')] },
+      { nom: 'Endurance + renfo', sport: 'course', ref: 'ef', blocks: [B('Corps', '40 min en endurance fondamentale'), B('Renfo', '3 × (15 squats, 10 fentes par jambe, 40 s de gainage)')] },
+      { nom: 'Sortie longue', sport: 'course', ref: 'sl', blocks: [B('Corps', '60 min en endurance fondamentale, les 10 dernières minutes à allure 10 km')] }
+    ] },
+  { id: 'maison', nom: 'À la maison sans matériel', obj: 'muscle', niv: 2, sem: 6, freq: 3, mat: 'aucun', ic: '🏠',
+    desc: 'Renforcement complet au poids du corps, en 30 minutes.',
+    prog: '+2 répétitions par semaine ; quand c’est facile, passez à la variante plus dure (pompes déclinées, fentes bulgares).',
+    seances: [
+      { nom: 'Poussée + jambes', sport: 'muscu', items: [I('pompe', 4, 12, 60), I('fentes', 4, 12, 60), I('dips', 3, 10, 60), I('pont', 3, 15, 45), T('gainage', 3, 45, 30)] },
+      { nom: 'Tirage + gainage', sport: 'muscu', items: [I('tractions', 4, 5, 90), I('goblet', 4, 20, 60), T('gainlat', 3, 30, 30), I('releve', 3, 12, 45), T('mc', 3, 30, 30)] },
+      { nom: 'Circuit métabolique', sport: 'hiit', items: [T('burpee', 4, 30, 30), T('squatjump', 4, 30, 30), T('commando', 4, 30, 30), T('jj', 4, 40, 20)] }
+    ] },
+  { id: 'mob', nom: 'Mobilité & souplesse', obj: 'mobilite', niv: 1, sem: 4, freq: 4, mat: 'aucun', ic: '🧘',
+    desc: '15 à 20 minutes pour bouger mieux, moins de raideurs et un dos plus libre.',
+    prog: 'Tenez chaque posture 5 s de plus chaque semaine.',
+    seances: [
+      { nom: 'Dos & hanches', sport: 'mobilite', items: [T('chatvache', 1, 60, 10), T('chien', 2, 40, 15), T('fentebasse', 2, 45, 10), T('pigeon', 2, 60, 10), T('enfant', 1, 60, 0)] },
+      { nom: 'Jambes & épaules', sport: 'mobilite', items: [T('ischios', 2, 45, 10), T('9090', 2, 60, 15), T('thoracique', 2, 45, 10), T('guerrier2', 2, 40, 10), T('cobra', 2, 30, 10)] }
+    ] },
+  { id: 'nage', nom: 'Natation — endurance', obj: 'endurance', niv: 2, sem: 6, freq: 2, mat: 'piscine', ic: '🏊',
+    desc: 'Améliorer technique et endurance en crawl.',
+    prog: '+100 m sur le corps de séance chaque semaine.',
+    seances: [
+      { nom: 'Technique', sport: 'natation', blocks: [B('Échauffement', '200 m nage libre + 4 × 25 m battements planche'), B('Éducatifs', '4 × 50 m crawl rattrapé, 4 × 50 m respiration 3 temps'), B('Corps', '6 × 100 m crawl, 20 s de récup'), B('Retour au calme', '100 m dos souple')] },
+      { nom: 'Endurance', sport: 'natation', blocks: [B('Échauffement', '300 m varié'), B('Corps', '3 × 400 m crawl (dont 1 avec pull-buoy), 45 s de récup'), B('Retour au calme', '100 m brasse')] }
+    ] },
+  { id: 'veloP', nom: 'Vélo — foncier', obj: 'endurance', niv: 2, sem: 6, freq: 3, mat: 'velo', ic: '🚴',
+    desc: 'Construire une base d’endurance et de puissance à vélo.',
+    prog: 'Sortie longue +15 min par semaine ; seuil 2 × 15 → 2 × 25 min.',
+    seances: [
+      { nom: 'Seuil', sport: 'velo', ref: 'sweet', blocks: [B('Échauffement', '15 min progressif'), B('Corps', '2 × 20 min effort difficile mais tenable, 5 min récup'), B('Retour au calme', '10 min souple')] },
+      { nom: 'Vélocité', sport: 'velo', ref: 'velocite', blocks: [B('Corps', '60 min zone 2 avec 5 × 1 min à 110–120 tr/min')] },
+      { nom: 'Sortie longue', sport: 'velo', ref: 'z2', blocks: [B('Corps', '2 h en endurance, cadence 85–95 tr/min, mangez toutes les 45 min')] }
+    ] }
+];
+// « Premier 5 km » : séances générées semaine par semaine (course / marche)
+const C5K = [[1, 2, 8], [2, 2, 6], [3, 2, 5], [5, 2, 4], [8, 2, 3], [10, 1.5, 3], [15, 2, 2], [30, 0, 1]];
+PROGRAMS.find(p => p.id === '5k').weeks = C5K.map(([run, walk, rep], w) => [0, 1, 2].map(k => ({
+  nom: `Semaine ${w + 1} · séance ${k + 1}`, sport: 'course', ref: 'ef',
+  blocks: [B('Échauffement', '5 min de marche rapide'), B('Corps', walk ? `${rep} × (${run} min de course lente + ${walk} min de marche)` : `${run} min de course continue, très lentement`), B('Retour au calme', '5 min de marche + étirements doux')]
+})));
+const OBJ = { forme: 'Remise en forme', muscle: 'Prise de muscle', force: 'Force', poids: 'Perte de poids', endurance: 'Endurance', mobilite: 'Mobilité' };
 
-    </main>
+// ===================== TEST DE CAPACITÉS =====================
+// barèmes indicatifs (adulte 20-29 ans), ajustés avec l'âge ; score 1 (faible) à 5 (excellent)
+const TESTS = [
+  { id: 'pompes', nom: 'Pompes maximum', q: 'force_haut', unit: 'répétitions', mv: 'pompe', how: 'Pompes complètes (sur les genoux pour les femmes si besoin, notez-le), sans pause, corps aligné. Arrêtez à la première pompe mal faite.', h: [17, 22, 29, 36], f: [10, 15, 21, 30], f_note: 'Femmes : pompes sur les genoux acceptées.' },
+  { id: 'squats', nom: 'Squats en 1 minute', q: 'force_bas', unit: 'répétitions', mv: 'goblet', how: 'Squats au poids du corps, cuisses parallèles au sol, le plus possible en 60 s.', h: [22, 30, 38, 45], f: [18, 25, 33, 40], timer: 60 },
+  { id: 'gainage', nom: 'Gainage planche', q: 'gainage', unit: 'secondes', mv: 'gainage', how: 'Planche sur les avant-bras, corps aligné. Arrêtez dès que le bassin tombe ou monte.', h: [30, 60, 90, 120], f: [30, 60, 90, 120], stopwatch: true },
+  { id: 'tractions', nom: 'Tractions (si barre)', q: 'force_haut2', unit: 'répétitions', mv: 'tractions', how: 'Tractions complètes, menton au-dessus de la barre, bras tendus en bas. Sans barre : laissez vide.', h: [1, 4, 8, 12], f: [1, 1, 3, 5], optional: true },
+  { id: 'souplesse', nom: 'Souplesse (flexion avant)', q: 'souplesse', unit: 'niveau', mv: 'ischios', how: 'Debout jambes tendues, penchez-vous lentement vers l’avant. Jusqu’où vont vos mains ?', choices: ['Genoux', 'Tibias', 'Chevilles', 'Bout des doigts au sol', 'Paumes au sol'] },
+  { id: 'cardio', nom: 'Cardio', q: 'cardio', mv: 'ef', how: 'Choisissez UN test : Cooper (courir le plus loin possible en 12 min) ou Ruffier-Dickson (30 squats en 45 s, à faire chez soi avec la mesure du pouls).', cardio: true }
+];
+const COOPER = { h: [1600, 2200, 2400, 2800], f: [1500, 1800, 2200, 2700] };
+const QUAL = { force_haut: 'Force haut du corps', force_bas: 'Force jambes', gainage: 'Gainage', souplesse: 'Souplesse', cardio: 'Cardio' };
 
-    <!-- FOOTER / QUICK LOG HISTORY -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            ApexFit Pro v2.5 • Stockage Local Sécurisé • Déployé sur GitHub Pages
-        </div>
-    </footer>
+</script>
+<script>
+// ===================== OUTILS =====================
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseD = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const today = () => ymd(new Date());
+const fmtDate = (s, o = { weekday: 'long', day: 'numeric', month: 'long' }) => parseD(s).toLocaleDateString('fr-FR', o);
+const mmss = s => `${pad(Math.floor(s / 60))}:${pad(Math.floor(s % 60))}`;
+const hmin = m => m >= 60 ? `${Math.floor(m / 60)} h ${pad(Math.round(m % 60))}` : `${Math.round(m)} min`;
+const mvById = id => LIB.find(m => m.id === id);
+const mvName = it => (mvById(it.mv) || {}).n || it.n || it.mv;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const monday = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+const ICONS = {
+  home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>', grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>', list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>', user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  left: '<path d="m15 18-6-6 6-6"/>', right: '<path d="m9 18 6-6-6-6"/>', check: '<path d="M20 6 9 17l-5-5"/>', x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  play: '<path d="M7 4v16l13-8z"/>', trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>', save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+  flame: '<path d="M12 22c4 0 7-3 7-7 0-5-5-7-5-12-3 2-5 5-5 8-1-1-2-2-2-4-2 2-2 5-2 8 0 4 3 7 7 7z"/>', test: '<path d="M9 3h6M10 3v6L4 20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1L14 9V3"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/>', edit: '<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'
+};
+const ic = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]}</svg>`;
+function toast(t, ms = 2600) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), ms); }
+function beep(f = 880, ms = 180) { try { const a = beep.ctx || (beep.ctx = new (window.AudioContext || window.webkitAudioContext)()), o = a.createOscillator(), g = a.createGain(); o.frequency.value = f; o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(.25, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + ms / 1000); o.start(); o.stop(a.currentTime + ms / 1000); } catch (e) {} try { navigator.vibrate && navigator.vibrate(200); } catch (e) {} }
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // --- APP STATE ---
-        let state = JSON.parse(localStorage.getItem('apexfit_state')) || {
-            workouts: [],
-            goals: [
-                { id: 1, title: "Courir au moins 20 km dans la semaine", target: 20, current: 0, unit: "km", penalty: "Pas de dessert ou 50 burpees", completed: false },
-                { id: 2, title: "Faire 3 séances de musculation", target: 3, current: 0, unit: "séances", penalty: "Donner 10€ à une association ou corvée de ménage", completed: false }
-            ],
-            streak: 0,
-            level: 1,
-            xp: 0
-        };
+// ===================== DONNÉES =====================
+const KEY = 'apexfit_v3';
+let S = load();
+function blank() { return { v: 3, profile: { prenom: '', age: 30, sexe: 'h', poids: '', taille: '', obj: 'forme', jours: 3, mat: ['aucun'], sports: [] }, sessions: [], templates: [], tests: [], prog: null, goals: [], skipTest: false }; }
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) return Object.assign(blank(), s); } catch (e) {}
+  const s = blank();
+  try { // reprise des données de l'ancienne version (apexfit_state)
+    const o = JSON.parse(localStorage.getItem('apexfit_state'));
+    if (o && Array.isArray(o.workouts)) {
+      const map = { 'Développé Couché': 'dc', 'Squat': 'squat', 'Tractions': 'tractions', 'Développé Militaire': 'dm', 'Soulevé de Terre': 'sdt', 'Curl Biceps': 'curl' };
+      o.workouts.forEach(w => {
+        if (w.type === 'running') s.sessions.push({ id: uid(), date: w.date, sport: 'course', nom: 'Course', dur: +w.duration || 0, dist: +w.distance || 0, deniv: +w.elevation || 0, rpe: 0 });
+        else if (w.type === 'muscu') s.sessions.push({ id: uid(), date: w.date, sport: 'muscu', nom: w.exercise, dur: (w.sets || 3) * 3, rpe: 0, items: [{ mv: map[w.exercise] || w.exercise, n: w.exercise, sets: Array.from({ length: w.sets || 1 }, () => ({ reps: w.reps, kg: w.weight, done: true })) }] });
+      });
+      (o.goals || []).forEach(g => s.goals.push({ id: uid(), type: g.unit === 'km' ? 'km' : 'seances', sport: g.unit === 'km' ? 'course' : (g.id === 2 ? 'muscu' : 'all'), target: g.target, titre: g.title, penalite: g.penalty }));
+      s.profile.sports = [...new Set(s.sessions.map(x => x.sport))];
+    }
+  } catch (e) {}
+  if (!s.goals.length) s.goals = [{ id: uid(), type: 'seances', sport: 'all', target: 3, titre: '3 séances par semaine', penalite: '50 burpees' }];
+  return s;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('⚠️ Mémoire pleine : exportez vos données (Profil)'); } }
+const sessionsOf = sp => S.sessions.filter(x => !sp || x.sport === sp);
+const practiced = () => { const set = new Set([...(S.profile.sports || []), ...S.sessions.map(x => x.sport)]); return Object.keys(SPORTS).filter(k => set.has(k)); };
+const distKm = x => !x.dist ? 0 : (SPORTS[x.sport] && SPORTS[x.sport].dist === 'm' ? x.dist / 1000 : x.dist);
+const volKg = x => (x.items || []).reduce((a, it) => a + it.sets.filter(s => s.done).reduce((b, s) => b + (+s.reps || 0) * (+s.kg || 0), 0), 0);
+const e1rm = (kg, r) => kg * (1 + r / 30);
 
-        // --- NAVIGATION TABS ---
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-brand-500', 'text-slate-950');
-                btn.classList.add('bg-slate-900', 'text-slate-400');
-            });
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            event.currentTarget.classList.remove('bg-slate-900', 'text-slate-400');
-            event.currentTarget.classList.add('bg-brand-500', 'text-slate-950');
+// ===================== NAVIGATION =====================
+let route = { v: 'home' }, calMonth = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
+function go(v, p = {}) { if (v === 'sport' && p.sp !== route.sp) { spTab = 'suivi'; libQ = ''; libG = 'Tous'; } route = Object.assign({ v }, p); render(); window.scrollTo(0, 0); }
+function render() {
+  const v = route.v;
+  $$('.nav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v || (v === 'sport' && b.dataset.v === 'sports')));
+  const back = v === 'sport';
+  $('#top').innerHTML = `${back ? `<button class="back" onclick="go('sports')">${ic('left')}</button>` : '<img src="icons/icon.svg" alt="">'}
+    <div><b>${back ? esc(SPORTS[route.sp].ic + ' ' + SPORTS[route.sp].nom) : 'APEX<span>FIT</span>'}</b><small>${back ? 'Suivi, mouvements, séances types' : greeting()}</small></div>
+    <div class="streak">${ic('flame')}<span>${streak()} j</span></div>`;
+  ({ home: vHome, sports: vSports, sport: vSport, programmes: vProgrammes, profil: vProfil })[v]();
+}
+function greeting() { const h = new Date().getHours(); return `${h < 18 ? 'Bonjour' : 'Bonsoir'}${S.profile.prenom ? ' ' + esc(S.profile.prenom) : ''} · ${fmtDate(today(), { weekday: 'long', day: 'numeric', month: 'long' })}`; }
+// série réelle : jours consécutifs avec au moins une séance (aujourd'hui ou hier pour ne pas casser la série du jour)
+function streak() {
+  const days = new Set(S.sessions.map(x => x.date)); let d = new Date(); if (!days.has(ymd(d))) d.setDate(d.getDate() - 1);
+  let n = 0; while (days.has(ymd(d))) { n++; d.setDate(d.getDate() - 1); } return n;
+}
+function weekStats(off = 0) {
+  const a = monday(new Date()); a.setDate(a.getDate() + 7 * off); const b = new Date(a); b.setDate(b.getDate() + 7);
+  const L = S.sessions.filter(x => { const d = parseD(x.date); return d >= a && d < b; });
+  return { L, n: L.length, min: L.reduce((s, x) => s + (+x.dur || 0), 0), km: L.reduce((s, x) => s + distKm(x), 0), days: new Set(L.map(x => x.date)).size, a };
+}
 
-            if(tabId === 'calendar') renderCalendar();
-            if(tabId === 'progress') renderCharts();
-            if(tabId === 'goals') renderGoals();
-        }
+// ===================== ACCUEIL : RÉCAP + CALENDRIER =====================
+function vHome() {
+  const w = weekStats(), goal = +S.profile.jours || 3, p = clamp(Math.round(w.days / goal * 100), 0, 100), prev = weekStats(-1);
+  const delta = w.min - prev.min, nx = nextProgSession(), lastTest = S.tests.at(-1);
+  let h = `<div class="card hero"><div class="row" style="position:relative;gap:16px">
+    <div class="ring" style="--p:${p}"><div><b>${w.days}/${goal}</b><small>jours</small></div></div>
+    <div style="flex:1"><div class="mu small">Cette semaine</div><div style="font-size:22px;font-weight:800;margin:2px 0">${w.n} séance${w.n > 1 ? 's' : ''} · ${hmin(w.min)}</div>
+    <div class="mu small">${w.km ? w.km.toFixed(1) + ' km parcourus · ' : ''}${prev.min || w.min ? (delta >= 0 ? '▲ ' : '▼ ') + hmin(Math.abs(delta)) + ' vs sem. dernière' : 'Commencez votre semaine !'}</div></div></div>
+    <canvas class="ch" id="weekChart" height="120" style="margin-top:12px;position:relative"></canvas></div>`;
+  // prochaine action
+  if (!lastTest && !S.skipTest) h += `<div class="card" style="border-color:rgba(245,158,11,.4)"><div class="row"><div class="em" style="font-size:30px">🧪</div><div style="flex:1"><b>Faites le test de capacités</b><div class="mu small">15–25 min pour mesurer force, gainage, souplesse et cardio, puis recevoir un programme adapté.</div></div></div>
+    <div class="grid2" style="margin-top:12px"><button class="btn pri" onclick="startTest()">${ic('test')}Commencer</button><button class="btn ghost" onclick="S.skipTest=true;save();render()">Plus tard</button></div></div>`;
+  if (nx) h += `<div class="card"><div class="mu tiny" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800">Prochaine séance · ${esc(nx.p.nom)}</div>
+    <div class="row" style="margin-top:8px"><div class="em" style="font-size:28px">${SPORTS[nx.s.sport].ic}</div><div style="flex:1"><b style="font-size:17px">${esc(nx.s.nom)}</b><div class="mu small">${sessDesc(nx.s)}</div></div></div>
+    <div class="pbar" style="margin:12px 0 6px"><i style="width:${Math.round(nx.done / nx.total * 100)}%"></i></div><div class="mu tiny">${nx.done}/${nx.total} séances du programme</div>
+    <button class="btn pri w" style="margin-top:12px" onclick="startProgSession()">${ic('play')}Démarrer la séance</button></div>`;
+  else if (lastTest || S.skipTest) h += `<div class="card"><div class="row"><div class="em" style="font-size:28px">📋</div><div style="flex:1"><b>Choisissez un programme</b><div class="mu small">${lastTest ? 'Votre niveau : ' + lastTest.levelTxt + '. Des programmes vous sont recommandés.' : 'Des séances prêtes à suivre selon votre objectif.'}</div></div></div><button class="btn w" style="margin-top:12px" onclick="go('programmes')">Voir les programmes</button></div>`;
+  // calendrier
+  h += `<h3 class="sec">Calendrier</h3><div class="card">${calendar()}</div>`;
+  // sports pratiqués
+  const P = practiced();
+  h += `<h3 class="sec">Mes sports <a onclick="go('sports')">Tout voir</a></h3>`;
+  h += P.length ? `<div class="sports">${P.map(k => spCard(k)).join('')}</div>` : `<div class="card empty"><div class="e">🏁</div>Enregistrez une première séance avec le bouton <b>+</b>.</div>`;
+  // dernières séances
+  const last = [...S.sessions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
+  if (last.length) h += `<h3 class="sec">Dernières séances</h3>${last.map(sessRow).join('')}`;
+  $('#view').innerHTML = h;
+  weekChart();
+}
+function spCard(k) {
+  const L = sessionsOf(k), m = new Date().getMonth(), y = new Date().getFullYear(), mo = L.filter(x => { const d = parseD(x.date); return d.getMonth() === m && d.getFullYear() === y; });
+  const sp = SPORTS[k], extra = sp.dist ? `${mo.reduce((a, x) => a + distKm(x), 0).toFixed(1)} km` : hmin(mo.reduce((a, x) => a + (+x.dur || 0), 0));
+  return `<button class="sp" style="--c:${sp.c}" onclick="go('sport',{sp:'${k}'})"><span class="e">${sp.ic}</span><span><b>${sp.nom}</b><br><small>${mo.length} ce mois · ${extra}</small></span></button>`;
+}
+function weekChart() {
+  const c = $('#weekChart'); if (!c) return; const W = c.width = c.clientWidth * 2, H = c.height = 240, x = c.getContext('2d'), a = monday(new Date());
+  const days = [...Array(7)].map((_, i) => { const d = new Date(a); d.setDate(d.getDate() + i); return ymd(d); });
+  const per = days.map(d => S.sessions.filter(s => s.date === d)), mx = Math.max(30, ...per.map(L => L.reduce((s, z) => s + (+z.dur || 0), 0)));
+  const bw = W / 7, lab = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  per.forEach((L, i) => {
+    let y = H - 40; const x0 = i * bw + bw * .22, w = bw * .56;
+    x.fillStyle = 'rgba(255,255,255,.06)'; roundRect(x, x0, 16, w, H - 56, 12); x.fill();
+    L.forEach(s => { const h = (+s.dur || 0) / mx * (H - 60); x.fillStyle = SPORTS[s.sport].c; roundRect(x, x0, y - h, w, Math.max(h, 6), 10); x.fill(); y -= h; });
+    x.fillStyle = days[i] === today() ? '#4ade80' : '#64708a'; x.font = '700 22px -apple-system,system-ui'; x.textAlign = 'center'; x.fillText(lab[i], x0 + w / 2, H - 8);
+  });
+}
+function roundRect(x, a, b, w, h, r) { r = Math.min(r, w / 2, h / 2); x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
+function calendar() {
+  const y = calMonth.getFullYear(), m = calMonth.getMonth(), first = new Date(y, m, 1), start = monday(first), plan = plannedDays();
+  let h = `<div class="cal-h"><button onclick="calMonth=new Date(${y},${m - 1},1);render()">${ic('left')}</button><b style="text-transform:capitalize">${first.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</b><button onclick="calMonth=new Date(${y},${m + 1},1);render()">${ic('right')}</button></div><div class="cal">`;
+  h += ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => `<div class="dn">${d}</div>`).join('');
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i); const k = ymd(d), L = S.sessions.filter(s => s.date === k);
+    if (i >= 35 && d.getMonth() !== m) break;
+    h += `<div class="d${d.getMonth() !== m ? ' out' : ''}${k === today() ? ' today' : ''}${L.length ? ' act' : ''}${plan.has(k) && !L.length ? ' plan' : ''}" onclick="openDay('${k}')"><span>${d.getDate()}</span><span class="dots">${[...new Set(L.map(s => s.sport))].map(s => `<i style="background:${SPORTS[s].c}"></i>`).join('')}</span></div>`;
+  }
+  const used = [...new Set(S.sessions.map(s => s.sport))];
+  return h + `</div><div class="legend">${used.map(s => `<span><i style="background:${SPORTS[s].c}"></i>${SPORTS[s].nom}</span>`).join('')}${plan.size ? '<span><i style="border:1.5px solid var(--warn)"></i>Séance prévue</span>' : ''}</div>`;
+}
+// jours prévus par le programme suivi (selon la fréquence, à partir d'aujourd'hui)
+function plannedDays() {
+  const set = new Set(); if (!S.prog) return set; const p = PROGRAMS.find(x => x.id === S.prog.id); if (!p) return set;
+  const pattern = { 2: [1, 4], 3: [0, 2, 4], 4: [0, 1, 3, 4], 5: [0, 1, 2, 4, 5] }[p.freq] || [0, 2, 4];
+  const a = monday(new Date()); for (let w = 0; w < 6; w++) pattern.forEach(i => { const d = new Date(a); d.setDate(d.getDate() + w * 7 + i); if (ymd(d) >= today()) set.add(ymd(d)); });
+  return set;
+}
+function sessDesc(s) { return s.items ? s.items.slice(0, 4).map(mvName).join(' · ') + (s.items.length > 4 ? ' …' : '') : (s.blocks || []).map(b => b.d).join(' · ').slice(0, 90); }
+function sessRow(s) {
+  const sp = SPORTS[s.sport], info = [s.dur ? hmin(s.dur) : '', s.dist ? (sp.dist === 'm' ? s.dist + ' m' : (+s.dist).toFixed(2) + ' km') : '', s.items ? s.items.length + ' exos' : '', s.rpe ? 'RPE ' + s.rpe : ''].filter(Boolean).join(' · ');
+  return `<button class="li" onclick="openSession('${s.id}')"><span class="em" style="background:${sp.c}22">${sp.ic}</span><span class="t"><b>${esc(s.nom || sp.nom)}</b><small>${fmtDate(s.date, { weekday: 'short', day: 'numeric', month: 'short' })} · ${info}</small></span><span class="chev">${ic('right')}</span></button>`;
+}
+function openDay(k) {
+  const L = S.sessions.filter(s => s.date === k);
+  sheet(`<h2 style="text-transform:capitalize">${fmtDate(k)}</h2><p class="mu small">${L.length ? L.length + ' séance(s)' : 'Aucune séance ce jour-là.'}</p>${L.map(sessRow).join('')}
+    <button class="btn pri w" style="margin-top:14px" onclick="closeSheet();logForm(null,'${k}')">${ic('plus')}Ajouter une séance ce jour</button>`);
+}
+function openSession(id) {
+  const s = S.sessions.find(x => x.id === id); if (!s) return; const sp = SPORTS[s.sport];
+  let h = `<h2>${sp.ic} ${esc(s.nom || sp.nom)}</h2><p class="mu small" style="text-transform:capitalize">${fmtDate(s.date)}</p><div class="grid3" style="margin-top:10px">
+    <div class="kpi"><div class="l">Durée</div><div class="v">${s.dur ? hmin(s.dur) : '—'}</div></div>
+    <div class="kpi"><div class="l">${s.items ? 'Volume' : 'Distance'}</div><div class="v">${s.items ? Math.round(volKg(s)) + '<small> kg</small>' : s.dist ? (sp.dist === 'm' ? s.dist + '<small> m</small>' : (+s.dist).toFixed(2) + '<small> km</small>') : '—'}</div></div>
+    <div class="kpi"><div class="l">Ressenti</div><div class="v">${s.rpe ? s.rpe + '<small>/10</small>' : '—'}</div></div></div>`;
+  if (s.sport === 'course' && s.dist && s.dur) h += `<p class="mu small">Allure moyenne : <b style="color:var(--tx)">${pace(s.dur / s.dist)}/km</b>${s.deniv ? ' · D+ ' + s.deniv + ' m' : ''}</p>`;
+  if (s.items) h += s.items.map(it => `<div class="kpi" style="margin-top:8px"><b>${esc(mvName(it))}</b><div class="mu small" style="margin-top:4px">${it.sets.filter(z => z.done).map(z => z.sec ? z.sec + ' s' : (z.reps || 0) + (z.kg ? ' × ' + z.kg + ' kg' : ' reps')).join(' · ') || 'Aucune série validée'}</div></div>`).join('');
+  if (s.blocks) h += s.blocks.map(b => `<div class="kpi" style="margin-top:8px"><b>${esc(b.t)}</b><div class="mu small">${esc(b.d)}</div></div>`).join('');
+  if (s.notes) h += `<p class="small" style="margin-top:10px">📝 ${esc(s.notes)}</p>`;
+  h += `<div class="grid2" style="margin-top:14px"><button class="btn" onclick="saveAsTemplate('${s.id}')">${ic('save')}Séance type</button><button class="btn" onclick="replay('${s.id}')">${ic('play')}Refaire</button></div>
+    <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Supprimer cette séance ?')){S.sessions=S.sessions.filter(x=>x.id!=='${s.id}');save();closeSheet();render();toast('Séance supprimée')}">${ic('trash')}Supprimer</button>`;
+  sheet(h);
+}
+const pace = minPerKm => { const s = Math.round(minPerKm * 60); return `${Math.floor(s / 60)}:${pad(s % 60)}`; };
 
-        // Init Form Dates
-        document.getElementById('runDate').valueAsDate = new Date();
-        document.getElementById('muscuDate').valueAsDate = new Date();
+// ===================== FEUILLES =====================
+function sheet(html) { closeSheet(); const b = document.createElement('div'); b.className = 'sheet-bg'; b.id = 'sheetBg'; b.innerHTML = `<div class="sheet"><div class="grab"></div>${html}</div>`; b.addEventListener('click', e => { if (e.target === b) closeSheet(); }); document.body.appendChild(b); }
+function closeSheet() { const b = $('#sheetBg'); if (b) b.remove(); }
 
-        // --- LOG RUNNING ---
-        function logRunning(e) {
-            e.preventDefault();
-            const date = document.getElementById('runDate').value;
-            const distance = parseFloat(document.getElementById('runDistance').value);
-            const duration = parseInt(document.getElementById('runDuration').value);
-            const elevation = parseInt(document.getElementById('runElevation').value) || 0;
+// ===================== PAGE SPORTS =====================
+function vSports() {
+  const P = practiced(), others = Object.keys(SPORTS).filter(k => !P.includes(k));
+  $('#view').innerHTML = `<h1 class="vt">Mes sports</h1>${P.length ? `<div class="sports">${P.map(spCard).join('')}</div>` : '<div class="card empty"><div class="e">🏁</div>Aucun sport encore. Choisissez-en un ci-dessous.</div>'}
+    <h3 class="sec">${P.length ? 'Autres sports' : 'Tous les sports'}</h3><div class="sports">${others.map(k => `<button class="sp off" style="--c:${SPORTS[k].c}" onclick="addSport('${k}')"><span class="e">${SPORTS[k].ic}</span><span><b>${SPORTS[k].nom}</b><br><small>+ Ajouter</small></span></button>`).join('')}</div>`;
+}
+function addSport(k) { if (!S.profile.sports.includes(k)) S.profile.sports.push(k); save(); go('sport', { sp: k }); }
 
-            state.workouts.push({
-                type: 'running',
-                date,
-                distance,
-                duration,
-                elevation
-            });
+// ===================== PAGE D'UN SPORT =====================
+let spTab = 'suivi', libQ = '', libG = 'Tous';
+function vSport() {
+  const k = route.sp, sp = SPORTS[k], L = sessionsOf(k).sort((a, b) => b.date.localeCompare(a.date)), tpl = S.templates.filter(t => t.sport === k);
+  const nLib = LIB.filter(m => m.s === k || (k === 'marche' && m.s === 'marche')).length;
+  let h = `<div class="grid2"><button class="btn pri" onclick="startPicker('${k}')">${ic('play')}Démarrer</button><button class="btn" onclick="logForm('${k}')">${ic('plus')}Enregistrer</button></div>
+    <div class="seg">${[['suivi', 'Suivi'], ['lib', `Mouvements (${nLib})`], ['tpl', `Séances types (${tpl.length})`]].map(([t, l]) => `<button class="${spTab === t ? 'on' : ''}" onclick="spTab='${t}';render()">${l}</button>`).join('')}</div>`;
+  if (spTab === 'suivi') {
+    const tot = L.reduce((a, x) => a + (+x.dur || 0), 0), km = L.reduce((a, x) => a + distKm(x), 0);
+    h += `<div class="grid3"><div class="kpi"><div class="l">Séances</div><div class="v">${L.length}</div></div><div class="kpi"><div class="l">Temps</div><div class="v" style="font-size:20px">${hmin(tot)}</div></div>
+      <div class="kpi"><div class="l">${sp.dist ? 'Distance' : sp.kind === 'force' ? 'Volume' : 'Ressenti moy.'}</div><div class="v" style="font-size:20px">${sp.dist ? km.toFixed(1) + '<small> km</small>' : sp.kind === 'force' ? Math.round(L.reduce((a, x) => a + volKg(x), 0) / 1000 * 10) / 10 + '<small> t</small>' : avgRpe(L)}</div></div></div>`;
+    h += records(k, L);
+    h += `<h3 class="sec">Évolution</h3><div class="card">${k === 'muscu' ? exoPicker(L) : ''}<canvas class="ch" id="spChart" height="200"></canvas><div class="mu tiny" id="spChartL"></div></div>`;
+    h += `<h3 class="sec">Historique</h3>${L.length ? L.slice(0, 40).map(sessRow).join('') : `<div class="card empty"><div class="e">${sp.ic}</div>Pas encore de séance de ${sp.nom.toLowerCase()}.</div>`}`;
+  } else if (spTab === 'lib') h += libView(k);
+  else h += tplView(k, tpl);
+  $('#view').innerHTML = h;
+  if (spTab === 'suivi') spChart(k, L);
+}
+const avgRpe = L => { const r = L.filter(x => x.rpe); return r.length ? (r.reduce((a, x) => a + +x.rpe, 0) / r.length).toFixed(1) + '<small>/10</small>' : '—'; };
+function records(k, L) {
+  const sp = SPORTS[k]; if (!L.length) return '';
+  const R = [];
+  if (sp.dist) {
+    const lg = L.reduce((a, x) => distKm(x) > distKm(a) ? x : a, L[0]); R.push(['Plus longue', sp.dist === 'm' ? lg.dist + ' m' : distKm(lg).toFixed(2) + ' km', lg.date]);
+    if (k === 'course') { const r = L.filter(x => x.dist >= 3 && x.dur); if (r.length) { const b = r.reduce((a, x) => x.dur / x.dist < a.dur / a.dist ? x : a); R.push(['Meilleure allure (≥ 3 km)', pace(b.dur / b.dist) + '/km', b.date]); } }
+    const dp = L.reduce((a, x) => (+x.deniv || 0) > (+a.deniv || 0) ? x : a, L[0]); if (dp.deniv) R.push(['Plus gros D+', dp.deniv + ' m', dp.date]);
+  } else if (sp.kind === 'force') {
+    const best = {}; L.forEach(x => (x.items || []).forEach(it => it.sets.filter(z => z.done && z.kg && z.reps).forEach(z => { const v = e1rm(+z.kg, +z.reps); if (!best[it.mv] || v > best[it.mv].v) best[it.mv] = { v, z, d: x.date, n: mvName(it) }; })));
+    Object.values(best).sort((a, b) => b.v - a.v).slice(0, 4).forEach(b => R.push([b.n, `${b.z.reps} × ${b.z.kg} kg <small class="mu">(1RM ≈ ${Math.round(b.v)} kg)</small>`, b.d]));
+    const lg = L.reduce((a, x) => (+x.dur || 0) > (+a.dur || 0) ? x : a, L[0]); if (!R.length && lg.dur) R.push(['Plus longue séance', hmin(lg.dur), lg.date]);
+  }
+  return R.length ? `<h3 class="sec">Records</h3><div class="card">${R.map(([a, b, d]) => `<div class="row" style="justify-content:space-between;padding:6px 0"><span class="mu small">🏅 ${esc(a)}</span><span style="text-align:right"><b>${b}</b><br><small class="mu tiny">${fmtDate(d, { day: 'numeric', month: 'short' })}</small></span></div>`).join('')}</div>` : '';
+}
+let chartExo = null;
+function exoPicker(L) {
+  const ids = [...new Set(L.flatMap(x => (x.items || []).filter(it => it.sets.some(z => z.done && z.kg)).map(it => it.mv)))];
+  if (!ids.length) return ''; if (!ids.includes(chartExo)) chartExo = ids[0];
+  return `<div class="chips" style="margin-bottom:10px">${ids.map(id => `<button class="chip ${id === chartExo ? 'on' : ''}" onclick="chartExo='${id}';render()">${esc(mvName({ mv: id }))}</button>`).join('')}</div>`;
+}
+function spChart(k, L) {
+  const c = $('#spChart'); if (!c) return; const sp = SPORTS[k]; let pts = [], lab = '';
+  if (k === 'muscu' && chartExo) {
+    pts = [...L].reverse().map(x => { const it = (x.items || []).find(i => i.mv === chartExo); if (!it) return null; const v = Math.max(0, ...it.sets.filter(z => z.done && z.kg).map(z => e1rm(+z.kg, +z.reps || 1))); return v ? [x.date, v] : null; }).filter(Boolean);
+    lab = '1RM estimé (kg) — formule d’Epley, par séance';
+  } else { // par semaine sur 12 semaines
+    const a = monday(new Date()); a.setDate(a.getDate() - 77);
+    for (let w = 0; w < 12; w++) { const s0 = new Date(a); s0.setDate(s0.getDate() + w * 7); const s1 = new Date(s0); s1.setDate(s1.getDate() + 7); const W = L.filter(x => { const d = parseD(x.date); return d >= s0 && d < s1; }); pts.push([ymd(s0), sp.dist ? W.reduce((s, x) => s + distKm(x), 0) : W.reduce((s, x) => s + (+x.dur || 0), 0)]); }
+    lab = sp.dist ? 'Kilomètres par semaine (12 dernières semaines)' : 'Minutes par semaine (12 dernières semaines)';
+  }
+  $('#spChartL').textContent = lab; drawLine(c, pts, sp.c, !(k === 'muscu' && chartExo));
+}
+function drawLine(c, pts, col, bars) {
+  const W = c.width = c.clientWidth * 2, H = c.height = 400, x = c.getContext('2d'), P = 60; x.clearRect(0, 0, W, H);
+  if (!pts.length) { x.fillStyle = '#64708a'; x.font = '26px system-ui'; x.textAlign = 'center'; x.fillText('Pas encore assez de données', W / 2, H / 2); return; }
+  const mx = Math.max(1, ...pts.map(p => p[1])) * 1.15, n = pts.length, X = i => P + (n === 1 ? (W - P - 20) / 2 : i * (W - P - 20) / (n - 1)), Y = v => H - 40 - v / mx * (H - 70);
+  x.strokeStyle = 'rgba(255,255,255,.06)'; x.fillStyle = '#64708a'; x.font = '20px system-ui'; x.textAlign = 'right';
+  for (let k = 0; k <= 3; k++) { const v = mx * k / 3; x.beginPath(); x.moveTo(P, Y(v)); x.lineTo(W - 10, Y(v)); x.stroke(); x.fillText(v >= 100 ? Math.round(v) : v.toFixed(1), P - 8, Y(v) + 7); }
+  x.textAlign = 'center'; pts.forEach((p, i) => { if (n <= 8 || i % Math.ceil(n / 6) === 0) x.fillText(parseD(p[0]).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }), X(i), H - 10); });
+  if (bars) { const bw = Math.min(46, (W - P) / n * .6); pts.forEach((p, i) => { x.fillStyle = col; x.globalAlpha = p[0] >= ymd(monday(new Date())) ? 1 : .55; roundRect(x, X(i) - bw / 2, Y(p[1]), bw, Math.max(4, H - 40 - Y(p[1])), 8); x.fill(); }); x.globalAlpha = 1; return; }
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, col + '66'); g.addColorStop(1, col + '00');
+  x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(X(i), Y(p[1])) : x.moveTo(X(i), Y(p[1]))); x.lineTo(X(n - 1), H - 40); x.lineTo(X(0), H - 40); x.fillStyle = g; x.fill();
+  x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(X(i), Y(p[1])) : x.moveTo(X(i), Y(p[1]))); x.strokeStyle = col; x.lineWidth = 5; x.stroke();
+  pts.forEach((p, i) => { x.beginPath(); x.arc(X(i), Y(p[1]), 7, 0, 7); x.fillStyle = col; x.fill(); });
+}
 
-            updateGamification(15);
-            saveAndRefresh();
-            alert('Séance de Running enregistrée avec succès ! 🏃‍♂️');
-            document.getElementById('runningForm').reset();
-            document.getElementById('runDate').valueAsDate = new Date();
-        }
+// ---- Bibliothèque de mouvements
+function libView(k) {
+  const all = LIB.filter(m => m.s === k), groups = ['Tous', ...new Set(all.map(m => m.g))];
+  if (!groups.includes(libG)) libG = 'Tous';
+  const q = libQ.toLowerCase(), L = all.filter(m => (libG === 'Tous' || m.g === libG) && (!q || (m.n + m.mu + m.g).toLowerCase().includes(q)));
+  if (!all.length) return `<div class="card empty"><div class="e">📚</div>Pour ce sport, ajoutez librement vos activités avec « Enregistrer ».</div>`;
+  return `<input class="in" placeholder="Rechercher un mouvement, un muscle…" value="${esc(libQ)}" oninput="libQ=this.value;const p=this.selectionStart;render();const i=$('.in');i.focus();i.setSelectionRange(p,p)">
+    <div class="chips" style="margin:10px 0">${groups.map(g => `<button class="chip ${g === libG ? 'on' : ''}" onclick="libG='${esc(g)}';render()">${esc(g)}</button>`).join('')}</div>
+    ${L.map(m => `<button class="li" onclick="openMv('${m.id}')"><span class="em">${SPORTS[m.s].ic}</span><span class="t"><b>${esc(m.n)}</b><small>${esc(m.mu)} · ${esc(m.mat)}</small></span>${lvl(m.niv)}</button>`).join('') || '<div class="empty">Aucun résultat</div>'}`;
+}
+const lvl = n => `<span class="lvl" title="Niveau ${n}/3">${[1, 2, 3].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>`;
+function openMv(id, fromLive) {
+  const m = mvById(id); if (!m) return;
+  sheet(`<div class="mu tiny" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800">${SPORTS[m.s].nom} · ${esc(m.g)}</div><h2>${esc(m.n)}</h2>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin:8px 0"><span class="pill">💪 ${esc(m.mu)}</span><span class="pill">🧰 ${esc(m.mat)}</span><span class="pill">Niveau ${lvl(m.niv)}</span>${m.dose ? `<span class="pill ok">⏱ ${esc(m.dose)}</span>` : ''}</div>
+    <h3 class="sec" style="margin-top:14px">Exécution</h3><ol class="how">${m.how.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+    <h3 class="sec">Erreurs fréquentes</h3><ul class="err">${m.err.map(s => `<li>${esc(s)}</li>`).join('')}</ul>
+    ${m.tip ? `<div class="tip">💡 ${esc(m.tip)}</div>` : ''}
+    <a class="btn w" style="margin-top:14px;text-decoration:none" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(m.n + ' technique exécution')}">${ic('play')}Voir des vidéos de démonstration</a>
+    ${fromLive ? '' : `<button class="btn pri w" style="margin-top:8px" onclick="closeSheet();quickStart('${m.s}','${m.id}')">${ic('plus')}Faire une séance avec ce mouvement</button>`}`);
+}
 
-        // --- LOG MUSCULATUION ---
-        function logMuscu(e) {
-            e.preventDefault();
-            const date = document.getElementById('muscuDate').value;
-            const exercise = document.getElementById('muscuExercise').value;
-            const weight = parseFloat(document.getElementById('muscuWeight').value);
-            const sets = parseInt(document.getElementById('muscuSets').value);
-            const reps = parseInt(document.getElementById('muscuReps').value);
+// ---- Séances types
+function tplView(k, tpl) {
+  return `<button class="btn w" onclick="startLive({sport:'${k}',nom:'Nouvelle séance type',items:${SPORTS[k].kind === 'cardio' ? 'null' : '[]'},blocks:${SPORTS[k].kind === 'cardio' ? "[{t:'Échauffement',d:'10 min'},{t:'Corps de séance',d:''},{t:'Retour au calme',d:'5 min'}]" : 'null'}},{tplMode:true})">${ic('plus')}Créer une séance type</button>
+    <p class="mu small" style="margin:10px 4px">Astuce : après chaque séance, cochez « Enregistrer comme séance type » pour la refaire en un geste.</p>
+    ${tpl.length ? tpl.map(t => `<div class="li" style="cursor:default"><span class="em">${SPORTS[t.sport].ic}</span><span class="t"><b>${esc(t.nom)}</b><small>${esc(sessDesc(t))}</small></span>
+      <button class="btn sm pri" onclick="startTpl('${t.id}')">${ic('play')}</button><button class="btn sm" onclick="if(confirm('Supprimer la séance type ?')){S.templates=S.templates.filter(x=>x.id!=='${t.id}');save();render()}">${ic('trash')}</button></div>`).join('') : '<div class="card empty"><div class="e">💾</div>Aucune séance type pour l’instant.</div>'}`;
+}
+function startTpl(id) { const t = S.templates.find(x => x.id === id); if (t) startLive(JSON.parse(JSON.stringify(t)), { src: { type: 'tpl', id } }); }
+function saveAsTemplate(id) {
+  const s = S.sessions.find(x => x.id === id); const nom = prompt('Nom de la séance type :', s.nom || SPORTS[s.sport].nom); if (!nom) return;
+  S.templates.push(toTemplate(s, nom)); save(); toast('Séance type enregistrée 💾'); closeSheet();
+}
+function toTemplate(s, nom) {
+  return { id: uid(), sport: s.sport, nom, items: s.items ? s.items.map(it => ({ mv: it.mv, n: it.n, rest: it.rest || 90, sets: it.sets.map(z => ({ reps: z.reps, kg: z.kg, sec: z.sec })) })) : null, blocks: s.blocks ? s.blocks.map(b => ({ t: b.t, d: b.d })) : null, dist: s.dist || null };
+}
+function replay(id) { const s = S.sessions.find(x => x.id === id); closeSheet(); startLive(toTemplate(s, s.nom || SPORTS[s.sport].nom)); }
 
-            state.workouts.push({
-                type: 'muscu',
-                date,
-                exercise,
-                weight,
-                sets,
-                reps
-            });
+// ===================== + : DÉMARRER / ENREGISTRER =====================
+function plusMenu() {
+  sheet(`<h2>Nouvelle séance</h2><p class="mu small">Que voulez-vous faire ?</p>
+    ${nextProgSession() ? `<button class="li" onclick="closeSheet();startProgSession()"><span class="em">📋</span><span class="t"><b>Séance du programme</b><small>${esc(nextProgSession().s.nom)}</small></span>${ic('right')}</button>` : ''}
+    <button class="li" onclick="startPicker()"><span class="em">▶️</span><span class="t"><b>Démarrer une séance</b><small>Chrono, séries, minuteur de repos</small></span>${ic('right')}</button>
+    <button class="li" onclick="closeSheet();logForm()"><span class="em">✍️</span><span class="t"><b>Enregistrer une séance faite</b><small>Course, vélo, natation, autre…</small></span>${ic('right')}</button>
+    <button class="li" onclick="closeSheet();startTest()"><span class="em">🧪</span><span class="t"><b>Test de capacités</b><small>Évaluer son niveau et recevoir un programme</small></span>${ic('right')}</button>`);
+}
+function startPicker(k) {
+  if (!k) return sheet(`<h2>Quel sport ?</h2><div class="sports" style="margin-top:12px">${Object.keys(SPORTS).map(s => `<button class="sp" style="--c:${SPORTS[s].c}" onclick="startPicker('${s}')"><span class="e">${SPORTS[s].ic}</span><b>${SPORTS[s].nom}</b></button>`).join('')}</div>`);
+  const tpl = S.templates.filter(t => t.sport === k), sp = SPORTS[k];
+  const ready = PROGRAMS.flatMap(p => (p.seances || []).filter(s => s.sport === k).map(s => ({ s, p })));
+  sheet(`<h2>${sp.ic} ${sp.nom}</h2>
+    <button class="li" onclick="closeSheet();startLive({sport:'${k}',nom:'${esc(sp.nom)}',items:${sp.kind === 'cardio' ? 'null' : '[]'},blocks:${sp.kind === 'cardio' ? '[]' : 'null'}})"><span class="em">✨</span><span class="t"><b>Séance libre</b><small>${sp.kind === 'cardio' ? 'Chrono puis distance' : 'Ajoutez vos exercices au fur et à mesure'}</small></span>${ic('right')}</button>
+    ${tpl.length ? `<h3 class="sec">Mes séances types</h3>${tpl.map(t => `<button class="li" onclick="closeSheet();startTpl('${t.id}')"><span class="em">💾</span><span class="t"><b>${esc(t.nom)}</b><small>${esc(sessDesc(t))}</small></span>${ic('play')}</button>`).join('')}` : ''}
+    ${ready.length ? `<h3 class="sec">Séances prêtes</h3>${ready.slice(0, 8).map(({ s, p }) => `<button class="li" onclick="closeSheet();startLive(personalize(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(s))}'))))"><span class="em">${p.ic}</span><span class="t"><b>${esc(s.nom)}</b><small>${esc(p.nom)}</small></span>${ic('play')}</button>`).join('')}` : ''}`);
+}
+function quickStart(sport, mv) { startLive({ sport, nom: mvById(mv).n, items: SPORTS[sport].kind === 'cardio' ? null : [newItem(mv)], blocks: SPORTS[sport].kind === 'cardio' ? [{ t: mvById(mv).n, d: mvById(mv).dose || '' }] : null }); }
+function newItem(mv) {
+  const m = mvById(mv), timed = m && /(\d+)\s*s\b|min/.test(m.dose || '') && /gainage|Postures|Hanches|Dos|Jambes|Cardio|Gainage/.test(m.g) && !/rep/.test(m.dose);
+  const last = lastPerf(mv);
+  if (last) return { mv, rest: 90, sets: last.sets.map(z => ({ reps: z.reps, kg: z.kg, sec: z.sec })) };
+  return { mv, rest: timed ? 30 : 90, sets: [1, 2, 3].map(() => timed ? { sec: 30 } : { reps: 10, kg: '' }) };
+}
+function lastPerf(mv) { for (const s of [...S.sessions].sort((a, b) => b.date.localeCompare(a.date))) { const it = (s.items || []).find(i => i.mv === mv && i.sets.some(z => z.done)); if (it) return { date: s.date, sets: it.sets.filter(z => z.done) }; } return null; }
 
-            updateGamification(20);
-            saveAndRefresh();
-            alert('Exercice de Musculation enregistré avec succès ! 🏋️‍♂️');
-        }
+// ---- formulaire d'enregistrement rapide
+function logForm(k, date) {
+  const sports = Object.keys(SPORTS), sp = k || (practiced()[0] || 'course');
+  sheet(`<h2>Enregistrer une séance</h2><label class="f">Sport<select class="in" id="lfS" onchange="lfFields()">${sports.map(s => `<option value="${s}" ${s === sp ? 'selected' : ''}>${SPORTS[s].ic} ${SPORTS[s].nom}</option>`).join('')}</select></label>
+    <div class="grid2"><label class="f">Date<input class="in" type="date" id="lfD" value="${date || today()}"></label><label class="f">Durée (min)<input class="in" type="number" inputmode="numeric" id="lfT" placeholder="45"></label></div>
+    <div id="lfX"></div><label class="f">Nom (facultatif)<input class="in" id="lfN" placeholder="Ex. : Sortie du dimanche"></label>
+    <label class="f">Ressenti de l'effort : <b id="lfRv">6</b>/10<input type="range" min="1" max="10" value="6" id="lfR" oninput="$('#lfRv').textContent=this.value"></label>
+    <label class="f">Notes<textarea class="in" id="lfNo" placeholder="Météo, sensations, douleurs…"></textarea></label>
+    <button class="btn pri w" style="margin-top:14px" onclick="lfSave()">${ic('check')}Enregistrer</button>
+    <p class="mu tiny" style="text-align:center;margin-top:8px">Pour la musculation, utilisez plutôt « Démarrer » : séries, charges et repos sont suivis.</p>`);
+  lfFields();
+}
+function lfFields() {
+  const sp = SPORTS[$('#lfS').value];
+  $('#lfX').innerHTML = sp.dist ? `<div class="grid2"><label class="f">Distance (${sp.dist})<input class="in" type="number" step="${sp.dist === 'm' ? 25 : 0.01}" inputmode="decimal" id="lfDi" placeholder="${sp.dist === 'm' ? 1500 : 10}"></label>${sp.deniv ? '<label class="f">Dénivelé + (m)<input class="in" type="number" inputmode="numeric" id="lfDe" placeholder="0"></label>' : '<span></span>'}</div>` : '';
+}
+function lfSave() {
+  const sport = $('#lfS').value, dur = +$('#lfT').value, dist = $('#lfDi') ? +$('#lfDi').value : 0;
+  if (!dur && !dist) return toast('Indiquez au moins une durée ou une distance');
+  const s = { id: uid(), date: $('#lfD').value || today(), sport, nom: $('#lfN').value.trim() || SPORTS[sport].nom, dur, rpe: +$('#lfR').value, notes: $('#lfNo').value.trim() };
+  if (dist) s.dist = dist; if ($('#lfDe') && +$('#lfDe').value) s.deniv = +$('#lfDe').value;
+  addSession(s); closeSheet();
+}
+function addSession(s) {
+  S.sessions.push(s); if (!S.profile.sports.includes(s.sport)) S.profile.sports.push(s.sport);
+  save(); render(); toast(`✅ Séance enregistrée${streak() > 1 ? ` · série de ${streak()} jours 🔥` : ''}`);
+}
 
-        // --- GAMIFICATION & XP ---
-        function updateGamification(earnedXp) {
-            state.xp += earnedXp;
-            state.streak += 1;
-            if(state.xp >= state.level * 100) {
-                state.level += 1;
-                alert(`🎉 Niveau supérieur ! Tu es maintenant Niveau ${state.level}`);
-            }
-            // Update weekly goals mock
-            state.goals.forEach(g => {
-                if(g.id === 1 && g.current < g.target) g.current = Math.min(g.target, g.current + 5);
-                if(g.id === 2 && g.current < g.target) g.current = Math.min(g.target, g.current + 1);
-            });
-        }
+// ===================== SÉANCE EN DIRECT =====================
+let L = null, liveTick = null, rest = null;
+function startLive(sess, opt = {}) {
+  closeSheet();
+  const progItems = sess.items && sess.items.some(it => typeof it.sets === 'number');
+  L = { sport: sess.sport, nom: sess.nom, items: sess.items && !progItems ? sess.items.map(it => ({ mv: it.mv, n: it.n, rest: it.rest ?? 90, sets: (it.sets || []).map(z => ({ ...z, done: false })) })) : null,
+    blocks: sess.blocks ? sess.blocks.map(b => ({ ...b, done: false })) : null, start: Date.now(), src: opt.src || null, tplMode: !!opt.tplMode, dist: sess.dist || '' };
+  // éléments de programme { mv, sets: nombre, reps|sec }
+  if (progItems) L.items = sess.items.map(it => { const last = lastPerf(it.mv); return { mv: it.mv, rest: it.rest ?? 90, sets: Array.from({ length: it.sets }, (_, i) => it.sec ? { sec: it.sec, done: false } : { reps: it.reps, kg: last && last.sets[i] ? last.sets[i].kg : (last && last.sets[0] ? last.sets[0].kg : ''), done: false }) }; });
+  document.body.style.overflow = 'hidden'; renderLive(); clearInterval(liveTick); liveTick = setInterval(() => { const c = $('#liveClock'); if (c) c.textContent = mmss((Date.now() - L.start) / 1000); }, 1000);
+  try { navigator.wakeLock && navigator.wakeLock.request('screen').then(w => L.wake = w).catch(() => {}); } catch (e) {}
+}
+function renderLive() {
+  let el = $('#live'); if (!el) { el = document.createElement('div'); el.id = 'live'; el.className = 'live'; document.body.appendChild(el); }
+  const sp = SPORTS[L.sport], force = !!L.items, hasKg = L.sport === 'muscu';
+  let h = `<div class="lh"><button class="back btn sm ghost" onclick="quitLive()">${ic('x')}</button><div style="flex:1;min-width:0"><input class="in" style="margin:0;padding:6px 8px;font-weight:800;background:transparent;border-color:transparent" value="${esc(L.nom)}" onchange="L.nom=this.value"><div class="mu tiny" style="padding-left:8px">${sp.ic} ${sp.nom}${L.tplMode ? ' · création de séance type' : ''}</div></div>
+    ${L.tplMode ? '' : `<span class="clock" id="liveClock">${mmss((Date.now() - L.start) / 1000)}</span>`}<button class="btn sm pri" onclick="finishLive()">${L.tplMode ? 'Enregistrer' : 'Terminer'}</button></div>`;
+  if (force) {
+    h += L.items.map((it, i) => {
+      const last = lastPerf(it.mv), m = mvById(it.mv), timed = it.sets.some(z => z.sec != null);
+      return `<div class="ex"><div class="eh"><b onclick="openMv('${it.mv}',1)" style="cursor:pointer">${esc(mvName(it))} <span class="mu">${m ? ic('info', 'i small') : ''}</span></b>
+        <button class="btn sm ghost" onclick="L.items.splice(${i},1);renderLive()">${ic('trash')}</button></div>
+        ${last && !L.tplMode ? `<div class="last">Dernière fois (${fmtDate(last.date, { day: 'numeric', month: 'short' })}) : ${last.sets.map(z => z.sec ? z.sec + ' s' : z.reps + (z.kg ? '×' + z.kg : '')).join(' · ')}</div>` : ''}
+        <div class="set ${timed ? 't3' : hasKg ? '' : 't3'}"><span></span>${timed ? '<span class="lab">Durée (s)</span>' : '<span class="lab">Reps</span>' + (hasKg ? '<span class="lab">Kg</span>' : '')}<span></span></div>
+        ${it.sets.map((z, j) => `<div class="set ${timed || !hasKg ? 't3' : ''} ${z.done ? 'done' : ''}"><span class="n">${j + 1}</span>
+          ${timed ? `<input type="number" inputmode="numeric" value="${z.sec ?? ''}" onchange="L.items[${i}].sets[${j}].sec=+this.value">` : `<input type="number" inputmode="numeric" value="${z.reps ?? ''}" onchange="L.items[${i}].sets[${j}].reps=+this.value">${hasKg ? `<input type="number" inputmode="decimal" step="0.5" value="${z.kg ?? ''}" placeholder="—" onchange="L.items[${i}].sets[${j}].kg=this.value===''?'':+this.value">` : ''}`}
+          ${L.tplMode ? `<button class="ok" onclick="L.items[${i}].sets.splice(${j},1);renderLive()">${ic('x')}</button>` : `<button class="ok" onclick="toggleSet(${i},${j})">${timed && !z.done ? ic('play') : ic('check')}</button>`}</div>`).join('')}
+        <div class="row" style="margin-top:10px;justify-content:space-between"><button class="btn sm" onclick="addSet(${i})">${ic('plus')}Série</button>
+        <span class="mu small">Repos <input type="number" style="width:60px;padding:6px;border-radius:9px;border:1px solid var(--line2);background:#0a1120;text-align:center" value="${it.rest}" onchange="L.items[${i}].rest=+this.value"> s</span></div></div>`;
+    }).join('');
+    h += `<div style="padding:12px 16px"><button class="btn w" onclick="pickExo()">${ic('plus')}Ajouter un exercice</button></div>`;
+  } else {
+    h += `<div style="padding:14px 16px">${L.tplMode ? '' : `<div class="bigclock" id="liveClock2">${mmss((Date.now() - L.start) / 1000)}</div><p class="mu small" style="text-align:center;margin-top:-6px">Lancez votre activité, l’écran reste allumé. Cochez chaque étape.</p>`}
+      ${L.blocks.map((b, i) => `<div class="block ${b.done ? 'done' : ''}" ${L.tplMode ? '' : `onclick="L.blocks[${i}].done=!L.blocks[${i}].done;renderLive()"`}><span class="ck">${b.done ? ic('check') : ''}</span><div style="flex:1">
+        ${L.tplMode ? `<input class="in" style="margin:0 0 6px" value="${esc(b.t)}" onchange="L.blocks[${i}].t=this.value"><textarea class="in" style="margin:0;min-height:50px" onchange="L.blocks[${i}].d=this.value">${esc(b.d)}</textarea>` : `<b>${esc(b.t)}</b><div class="mu small">${esc(b.d)}</div>`}</div>
+        ${L.tplMode ? `<button class="btn sm ghost" onclick="L.blocks.splice(${i},1);renderLive()">${ic('trash')}</button>` : ''}</div>`).join('')}
+      <button class="btn w" style="margin-top:10px" onclick="L.blocks.push({t:'Étape',d:''});${L.tplMode ? '' : 'L.blocks.at(-1).t=prompt(\'Étape (ex. 6 × 400 m)\')||\'Étape\';'}renderLive()">${ic('plus')}Ajouter une étape</button></div>`;
+  }
+  $('#live').innerHTML = h;
+  if (!force && !L.tplMode) { clearInterval(L.t2); L.t2 = setInterval(() => { const c = $('#liveClock2'); if (c) c.textContent = mmss((Date.now() - L.start) / 1000); else clearInterval(L.t2); }, 1000); }
+}
+function addSet(i) { const s = L.items[i].sets, p = s.at(-1) || { reps: 10, kg: '' }; s.push(p.sec != null ? { sec: p.sec } : { reps: p.reps, kg: p.kg }); renderLive(); }
+function toggleSet(i, j) {
+  const it = L.items[i], z = it.sets[j];
+  if (z.sec != null && !z.done) return countdown(z.sec, mvName(it), () => { z.done = true; renderLive(); restStart(it.rest, i, j); });
+  z.done = !z.done; renderLive(); if (z.done) restStart(it.rest, i, j);
+}
+function nextLabel(i, j) { const it = L.items[i]; if (j + 1 < it.sets.length) return `${mvName(it)} — série ${j + 2}`; const n = L.items[i + 1]; return n ? `${mvName(n)} — série 1` : 'Dernière série faite 💪'; }
+function restStart(sec, i, j) {
+  if (!sec) return; restStop(); const end = Date.now() + sec * 1000, tot = sec;
+  const b = document.createElement('div'); b.className = 'restbar'; b.id = 'restbar';
+  b.innerHTML = `<span class="big" id="restT">${mmss(sec)}</span><div style="flex:1;min-width:0"><b>Repos</b><div class="mu tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Ensuite : ${esc(nextLabel(i, j))}</div></div>
+    <button class="btn sm" onclick="rest.end+=15000">+15</button><button class="btn sm pri" onclick="restStop()">Passer</button><span class="prog" id="restP"></span>`;
+  document.body.appendChild(b); rest = { end, t: null };
+  rest.t = setInterval(() => { const r = Math.max(0, (rest.end - Date.now()) / 1000); $('#restT').textContent = mmss(Math.ceil(r)); $('#restP').style.width = (100 - r / tot * 100) + '%'; if (r <= 3 && r > 2.8) beep(660, 120); if (r <= 0) { beep(990, 400); restStop(); } }, 200);
+}
+function restDone() { const d = rest && rest.done; restStop(); if (d) d(); }
+function restStop() { if (rest) clearInterval(rest.t); rest = null; const b = $('#restbar'); if (b) b.remove(); }
+function countdown(sec, label, done) {
+  restStop(); let r = sec; const b = document.createElement('div'); b.className = 'restbar'; b.id = 'restbar'; b.style.background = '#1a1530'; b.style.borderColor = 'rgba(129,140,248,.6)';
+  b.innerHTML = `<span class="big" id="restT" style="color:#a5b4fc">${mmss(r)}</span><div style="flex:1"><b>${esc(label)}</b><div class="mu tiny">C’est parti, tenez bon !</div></div><button class="btn sm" onclick="restDone()">Fini</button>`;
+  document.body.appendChild(b); beep(880, 150); rest = { done, t: setInterval(() => { r--; const t = $('#restT'); if (t) t.textContent = mmss(Math.max(0, r)); if (r === 3 || r === 2 || r === 1) beep(660, 100); if (r <= 0) { beep(990, 450); restDone(); } }, 1000) };
+}
+function pickExo() {
+  const own = LIB.filter(m => m.s === L.sport), other = LIB.filter(m => m.s !== L.sport && SPORTS[m.s].kind === 'force');
+  const row = m => `<button class="li" onclick="L.items.push(newItem('${m.id}'));closeSheet();renderLive()"><span class="em">${SPORTS[m.s].ic}</span><span class="t"><b>${esc(m.n)}</b><small>${esc(m.g)} · ${esc(m.mat)}</small></span>${ic('plus')}</button>`;
+  sheet(`<h2>Ajouter un exercice</h2><input class="in" placeholder="Rechercher…" oninput="$$('#pk .li').forEach(b=>b.style.display=b.textContent.toLowerCase().includes(this.value.toLowerCase())?'':'none')">
+    <div id="pk" style="margin-top:10px">${own.map(row).join('')}<h3 class="sec">Autres disciplines</h3>${other.map(row).join('')}
+    <button class="li" onclick="const n=prompt('Nom de l’exercice :');if(n){L.items.push({mv:'perso_'+uid(),n,rest:90,sets:[{reps:10,kg:''},{reps:10,kg:''},{reps:10,kg:''}]});closeSheet();renderLive()}"><span class="em">✍️</span><span class="t"><b>Exercice personnalisé</b><small>Hors bibliothèque</small></span>${ic('plus')}</button></div>`);
+}
+function quitLive() { if (L.tplMode || confirm('Quitter la séance sans l’enregistrer ?')) endLive(); }
+function endLive() { clearInterval(liveTick); clearInterval(L && L.t2); restStop(); try { L && L.wake && L.wake.release(); } catch (e) {} L = null; const el = $('#live'); if (el) el.remove(); document.body.style.overflow = ''; }
+function finishLive() {
+  const sp = SPORTS[L.sport], dur = Math.max(1, Math.round((Date.now() - L.start) / 60000));
+  if (L.tplMode) { const nom = L.nom.trim() || sp.nom; S.templates.push(toTemplate({ sport: L.sport, items: L.items, blocks: L.blocks, dist: +L.dist || null }, nom)); save(); endLive(); render(); return toast('Séance type enregistrée 💾'); }
+  const doneSets = L.items ? L.items.reduce((a, it) => a + it.sets.filter(z => z.done).length, 0) : 1;
+  if (L.items && !doneSets && !confirm('Aucune série validée. Terminer quand même ?')) return;
+  sheet(`<h2>Bravo ! 🎉</h2><p class="mu small">${L.items ? doneSets + ' séries validées · ' : ''}${hmin(dur)}</p>
+    <div class="grid2"><label class="f">Durée (min)<input class="in" type="number" id="fiT" value="${dur}"></label>${sp.dist ? `<label class="f">Distance (${sp.dist})<input class="in" type="number" step="0.01" inputmode="decimal" id="fiD" value="${L.dist || ''}"></label>` : '<span></span>'}</div>
+    ${sp.deniv ? '<label class="f">Dénivelé + (m)<input class="in" type="number" id="fiE"></label>' : ''}
+    <label class="f">Ressenti de l'effort : <b id="fiRv">7</b>/10<input type="range" min="1" max="10" value="7" id="fiR" oninput="$('#fiRv').textContent=this.value"></label>
+    <label class="f">Notes<textarea class="in" id="fiN" placeholder="Sensations, douleurs…"></textarea></label>
+    <label class="row" style="margin-top:14px;gap:10px;font-weight:650"><input type="checkbox" id="fiTpl" style="width:22px;height:22px;accent-color:#22c55e" ${L.src && L.src.type === 'tpl' ? '' : ''}> Enregistrer comme séance type</label>
+    <button class="btn pri w" style="margin-top:14px" onclick="saveLive()">${ic('check')}Enregistrer la séance</button>`);
+}
+function saveLive() {
+  const s = { id: uid(), date: today(), sport: L.sport, nom: L.nom, dur: +$('#fiT').value || 0, rpe: +$('#fiR').value, notes: $('#fiN').value.trim() };
+  if ($('#fiD') && +$('#fiD').value) s.dist = +$('#fiD').value; if ($('#fiE') && +$('#fiE').value) s.deniv = +$('#fiE').value;
+  if (L.items) s.items = L.items.map(it => ({ mv: it.mv, n: it.n || mvName(it), rest: it.rest, sets: it.sets.map(z => ({ ...z })) }));
+  if (L.blocks) s.blocks = L.blocks.map(b => ({ t: b.t, d: b.d, done: b.done }));
+  if (L.src && L.src.type === 'prog' && S.prog) { s.prog = S.prog.id; S.prog.done.push(L.src.key); }
+  if ($('#fiTpl').checked) { const tp = toTemplate(s, s.nom); tp.items && tp.items.forEach(it => it.sets.forEach(z => delete z.done)); S.templates.push(tp); }
+  closeSheet(); endLive(); addSession(s);
+  if (s.prog) { const nx = nextProgSession(); if (!nx) toast('🏆 Programme terminé ! Refaites le test pour mesurer vos progrès.', 5000); }
+}
 
-        function saveAndRefresh() {
-            localStorage.setItem('apexfit_state', JSON.stringify(state));
-            updateDashboardStats();
-        }
+// ===================== PROGRAMMES =====================
+let progF = 'tous';
+function progSessions(p) { return p.weeks ? p.weeks.flat() : Array.from({ length: p.sem }, (_, w) => p.seances.map((s, i) => ({ ...s, nom: `Sem. ${w + 1} · ${s.nom}`, key: `${w}-${i}`, week: w + 1 }))).flat().map((s, i) => ({ ...s, key: s.key || String(i) })); }
+function nextProgSession() {
+  if (!S.prog) return null; const p = PROGRAMS.find(x => x.id === S.prog.id); if (!p) return null;
+  const all = progSessions(p).map((s, i) => ({ ...s, key: s.key || String(i) })), s = all.find(x => !S.prog.done.includes(x.key));
+  return s ? { p, s: personalize(JSON.parse(JSON.stringify(s))), done: S.prog.done.length, total: all.length } : null;
+}
+function startProgSession() { const nx = nextProgSession(); if (nx) startLive(nx.s, { src: { type: 'prog', key: nx.s.key } }); }
+function vProgrammes() {
+  const t = S.tests.at(-1), rec = recommend();
+  let h = `<h1 class="vt">Programmes</h1>`;
+  h += t ? `<div class="card"><div class="row"><div class="em" style="font-size:28px">🧪</div><div style="flex:1"><b>Votre niveau : ${t.levelTxt}</b><div class="mu small">Test du ${fmtDate(t.date, { day: 'numeric', month: 'long' })} · objectif ${OBJ[S.profile.obj].toLowerCase()}</div></div><button class="btn sm" onclick="showTest(${S.tests.length - 1})">Détail</button></div>
+      <button class="btn w" style="margin-top:12px" onclick="startTest()">${ic('test')}Refaire le test</button></div>`
+    : `<div class="card" style="border-color:rgba(245,158,11,.45)"><b>🧪 Avant de choisir : testez vos capacités</b><p class="mu small">Une séance structurée (échauffement + 5 tests) pour connaître votre niveau et adapter les séries, durées et allures du programme.</p><button class="btn pri w" onclick="startTest()">${ic('test')}Faire le test</button></div>`;
+  const nx = nextProgSession();
+  if (S.prog) { const p = PROGRAMS.find(x => x.id === S.prog.id); h += `<h3 class="sec">En cours</h3><div class="card"><div class="row"><div class="em" style="font-size:28px">${p.ic}</div><div style="flex:1"><b>${p.nom}</b><div class="mu small">${nx ? 'Prochaine : ' + esc(nx.s.nom) : 'Terminé 🏆'}</div></div></div>
+      ${nx ? `<div class="pbar" style="margin:12px 0 6px"><i style="width:${Math.round(nx.done / nx.total * 100)}%"></i></div><div class="mu tiny">${nx.done}/${nx.total} séances</div>` : ''}
+      <div class="grid2" style="margin-top:12px">${nx ? `<button class="btn pri" onclick="startProgSession()">${ic('play')}Démarrer</button>` : ''}<button class="btn dan" onclick="if(confirm('Arrêter ce programme ?')){S.prog=null;save();render()}">Arrêter</button></div></div>`; }
+  if (rec.length) h += `<h3 class="sec">Recommandés pour vous</h3>${rec.slice(0, 3).map(p => progRow(p, true)).join('')}`;
+  h += `<h3 class="sec">Tous les programmes</h3><div class="chips" style="margin-bottom:10px">${[['tous', 'Tous'], ...Object.entries(OBJ)].map(([k, v]) => `<button class="chip ${progF === k ? 'on' : ''}" onclick="progF='${k}';render()">${v}</button>`).join('')}</div>`;
+  h += PROGRAMS.filter(p => progF === 'tous' || p.obj === progF).map(p => progRow(p)).join('');
+  $('#view').innerHTML = h;
+}
+const NIV = ['', 'Débutant', 'Intermédiaire', 'Avancé'];
+function progRow(p, star) { return `<button class="li" onclick="openProg('${p.id}')"><span class="em" style="font-size:24px">${p.ic}</span><span class="t"><b>${star ? '⭐ ' : ''}${esc(p.nom)}</b><small>${NIV[p.niv]} · ${p.sem} sem. · ${p.freq}×/sem · ${OBJ[p.obj]}</small></span>${ic('right')}</button>`; }
+function openProg(id) {
+  const p = PROGRAMS.find(x => x.id === id), S0 = (p.weeks ? p.weeks[0] : p.seances).map(s => personalize(JSON.parse(JSON.stringify(s))));
+  sheet(`<div style="font-size:40px">${p.ic}</div><h2>${esc(p.nom)}</h2><div class="row" style="gap:6px;flex-wrap:wrap;margin:8px 0"><span class="pill">${NIV[p.niv]}</span><span class="pill">${p.sem} semaines</span><span class="pill">${p.freq} séances / sem.</span><span class="pill">${{ aucun: 'Sans matériel', salle: 'Salle', piscine: 'Piscine', velo: 'Vélo' }[p.mat]}</span></div>
+    <p>${esc(p.desc)}</p><div class="tip">📈 Progression : ${esc(p.prog)}</div>
+    ${S.tests.length ? '<p class="mu small" style="margin-top:10px">✅ Séries, durées et allures adaptées à votre test.</p>' : ''}
+    <h3 class="sec">${p.weeks ? 'Semaine 1' : 'Les séances'}</h3>${S0.map(s => `<div class="kpi" style="margin-top:8px"><b>${SPORTS[s.sport].ic} ${esc(s.nom)}</b><div class="mu small" style="margin-top:4px">${s.items ? s.items.map(it => `${esc(mvName(it))} ${it.sec ? it.sets + '×' + it.sec + ' s' : it.sets + '×' + it.reps}`).join(' · ') : s.blocks.map(b => `<b>${esc(b.t)}</b> : ${esc(b.d)}`).join('<br>')}</div></div>`).join('')}
+    <button class="btn pri w" style="margin-top:14px" onclick="S.prog={id:'${p.id}',start:today(),done:[]};S.profile.jours=Math.max(S.profile.jours,${p.freq});save();closeSheet();go('home');toast('Programme lancé : bonne séance ! 💪')">${S.prog && S.prog.id === p.id ? 'Recommencer ce programme' : 'Suivre ce programme'}</button>`);
+}
 
-        function updateDashboardStats() {
-            document.getElementById('streakCount').innerText = state.streak;
-            document.getElementById('userLevel').innerText = `Niveau ${state.level} (${state.xp} XP)`;
-            document.getElementById('statTotalWorkouts').innerText = state.workouts.length;
+// ===================== TEST DE CAPACITÉS =====================
+let TS = null;
+function startTest() {
+  closeSheet(); TS = { step: 0, res: {}, cardio: 'cooper' };
+  const el = document.createElement('div'); el.id = 'live'; el.className = 'live'; document.body.appendChild(el); document.body.style.overflow = 'hidden'; renderTest();
+}
+function testShell(title, body, foot) {
+  const n = TESTS.length + 3;
+  $('#live').innerHTML = `<div class="lh"><button class="back btn sm ghost" onclick="if(confirm('Quitter le test ?'))endTest()">${ic('x')}</button><div style="flex:1"><div class="test-step">Test de capacités · étape ${TS.step + 1}/${n}</div><b>${title}</b></div></div>
+    <div class="pbar" style="margin:0 16px;height:5px"><i style="width:${(TS.step + 1) / n * 100}%"></i></div><div style="padding:16px">${body}</div>
+    <div style="position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)"><div style="max-width:620px;margin:0 auto" class="grid2">${foot}</div></div>`;
+}
+function endTest() { clearInterval(TS && TS.t); TS = null; const el = $('#live'); if (el) el.remove(); document.body.style.overflow = ''; render(); }
+function renderTest() {
+  clearInterval(TS.t); const P = S.profile, st = TS.step;
+  const back = st ? `<button class="btn" onclick="TS.step--;renderTest()">Retour</button>` : '<span></span>';
+  if (st === 0) return testShell('Votre profil', `<p class="mu">Ces informations servent à comparer vos résultats aux repères de votre âge et à choisir le bon programme.</p>
+      <div class="grid2"><label class="f">Prénom<input class="in" id="tP" value="${esc(P.prenom)}"></label><label class="f">Âge<input class="in" type="number" id="tA" value="${P.age || ''}"></label></div>
+      <div class="grid3"><label class="f">Sexe<select class="in" id="tS"><option value="h" ${P.sexe === 'h' ? 'selected' : ''}>Homme</option><option value="f" ${P.sexe === 'f' ? 'selected' : ''}>Femme</option></select></label><label class="f">Poids (kg)<input class="in" type="number" id="tW" value="${P.poids || ''}"></label><label class="f">Taille (cm)<input class="in" type="number" id="tH" value="${P.taille || ''}"></label></div>
+      <label class="f">Objectif principal<select class="in" id="tO">${Object.entries(OBJ).map(([k, v]) => `<option value="${k}" ${P.obj === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+      <label class="f">Séances possibles par semaine<select class="in" id="tJ">${[2, 3, 4, 5].map(n => `<option ${+P.jours === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="f">Matériel disponible</label><div class="chips" style="flex-wrap:wrap">${[['aucun', 'Rien (maison)'], ['halteres', 'Haltères / kettlebell'], ['barre', 'Barre de traction'], ['salle', 'Salle de sport'], ['piscine', 'Piscine'], ['velo', 'Vélo']].map(([k, v]) => `<button class="chip ${P.mat.includes(k) ? 'on' : ''}" onclick="this.classList.toggle('on')" data-m="${k}">${v}</button>`).join('')}</div>
+      <div class="tip" style="margin-top:14px">⚠️ En cas de problème de santé, de douleur ou de reprise après une longue pause, demandez l’avis d’un médecin avant les tests d’effort maximal.</div>`,
+    `<span></span><button class="btn pri" onclick="saveTestProfile()">Continuer</button>`);
+  if (st === 1) return testShell('Échauffement — 6 minutes', `<p class="mu">Indispensable avant de pousser au maximum. Suivez le minuteur.</p>
+      ${[['Marche sur place puis trottinement', '1 min'], ['Jumping jacks', '1 min'], ['Rotations d’épaules et de hanches', '1 min'], ['10 squats lents + 10 fentes', '1 min 30'], ['5 pompes faciles (genoux)', '30 s'], ['Montées de genoux', '1 min']].map(([a, b]) => `<div class="block"><span class="ck"></span><div style="flex:1"><b>${a}</b><div class="mu small">${b}</div></div></div>`).join('')}
+      <div class="bigclock" id="tC">06:00</div><button class="btn w" onclick="testTimer(360,'tC')">${ic('play')}Lancer le minuteur</button>`,
+    `${back}<button class="btn pri" onclick="TS.step++;renderTest()">Je suis échauffé</button>`);
+  const ti = st - 2;
+  if (ti < TESTS.length) {
+    const t = TESTS[ti], m = mvById(t.mv), v = TS.res[t.id];
+    let body = `<p>${esc(t.how)}</p>${m ? `<button class="btn sm" onclick="openMv('${m.id}',1)">${ic('info')}Technique : ${esc(m.n)}</button>` : ''}${t.f_note && P.sexe === 'f' ? `<p class="mu small">${t.f_note}</p>` : ''}`;
+    if (t.choices) body += `<div class="choice">${t.choices.map((c, i) => `<button class="btn ${v === i ? 'on' : ''}" onclick="TS.res.${t.id}=${i};renderTest()">${c}</button>`).join('')}</div>`;
+    else if (t.cardio) {
+      body += `<div class="seg" style="margin-top:14px"><button class="${TS.cardio === 'cooper' ? 'on' : ''}" onclick="TS.cardio='cooper';renderTest()">🏃 Cooper 12 min</button><button class="${TS.cardio === 'ruffier' ? 'on' : ''}" onclick="TS.cardio='ruffier';renderTest()">❤️ Ruffier (maison)</button></div>`;
+      body += TS.cardio === 'cooper' ? `<p class="mu small">Sur une piste ou un parcours mesuré (montre GPS), courez à allure régulière le plus loin possible en 12 minutes. Marcher est autorisé.</p><div class="bigclock" id="tC">12:00</div><button class="btn w" onclick="testTimer(720,'tC')">${ic('play')}Lancer 12 min</button>
+          <label class="f">Distance parcourue (mètres)<input class="in" type="number" inputmode="numeric" id="tV" value="${TS.res.cooper || ''}" placeholder="2300"></label>`
+        : `<ol class="how"><li>Allongé 5 min au calme, puis prenez votre pouls sur 15 s × 4 → <b>P0</b>.</li><li>Faites 30 squats complets en 45 secondes.</li><li>Debout aussitôt : pouls sur 15 s × 4 → <b>P1</b>.</li><li>Allongé, 1 minute après la fin : pouls → <b>P2</b>.</li></ol>
+          <div class="bigclock" id="tC">00:45</div><button class="btn w" onclick="testTimer(45,'tC')">${ic('play')}Minuteur 45 s</button>
+          <div class="grid3"><label class="f">P0<input class="in" type="number" id="r0" value="${(TS.res.ruffier || [])[0] || ''}"></label><label class="f">P1<input class="in" type="number" id="r1" value="${(TS.res.ruffier || [])[1] || ''}"></label><label class="f">P2<input class="in" type="number" id="r2" value="${(TS.res.ruffier || [])[2] || ''}"></label></div>`;
+    } else {
+      if (t.timer) body += `<div class="bigclock" id="tC">${mmss(t.timer)}</div><button class="btn w" onclick="testTimer(${t.timer},'tC')">${ic('play')}Lancer ${t.timer} s</button>`;
+      if (t.stopwatch) body += `<div class="bigclock" id="tC">00:00</div><div class="grid2"><button class="btn" onclick="testWatch('tC')">${ic('play')}Départ</button><button class="btn" onclick="testWatchStop()">${ic('check')}Stop</button></div>`;
+      body += `<label class="f">Résultat (${t.unit})<input class="in" type="number" inputmode="numeric" id="tV" value="${v ?? ''}" placeholder="${t.optional ? 'Laisser vide si pas de barre' : ''}"></label>`;
+    }
+    return testShell(t.nom, body, `${back}<button class="btn pri" onclick="saveTestValue(${ti})">${ti === TESTS.length - 1 ? 'Voir mes résultats' : 'Suivant'}</button>`);
+  }
+  // résultats
+  const r = scoreTest(TS.res);
+  return testShell('Vos résultats', testResultHTML(r, true), `${back}<button class="btn pri" onclick="saveTest()">${ic('check')}Enregistrer</button>`), drawRadar(r.scores);
+}
+function saveTestProfile() {
+  const P = S.profile; P.prenom = $('#tP').value.trim(); P.age = +$('#tA').value || 30; P.sexe = $('#tS').value; P.poids = +$('#tW').value || ''; P.taille = +$('#tH').value || ''; P.obj = $('#tO').value; P.jours = +$('#tJ').value;
+  P.mat = $$('#live .chip.on').map(b => b.dataset.m); if (!P.mat.length) P.mat = ['aucun']; save(); TS.step++; renderTest();
+}
+function saveTestValue(ti) {
+  const t = TESTS[ti];
+  if (t.cardio) { if (TS.cardio === 'cooper') { const v = +$('#tV').value; if (!v) return toast('Indiquez la distance (ou passez au test Ruffier)'); TS.res.cooper = v; delete TS.res.ruffier; } else { const a = [+$('#r0').value, +$('#r1').value, +$('#r2').value]; if (a.some(x => !x)) return toast('Indiquez les 3 mesures de pouls'); TS.res.ruffier = a; delete TS.res.cooper; } }
+  else if (!t.choices) { const v = $('#tV').value; if (v === '' && !t.optional) return toast('Indiquez votre résultat'); if (v !== '') TS.res[t.id] = +v; else delete TS.res[t.id]; }
+  else if (TS.res[t.id] == null) return toast('Choisissez une réponse');
+  TS.step++; renderTest();
+}
+function testTimer(sec, id) { clearInterval(TS.t); let r = sec; beep(880, 150); TS.t = setInterval(() => { r--; const e = $('#' + id); if (!e) return clearInterval(TS.t); e.textContent = mmss(Math.max(0, r)); if (r <= 3 && r > 0) beep(660, 100); if (r <= 0) { clearInterval(TS.t); beep(990, 500); } }, 1000); }
+function testWatch(id) { clearInterval(TS.t); const t0 = Date.now(); beep(880, 150); TS.t = setInterval(() => { const e = $('#' + id); if (!e) return clearInterval(TS.t); e.textContent = mmss((Date.now() - t0) / 1000); TS.w = Math.round((Date.now() - t0) / 1000); }, 250); }
+function testWatchStop() { clearInterval(TS.t); beep(990, 300); if (TS.w) $('#tV').value = TS.w; }
+// barèmes : seuils [faible, moyen, bon, très bon] -> score 1..5, ajustés avec l'âge
+function band(v, th) { let s = 1; th.forEach(t => { if (v >= t) s++; }); return s; }
+function scoreTest(res) {
+  const P = S.profile, age = +P.age || 30, f = 1 - 0.08 * Math.max(0, (age - 30) / 10), sx = P.sexe === 'f' ? 'f' : 'h', sc = {}, info = {};
+  const T = id => TESTS.find(t => t.id === id), adj = th => th.map(v => Math.round(v * f));
+  if (res.pompes != null) sc.force_haut = band(res.pompes, adj(T('pompes')[sx]));
+  if (res.tractions != null) { const s2 = band(res.tractions, T('tractions')[sx]); sc.force_haut = sc.force_haut ? Math.round((sc.force_haut + s2) / 2) : s2; }
+  if (res.squats != null) sc.force_bas = band(res.squats, adj(T('squats')[sx]));
+  if (res.gainage != null) sc.gainage = band(res.gainage, adj(T('gainage')[sx]));
+  if (res.souplesse != null) sc.souplesse = res.souplesse + 1;
+  if (res.cooper) { sc.cardio = band(res.cooper, COOPER[sx].map(v => v - Math.round(100 * Math.max(0, (age - 30) / 10)))); info.vo2 = Math.max(10, (res.cooper - 504.9) / 44.73); info.vma = res.cooper / 200 * 1.05; }
+  if (res.ruffier) { const [a, b, c] = res.ruffier, ix = (a + b + c - 200) / 10; info.ruffier = ix; sc.cardio = ix < 0 ? 5 : ix < 5 ? 4 : ix < 10 ? 3 : ix < 15 ? 2 : 1; }
+  const vals = Object.values(sc), avg = vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
+  const level = avg < 2.4 ? 1 : avg < 3.6 ? 2 : 3;
+  if (P.poids && P.taille) info.imc = P.poids / (P.taille / 100) ** 2;
+  return { scores: sc, avg, level, levelTxt: NIV[level], info, res: { ...res } };
+}
+function testResultHTML(r, fresh) {
+  const sc = r.scores, weak = Object.entries(sc).sort((a, b) => a[1] - b[1])[0], strong = Object.entries(sc).sort((a, b) => b[1] - a[1])[0], word = ['', 'À travailler', 'Faible', 'Moyen', 'Bon', 'Excellent'];
+  let h = `<div class="card hero" style="text-align:center"><div class="mu small">Niveau global</div><div style="font-size:30px;font-weight:800;margin:4px 0">${r.levelTxt}</div><div class="mu small">Score moyen ${r.avg.toFixed(1)} / 5</div></div>
+    <div class="card"><canvas id="radar" class="ch" height="300"></canvas>${Object.entries(QUAL).filter(([k]) => sc[k]).map(([k, v]) => `<div class="score"><span>${v}</span><div class="pbar"><i style="width:${sc[k] * 20}%"></i></div><b style="width:78px;text-align:right;font-size:13px">${word[sc[k]]}</b></div>`).join('')}</div>`;
+  const I = r.info, R = r.res;
+  h += `<div class="card"><b>Vos mesures</b><div class="mu small" style="margin-top:6px;line-height:1.7">${R.pompes != null ? `Pompes : <b>${R.pompes}</b> · ` : ''}${R.squats != null ? `Squats/min : <b>${R.squats}</b> · ` : ''}${R.gainage != null ? `Gainage : <b>${R.gainage} s</b> · ` : ''}${R.tractions != null ? `Tractions : <b>${R.tractions}</b> · ` : ''}${R.souplesse != null ? `Souplesse : <b>${TESTS.find(t => t.id === 'souplesse').choices[R.souplesse]}</b>` : ''}
+    ${R.cooper ? `<br>Cooper : <b>${R.cooper} m</b> → VO₂max estimée <b>${I.vo2.toFixed(0)}</b> ml/kg/min · VMA ≈ <b>${I.vma.toFixed(1)} km/h</b>` : ''}${I.ruffier != null ? `<br>Indice de Ruffier : <b>${I.ruffier.toFixed(1)}</b>` : ''}${I.imc ? `<br>IMC : <b>${I.imc.toFixed(1)}</b>` : ''}</div></div>`;
+  if (I.vma) h += `<div class="card"><b>🏃 Vos allures d’entraînement</b><div class="mu small" style="margin-top:6px;line-height:1.8">Endurance fondamentale (70 % VMA) : <b>${pace(60 / (I.vma * .7))}/km</b><br>Seuil (85 %) : <b>${pace(60 / (I.vma * .85))}/km</b><br>Fractionné court (100 %) : <b>${pace(60 / I.vma)}/km</b> · 400 m en <b>${mmss(400 / (I.vma / 3.6))}</b></div></div>`;
+  h += `<div class="card"><b>💡 Analyse</b><p class="small" style="line-height:1.55">Point fort : <b>${QUAL[strong[0]]}</b>. À améliorer en priorité : <b>${QUAL[weak[0]]}</b>.
+    ${weak[0] === 'cardio' ? 'Ajoutez 2 séances d’endurance fondamentale par semaine.' : weak[0] === 'souplesse' ? 'Ajoutez 10 min de mobilité après chaque séance (programme Mobilité).' : weak[0] === 'gainage' ? 'Terminez chaque séance par 3 séries de gainage.' : 'Les séances de renforcement de votre programme cibleront ce point.'}</p></div>`;
+  const rec = recommend(r).slice(0, 3);
+  if (rec.length) h += `<h3 class="sec">Programmes conseillés</h3>${rec.map((p, i) => `<button class="li" onclick="${fresh ? 'saveTest(true);' : ''}openProg('${p.id}')"><span class="em" style="font-size:24px">${p.ic}</span><span class="t"><b>${i === 0 ? '⭐ ' : ''}${esc(p.nom)}</b><small>${NIV[p.niv]} · ${p.freq}×/sem · ${p.sem} sem.</small></span>${ic('right')}</button>`).join('')}`;
+  return h;
+}
+function drawRadar(sc) {
+  const c = $('#radar'); if (!c) return; const W = c.width = c.clientWidth * 2, H = c.height = 600, x = c.getContext('2d'), K = Object.keys(QUAL).filter(k => sc[k]), n = K.length; if (n < 3) return c.remove();
+  const cx = W / 2, cy = H / 2 + 10, R = Math.min(W, H) / 2 - 80, P = (i, r) => [cx + Math.sin(i / n * 2 * Math.PI) * r, cy - Math.cos(i / n * 2 * Math.PI) * r];
+  x.strokeStyle = 'rgba(255,255,255,.09)'; x.lineWidth = 2;
+  for (let l = 1; l <= 5; l++) { x.beginPath(); K.forEach((_, i) => { const [a, b] = P(i, R * l / 5); i ? x.lineTo(a, b) : x.moveTo(a, b); }); x.closePath(); x.stroke(); }
+  x.beginPath(); K.forEach((k, i) => { const [a, b] = P(i, R * sc[k] / 5); i ? x.lineTo(a, b) : x.moveTo(a, b); }); x.closePath(); x.fillStyle = 'rgba(34,197,94,.3)'; x.fill(); x.strokeStyle = '#4ade80'; x.lineWidth = 5; x.stroke();
+  x.fillStyle = '#c7d2e3'; x.font = '600 24px -apple-system,system-ui'; x.textAlign = 'center'; K.forEach((k, i) => { const [a, b] = P(i, R + 44); x.fillText(QUAL[k], a, b + 8); });
+}
+function saveTest(silent) {
+  const r = scoreTest(TS.res); S.tests.push({ date: today(), ...r }); S.skipTest = true; save();
+  endTest(); if (!silent) { go('programmes'); toast('Résultats enregistrés ✅ Voici vos programmes conseillés'); }
+}
+function showTest(i) { const t = S.tests[i]; sheet(`<h2>Test du ${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</h2>${testResultHTML(t)}${i > 0 ? compareTests(S.tests[i - 1], t) : ''}`); setTimeout(() => drawRadar(t.scores), 30); }
+function compareTests(a, b) { const R = ['pompes', 'squats', 'gainage', 'tractions', 'cooper']; const rows = R.filter(k => a.res[k] != null && b.res[k] != null).map(k => { const d = b.res[k] - a.res[k]; return `<div class="row" style="justify-content:space-between;padding:4px 0"><span class="mu small">${TESTS.find(t => t.id === k)?.nom || 'Cooper (m)'}</span><b>${a.res[k]} → ${b.res[k]} <span style="color:${d >= 0 ? '#4ade80' : '#fb7185'}">${d >= 0 ? '+' : ''}${d}</span></b></div>`; }); return rows.length ? `<h3 class="sec">Évolution depuis le test précédent</h3><div class="card">${rows.join('')}</div>` : ''; }
+// recommandation : objectif, niveau, matériel et disponibilité
+function recommend(r) {
+  const t = r || S.tests.at(-1), P = S.profile, lvl = t ? t.level : 1, mat = P.mat || ['aucun'];
+  const ok = p => p.mat === 'aucun' || (p.mat === 'salle' && mat.includes('salle')) || (p.mat === 'piscine' && mat.includes('piscine')) || (p.mat === 'velo' && mat.includes('velo'));
+  const weakCardio = t && t.scores.cardio && t.scores.cardio <= 2;
+  return PROGRAMS.filter(ok).map(p => ({ p, s: (p.obj === P.obj ? 0 : 3) + Math.abs(p.niv - lvl) * 1.5 + (p.freq > (+P.jours || 3) ? 2 : 0) + (weakCardio && p.obj === 'endurance' && p.niv === 1 ? -1 : 0) })).sort((a, b) => a.s - b.s).map(x => x.p);
+}
+// adapte une séance aux résultats du test (répétitions, durées, allures)
+function personalize(s) {
+  const t = S.tests.at(-1); if (!t) return s; const R = t.res;
+  if (s.items) s.items.forEach(it => {
+    if (it.mv === 'pompe' && R.pompes) it.reps = clamp(Math.round(R.pompes * .6), 3, 40);
+    if (it.mv === 'tractions' && R.tractions != null) it.reps = R.tractions >= 2 ? clamp(Math.round(R.tractions * .6), 1, 15) : 3;
+    if (it.mv === 'gainage' && R.gainage && it.sec) it.sec = clamp(Math.round(R.gainage * .5 / 5) * 5, 15, 120);
+    if (it.mv === 'gainlat' && R.gainage && it.sec) it.sec = clamp(Math.round(R.gainage * .35 / 5) * 5, 15, 60);
+    if (it.mv === 'goblet' && R.squats && !S.profile.mat.some(m => m === 'halteres' || m === 'salle')) it.reps = clamp(Math.round(R.squats * .4), 8, 30);
+  });
+  const vma = t.info && t.info.vma;
+  if (s.blocks && vma && s.sport === 'course') s.blocks = s.blocks.map(b => ({ ...b, d: b.d + (/endurance|footing|course lente|continue/i.test(b.d) ? ` (≈ ${pace(60 / (vma * .7))}/km)` : /VMA|30\/30/i.test(b.d) ? ` (≈ ${pace(60 / vma)}/km)` : /seuil|allure 10 km/i.test(b.d) ? ` (≈ ${pace(60 / (vma * .87))}/km)` : '') }));
+  return s;
+}
 
-            const totalRunKm = state.workouts.filter(w => w.type === 'running').reduce((acc, curr) => acc + curr.distance, 0);
-            const totalElevation = state.workouts.filter(w => w.type === 'running').reduce((acc, curr) => acc + curr.elevation, 0);
+// ===================== PROFIL & OBJECTIFS =====================
+function goalProgress(g, off = 0) {
+  const w = weekStats(off), L = w.L.filter(x => g.sport === 'all' || x.sport === g.sport);
+  const v = g.type === 'km' ? L.reduce((a, x) => a + distKm(x), 0) : g.type === 'minutes' ? L.reduce((a, x) => a + (+x.dur || 0), 0) : L.length;
+  return { v, p: clamp(v / g.target, 0, 1) };
+}
+function vProfil() {
+  const first = S.sessions.length ? monday(parseD(S.sessions.map(x => x.date).sort()[0])) : new Date(), P = S.profile, rate = (() => { let ok = 0, n = 0; for (let w = 1; w <= 8; w++) { if (weekStats(-w).a < first) break; S.goals.forEach(g => { n++; if (goalProgress(g, -w).p >= 1) ok++; }); } return n ? Math.round(ok / n * 100) + '<small>%</small>' : '—'; })();
+  const missed = S.goals.filter(g => goalProgress(g, -1).p < 1 && S.sessions.some(x => parseD(x.date) < weekStats(-1).a));
+  let h = `<h1 class="vt">Profil</h1><div class="card"><div class="row"><div class="em" style="font-size:30px">👤</div><div style="flex:1"><b style="font-size:17px">${esc(P.prenom || 'Sportif')}</b><div class="mu small">${P.age ? P.age + ' ans · ' : ''}${OBJ[P.obj]} · ${P.jours} séances/sem.</div></div><button class="btn sm" onclick="editProfile()">${ic('edit')}</button></div>
+    <div class="grid3" style="margin-top:12px"><div class="kpi"><div class="l">Séances</div><div class="v">${S.sessions.length}</div></div><div class="kpi"><div class="l">Temps total</div><div class="v" style="font-size:19px">${hmin(S.sessions.reduce((a, x) => a + (+x.dur || 0), 0))}</div></div><div class="kpi"><div class="l">Objectifs tenus</div><div class="v">${rate}</div></div></div></div>`;
+  h += `<h3 class="sec">Objectifs de la semaine <a onclick="goalForm()">+ Ajouter</a></h3>`;
+  h += S.goals.map(g => { const r = goalProgress(g); return `<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(g.titre)}</b><button class="btn sm ghost" onclick="S.goals=S.goals.filter(x=>x.id!=='${g.id}');save();render()">${ic('trash')}</button></div>
+    <div class="pbar" style="margin:10px 0 6px"><i style="width:${r.p * 100}%"></i></div><div class="row" style="justify-content:space-between"><span class="mu small">${g.type === 'km' ? r.v.toFixed(1) : Math.round(r.v)} / ${g.target} ${g.type === 'km' ? 'km' : g.type === 'minutes' ? 'min' : 'séances'}</span>${r.p >= 1 ? '<span class="pill ok">Réussi ✓</span>' : `<span class="pill dan">Pénalité : ${esc(g.penalite || '—')}</span>`}</div></div>`; }).join('') || '<div class="card empty">Aucun objectif.</div>';
+  if (missed.length) h += `<div class="card" style="border-color:rgba(244,63,94,.4)"><b>⚠️ Semaine dernière : objectif manqué</b><div class="mu small" style="margin-top:6px">${missed.map(g => `${esc(g.titre)} → <b style="color:#fda4af">${esc(g.penalite)}</b>`).join('<br>')}</div></div>`;
+  h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
+  h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
+    <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3 · données 100 % locales</p>`;
+  $('#view').innerHTML = h;
+}
+function editProfile() {
+  const P = S.profile;
+  sheet(`<h2>Mon profil</h2><div class="grid2"><label class="f">Prénom<input class="in" id="pP" value="${esc(P.prenom)}"></label><label class="f">Âge<input class="in" type="number" id="pA" value="${P.age || ''}"></label></div>
+    <label class="f">Objectif<select class="in" id="pO">${Object.entries(OBJ).map(([k, v]) => `<option value="${k}" ${P.obj === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+    <label class="f">Séances visées par semaine<input class="in" type="number" min="1" max="7" id="pJ" value="${P.jours}"></label>
+    <button class="btn pri w" style="margin-top:14px" onclick="Object.assign(S.profile,{prenom:$('#pP').value.trim(),age:+$('#pA').value||30,obj:$('#pO').value,jours:clamp(+$('#pJ').value||3,1,7)});save();closeSheet();render()">Enregistrer</button>`);
+}
+function goalForm() {
+  sheet(`<h2>Nouvel objectif hebdo</h2><label class="f">Type<select class="in" id="gT"><option value="seances">Nombre de séances</option><option value="km">Kilomètres</option><option value="minutes">Minutes d’activité</option></select></label>
+    <label class="f">Sport<select class="in" id="gS"><option value="all">Tous les sports</option>${Object.keys(SPORTS).map(k => `<option value="${k}">${SPORTS[k].nom}</option>`).join('')}</select></label>
+    <label class="f">Cible par semaine<input class="in" type="number" id="gV" value="3"></label><label class="f">Pénalité si raté<input class="in" id="gP" placeholder="Ex. : 50 burpees"></label>
+    <button class="btn pri w" style="margin-top:14px" onclick="goalAdd()">Ajouter</button>`);
+}
+function goalAdd() {
+  const t = $('#gT').value, sp = $('#gS').value, v = +$('#gV').value; if (!v) return toast('Indiquez une cible');
+  S.goals.push({ id: uid(), type: t, sport: sp, target: v, penalite: $('#gP').value.trim() || '—', titre: `${v} ${t === 'km' ? 'km' : t === 'minutes' ? 'min' : 'séances'}${sp === 'all' ? '' : ' de ' + SPORTS[sp].nom.toLowerCase()} par semaine` }); save(); closeSheet(); render();
+}
+function exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(S)], { type: 'application/json' })); a.download = `apexfit_${today()}.json`; a.click(); }
+function importData(f) { if (!f) return; f.text().then(t => { const d = JSON.parse(t); if (d.v !== 3) throw 0; S = Object.assign(blank(), d); save(); render(); toast('Données restaurées ✅'); }).catch(() => toast('Fichier invalide')); }
 
-            document.getElementById('statTotalRunning').innerText = totalRunKm.toFixed(1) + ' km';
-            document.getElementById('statTotalElevation').innerText = totalElevation + ' m';
-        }
+// ===================== DÉMARRAGE =====================
+$('#nav').innerHTML = `<button data-v="home" onclick="go('home')">${ic('home')}Accueil</button><button data-v="sports" onclick="go('sports')">${ic('grid')}Sports</button>
+  <button class="plus" onclick="plusMenu()" aria-label="Nouvelle séance">${ic('plus')}</button><button data-v="programmes" onclick="go('programmes')">${ic('list')}Programmes</button><button data-v="profil" onclick="go('profil')">${ic('user')}Profil</button>`;
+save(); render();
+window.addEventListener('resize', () => { if (route.v === 'home') weekChart(); });
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
 
-        // --- CALENDAR GENERATOR ---
-        function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-            const daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-            daysOfWeek.forEach(d => {
-                grid.innerHTML += `<div class="text-xs font-bold text-slate-500 py-2">${d}</div>`;
-            });
-
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
-            const firstDay = new Date(year, month, 1).getDay();
-            const totalDays = new Date(year, month + 1, 0).getDate();
-
-            // Offset for Monday start
-            let offset = firstDay === 0 ? 6 : firstDay - 1;
-            for(let i=0; i<offset; i++) {
-                grid.innerHTML += `<div></div>`;
-            }
-
-            for(let day=1; day<=totalDays; day++) {
-                const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayWorkouts = state.workouts.filter(w => w.date === dateStr);
-                
-                let bgClass = "bg-slate-900 border-slate-800";
-                let indicator = "";
-                if(dayWorkouts.length > 0) {
-                    if(dayWorkouts.some(w => w.type === 'running')) {
-                        bgClass = "bg-emerald-950/40 border-emerald-500/50 text-emerald-300";
-                        indicator += `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mx-0.5"></span>`;
-                    }
-                    if(dayWorkouts.some(w => w.type === 'muscu')) {
-                        bgClass = "bg-indigo-950/40 border-indigo-500/50 text-indigo-300";
-                        indicator += `<span class="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block mx-0.5"></span>`;
-                    }
-                }
-
-                grid.innerHTML += `
-                    <div class="h-16 border rounded-xl flex flex-col items-center justify-between p-1.5 ${bgClass} text-xs">
-                        <span class="font-bold">${day}</span>
-                        <div>${indicator}</div>
-                    </div>
-                `;
-            }
-        }
-
-        // --- REST TIMER FUNCTIONALITY ---
-        let timerInterval = null;
-        let timeLeft = 90;
-
-        function setTimer(seconds) {
-            clearInterval(timerInterval);
-            timeLeft = seconds;
-            updateTimerDisplay();
-        }
-
-        function startTimer() {
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if(timeLeft > 0) {
-                    timeLeft--;
-                    updateTimerDisplay();
-                } else {
-                    clearInterval(timerInterval);
-                    playBeep();
-                    alert('⏰ Repos terminé ! Prêt pour la prochaine série ?');
-                }
-            }, 1000);
-        }
-
-        function pauseTimer() {
-            clearInterval(timerInterval);
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timeLeft = 90;
-            updateTimerDisplay();
-        }
-
-        function updateTimerDisplay() {
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            document.getElementById('timerDisplay').innerText = 
-                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        }
-
-        function playBeep() {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            osc.type = 'sine';
-            osc.frequency.value = 587.33; // D5
-            osc.connect(ctx.destination);
-            osc.start();
-            setTimeout(() => osc.stop(), 400);
-        }
-
-        // --- CHARTS (PROGRESSION) ---
-        let runChartInstance = null;
-        let muscuChartInstance = null;
-
-        function renderCharts() {
-            const runData = state.workouts.filter(w => w.type === 'running');
-            const runCtx = document.getElementById('runningChart').getContext('2d');
-            if(runChartInstance) runChartInstance.destroy();
-            
-            runChartInstance = new Chart(runCtx, {
-                type: 'line',
-                data: {
-                    labels: runData.map(w => w.date),
-                    datasets: [{
-                        label: 'Distance (km)',
-                        data: runData.map(w => w.distance),
-                        borderColor: '#22c55e',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            const muscuData = state.workouts.filter(w => w.type === 'muscu');
-            const muscuCtx = document.getElementById('muscuChart').getContext('2d');
-            if(muscuChartInstance) muscuChartInstance.destroy();
-
-            muscuChartInstance = new Chart(muscuCtx, {
-                type: 'bar',
-                data: {
-                    labels: muscuData.map(w => `${w.exercise} (${w.date})`),
-                    datasets: [{
-                        label: 'Charge (kg)',
-                        data: muscuData.map(w => w.weight),
-                        backgroundColor: '#6366f1',
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        // --- GOALS & PENALTIES RENDER ---
-        function renderGoals() {
-            const container = document.getElementById('goalsContainer');
-            container.innerHTML = '';
-            state.goals.forEach(g => {
-                const percent = Math.min(100, Math.round((g.current / g.target) * 100));
-                container.innerHTML += `
-                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-3">
-                        <div class="flex justify-between items-center">
-                            <h4 class="font-semibold text-sm">${g.title}</h4>
-                            <span class="text-xs bg-red-950 text-red-400 px-2.5 py-1 rounded-full border border-red-900">Pénalité : ${g.penalty}</span>
-                        </div>
-                        <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-brand-500 h-full transition-all duration-500" style="width: ${percent}%"></div>
-                        </div>
-                        <div class="flex justify-between text-xs text-slate-400">
-                            <span>Progression : ${g.current} / ${g.target} ${g.unit}</span>
-                            <span class="font-bold text-slate-200">${percent}%</span>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function openGoalModal() {
-            const newTitle = prompt("Intitulé de l'objectif :");
-            const newTarget = parseFloat(prompt("Cible numérique (ex: 15) :"));
-            const newPenalty = prompt("Pénalité en cas d'échec :");
-            if(newTitle && newTarget && newPenalty) {
-                state.goals.push({
-                    id: Date.now(),
-                    title: newTitle,
-                    target: newTarget,
-                    current: 0,
-                    unit: "unités",
-                    penalty: newPenalty,
-                    completed: false
-                });
-                saveAndRefresh();
-                renderGoals();
-            }
-        }
-
-        // --- EXPORT DATA ---
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "apexfit_backup.json");
-            document.body.appendChild(dlAnchor);
-            dlAnchor.click();
-            dlAnchor.remove();
-        }
-
-        // Initial load
-        updateDashboardStats();
-    </script>
+</script>
 </body>
 </html>
