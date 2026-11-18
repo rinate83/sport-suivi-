@@ -250,11 +250,41 @@ const PROGRAMS = [
     ] },
   { id: 'maison', nom: 'À la maison sans matériel', obj: 'muscle', niv: 2, sem: 6, freq: 3, mat: 'aucun', ic: '🏠',
     desc: 'Renforcement complet au poids du corps, en 30 minutes.',
-    prog: '+2 répétitions par semaine ; quand c’est facile, passez à la variante plus dure (pompes déclinées, fentes bulgares).',
+    prog: 'Ajoutez des répétitions jusqu’au haut de la fourchette, puis l’appli vous propose la variante plus dure (échelle de progression).',
     seances: [
-      { nom: 'Poussée + jambes', sport: 'muscu', items: [I('pompe', 4, 12, 60), I('fentes', 4, 12, 60), I('dips', 3, 10, 60), I('pont', 3, 15, 45), T('gainage', 3, 45, 30)] },
-      { nom: 'Tirage + gainage', sport: 'muscu', items: [I('tractions', 4, 5, 90), I('goblet', 4, 20, 60), T('gainlat', 3, 30, 30), I('releve', 3, 12, 45), T('mc', 3, 30, 30)] },
+      { nom: 'Poussée + jambes', sport: 'muscu', items: [T('jj', 1, 60, 30), I('pompe', 4, 12, 90), I('bulgare', 3, 10, 90), I('dipschaise', 3, 12, 90), I('pont', 3, 15, 45), T('gainage', 3, 45, 30), T('diaphragme', 1, 120, 0)] },
+      { nom: 'Tirage + gainage', sport: 'muscu', items: [T('jj', 1, 60, 30), I('rowinv', 4, 10, 90), I('squatchaise', 4, 15, 75), I('pikepush', 3, 8, 90), T('gainlat', 3, 30, 30), I('superman', 3, 12, 45), T('diaphragme', 1, 120, 0)] },
       { nom: 'Circuit métabolique', sport: 'hiit', items: [T('burpee', 4, 30, 30), T('squatjump', 4, 30, 30), T('commando', 4, 30, 30), T('jj', 4, 40, 20)] }
+    ] },
+  // ---- Poids du corps : 3 étapes + express (principes généraux : échauffement progressif, repos fixes, progression sur le total de répétitions, variante plus dure quand le haut de la fourchette est atteint)
+  { id: 'pdc1', nom: 'Poids du corps — Fondations', obj: 'forme', niv: 1, sem: 6, freq: 3, mat: 'aucun', ic: '🪑', pdc: 1,
+    desc: 'Débuter sans aucun matériel : un mur, une chaise et une table suffisent. 30–35 min.',
+    prog: 'Visez le haut de la fourchette sur toutes les séries, puis passez à la variante suivante proposée. Arrêtez chaque série 1–2 répétitions avant l’échec.',
+    seances: [
+      { nom: 'Fondations A', sport: 'muscu', items: [T('jj', 2, 45, 30), T('hipcircles', 1, 40, 15), I('pompemur', 3, 12, 75, { tempo: 'lent' }), I('squatchaise', 3, 12, 75, { tempo: 'lent' }), I('rowinv', 3, 8, 90), I('pont', 3, 15, 45), T('gainage', 3, 25, 30), T('diaphragme', 1, 120, 0)] },
+      { nom: 'Fondations B', sport: 'muscu', items: [T('jj', 2, 45, 30), T('worlds', 1, 40, 15), I('pompeincl', 3, 10, 75), I('fentes', 3, 8, 75), I('dipschaise', 3, 8, 90), I('superman', 3, 10, 45), T('gainlat', 2, 20, 30), T('diaphragme', 1, 120, 0)] }
+    ] },
+  { id: 'pdc2', nom: 'Poids du corps — Progression', obj: 'muscle', niv: 2, sem: 8, freq: 3, mat: 'aucun', ic: '📈', pdc: 2,
+    desc: 'Plus de volume et des variantes plus dures. Une table solide ou une barre de porte aide pour le tirage.',
+    prog: 'Notez le total de répétitions de chaque exercice : il doit monter d’une séance à l’autre. Au sommet de la fourchette, l’appli propose la variante suivante.',
+    seances: [
+      { nom: 'Poussée & jambes', sport: 'muscu', items: [T('jj', 2, 45, 30), T('hipcircles', 1, 40, 15), I('pompe', 4, 10, 120, { tempo: 'lent' }), I('bulgare', 4, 10, 90), I('dipschaise', 3, 12, 90), I('pikepush', 3, 8, 90), T('hollow', 3, 25, 30), T('diaphragme', 1, 120, 0)] },
+      { nom: 'Tirage & chaîne arrière', sport: 'muscu', items: [T('jj', 2, 45, 30), T('worlds', 1, 40, 15), I('rowinv', 4, 10, 120, { tempo: 'pause' }), I('negtraction', 3, 4, 120), I('glutepont1', 3, 12, 60), I('superman', 3, 12, 45), T('gainlat', 3, 30, 30), T('diaphragme', 1, 120, 0)] },
+      { nom: 'Puissance & souffle', sport: 'hiit', items: [T('jj', 2, 45, 30), I('squatjump', 4, 8, 90, { tempo: 'explosif' }), I('pompediam', 3, 10, 90), I('fentesaut', 3, 10, 90), T('mc', 3, 30, 45), T('diaphragme', 1, 120, 0)] }
+    ] },
+  { id: 'pdc3', nom: 'Poids du corps — Avancé', obj: 'force', niv: 3, sem: 8, freq: 3, mat: 'aucun', ic: '🦾', pdc: 3,
+    desc: 'Variantes unilatérales et excentriques, repos longs pour la qualité. Barre de traction conseillée.',
+    prog: 'Séries de 4 à 8 répétitions propres, repos 2–3 min. Quand toutes les séries sont au sommet, passez à la variante suivante.',
+    seances: [
+      { nom: 'Force haut', sport: 'muscu', items: [T('jj', 2, 45, 30), T('worlds', 1, 40, 15), I('pompearch', 4, 6, 150), I('tractions', 4, 6, 150, { tempo: 'lent' }), I('hspu', 3, 5, 150), I('dips', 3, 8, 120), T('lsit', 3, 15, 60), T('diaphragme', 1, 120, 0)] },
+      { nom: 'Force bas', sport: 'muscu', items: [T('jj', 2, 45, 30), T('hipcircles', 1, 40, 15), I('pistol', 4, 5, 150), I('nordic', 3, 5, 150), I('bulgare', 3, 10, 90, { tempo: 'lent' }), I('molletexc', 3, 12, 60), T('hollow', 3, 30, 45), T('diaphragme', 1, 120, 0)] }
+    ] },
+  { id: 'pdcx', nom: 'Express 20 min — sans matériel', obj: 'forme', niv: 1, sem: 4, freq: 5, mat: 'aucun', ic: '⏱', pdc: 1,
+    desc: 'Pas le temps ? Deux mini-séances de 20 min à alterner, matin ou soir, 4 à 6 fois par semaine.',
+    prog: 'Même logique de progression ; deux courtes séances valent une longue si la régularité est là.',
+    seances: [
+      { nom: 'Express haut', sport: 'muscu', items: [T('jj', 1, 60, 20), I('pompe', 3, 10, 75), I('rowinv', 3, 10, 75), I('pikepush', 2, 8, 75), T('gainage', 2, 30, 30), T('diaphragme', 1, 90, 0)] },
+      { nom: 'Express bas', sport: 'muscu', items: [T('jj', 1, 60, 20), I('squatchaise', 3, 15, 60), I('fentes', 3, 10, 60), I('pont', 3, 15, 45), I('molletexc', 2, 12, 45), T('diaphragme', 1, 90, 0)] }
     ] },
   { id: 'mob', nom: 'Mobilité & souplesse', obj: 'mobilite', niv: 1, sem: 4, freq: 4, mat: 'aucun', ic: '🧘',
     desc: '15 à 20 minutes pour bouger mieux, moins de raideurs et un dos plus libre.',
@@ -302,7 +332,30 @@ const QUAL = { force_haut: 'Force haut du corps', force_bas: 'Force jambes', gai
 
 // ===================== IMAGES DES MOUVEMENTS =====================
 // [format, nombre d'images] : photos départ/arrivée (free-exercise-db, domaine public) ou dessins sur mesure
+// ---- Sans matériel (maison : mur, chaise, table) — v3.9
+M('muscu', 'pompemur', 'Pompes au mur', 'Poids du corps', 'Mur', 1, 'Pectoraux, triceps, gainage',
+  ['Face au mur, mains à hauteur d’épaules, pieds reculés d’un grand pas.', 'Corps gainé, approchez la poitrine du mur en pliant les coudes (~45°).', 'Repoussez le mur jusqu’aux bras tendus.'],
+  ['Bassin cassé', 'Pieds trop près du mur (trop facile)'], 'Reculez les pieds pour durcir ; à 15 répétitions faciles, passez aux pompes inclinées.', '3 × 10–15');
+M('muscu', 'dipschaise', 'Dips sur chaise', 'Poids du corps', 'Chaise stable (contre un mur)', 1, 'Triceps, pectoraux, épaules',
+  ['Mains au bord d’une chaise calée contre un mur, doigts vers l’avant.', 'Descendez jusqu’aux coudes à ~90°, dos près de la chaise.', 'Poussez jusqu’aux bras tendus sans hausser les épaules.'],
+  ['Descendre trop bas (épaules)', 'Coudes qui s’ouvrent'], 'Jambes pliées = plus facile ; jambes tendues ou pieds sur une 2e chaise = plus dur.', '3 × 8–15');
+M('muscu', 'squatchaise', 'Squat assis-debout (chaise)', 'Poids du corps', 'Chaise', 1, 'Quadriceps, fessiers',
+  ['Debout devant une chaise, pieds largeur d’épaules.', 'Descendez fesses en arrière jusqu’à effleurer l’assise, sans vous asseoir.', 'Remontez en poussant dans les talons.'],
+  ['Genoux qui rentrent', 'Se laisser tomber sur la chaise'], 'Descente en 3 s pour plus d’effet ; ensuite fentes puis fente bulgare.', '3 × 12–20');
+M('muscu', 'bulgare', 'Fente bulgare (pied sur chaise)', 'Poids du corps', 'Chaise', 2, 'Quadriceps, fessiers, équilibre',
+  ['Dos à une chaise, posez le dessus du pied arrière sur l’assise.', 'Descendez le genou arrière vers le sol, buste droit.', 'Remontez en poussant dans le talon avant. Changez de jambe.'],
+  ['Pied avant trop près', 'Genou avant qui rentre'], 'Toutes les répétitions d’une jambe puis l’autre ; prochaine étape : squat pistol.', '3 × 8–12 par jambe');
+M('muscu', 'pikepush', 'Pompes piquées (épaules)', 'Poids du corps', 'Aucun', 2, 'Épaules, triceps',
+  ['En V inversé, fesses hautes, mains un peu plus larges que les épaules.', 'Pliez les bras pour amener le haut de la tête vers le sol, entre les mains.', 'Repoussez jusqu’aux bras tendus.'],
+  ['Coudes qui s’ouvrent à 90°', 'Dos rond'], 'Pieds sur une chaise pour durcir, puis pompes en équilibre contre un mur.', '3 × 6–12');
+M('muscu', 'pompearch', 'Pompes archer', 'Poids du corps', 'Aucun', 3, 'Pectoraux, triceps (unilatéral)',
+  ['Mains très écartées, corps gainé.', 'Descendez vers une main en gardant l’autre bras presque tendu.', 'Remontez et alternez les côtés.'],
+  ['Bassin qui tourne', 'Bras « tendu » qui plie trop'], 'Étape vers la pompe sur un bras.', '4 × 4–8 par côté');
+M('mobilite', 'diaphragme', 'Respiration diaphragmatique', 'Retour au calme', 'Tapis', 1, 'Diaphragme, relâchement',
+  ['Allongé, genoux pliés, une main sur le ventre, l’autre sur la poitrine.', 'Inspirez par le nez 4 s en gonflant le ventre (la poitrine bouge peu).', 'Expirez lentement 6 s par la bouche en rentrant le ventre.'],
+  ['Hausser les épaules', 'Forcer l’inspiration'], 'Idéal en fin de séance pour faire redescendre le cœur et le stress.', '2–5 min');
 const IMG = {"dc":["webp",2],"dih":["webp",2],"pompe":["webp",2],"dips":["webp",2],"ecarte":["webp",2],"tractions":["webp",2],"rowb":["webp",2],"rowh":["webp",2],"tirage":["webp",2],"sdt":["webp",2],"sdtr":["webp",2],"squat":["webp",2],"goblet":["webp",2],"fentes":["webp",2],"presse":["webp",2],"hipthrust":["webp",2],"legcurl":["webp",2],"mollets":["webp",2],"dm":["webp",2],"elev":["webp",2],"facepull":["webp",2],"curl":["webp",2],"marteau":["webp",2],"triceps":["webp",2],"gainage":["webp",2],"gainlat":["webp",2],"releve":["webp",2],"swing":["webp",2],"ef":["webp",2],"fc":["webp",2],"fl":["webp",2],"seuil":["webp",2],"sl":["webp",2],"cotes":["svg",2],"talons":["webp",2],"skipping":["webp",2],"bondissantes":["webp",2],"chasses":["svg",2],"lignes":["svg",2],"technique":["webp",2],"z2":["svg",2],"sweet":["webp",2],"sprints":["svg",2],"velocite":["webp",2],"danseuse":["svg",2],"reglage":["svg",1],"crawl":["svg",2],"brasse":["svg",2],"dos":["svg",2],"papillon":["svg",2],"rattrape":["svg",2],"planche":["svg",2],"pull":["svg",2],"resp3":["svg",2],"burpee":["svg",2],"jj":["webp",2],"mc":["webp",2],"squatjump":["webp",2],"thruster":["webp",2],"boxjump":["webp",2],"corde":["webp",2],"fentesaut":["webp",2],"commando":["svg",2],"wallball":["svg",2],"rameur":["webp",2],"chien":["svg",1],"cobra":["svg",1],"enfant":["webp",2],"guerrier1":["svg",1],"guerrier2":["svg",1],"pigeon":["svg",1],"chatvache":["webp",2],"fentebasse":["webp",2],"ischios":["webp",2],"thoracique":["webp",2],"9090":["svg",1],"pont":["webp",2],"active":["svg",2],"nordique":["svg",2],"montee":["svg",2],"test_squat":["webp",2],"test_souplesse":["webp",2],"bandpa":["webp",2],"rotext":["webp",2],"oiseauel":["webp",2],"pallof":["webp",2],"kickback":["webp",2],"deadbug":["webp",2],"superman":["webp",2],"russian":["webp",2],"nordic":["webp",2],"molletexc":["webp",2],"medrot":["webp",2],"cou":["webp",2],"poignet":["webp",2],"glutepont1":["webp",2],"worlds":["webp",2],"hipcircles":["webp",2],"chevilles":["webp",2],"quadetir":["webp",2],"pecsetir":["webp",2],"molletsetir":["webp",2],"couetir":["webp",2],"epaulesmob":["webp",2],"torsion":["webp",2],"monster":["svg",2],"clam":["svg",2],"ytw":["svg",2],"birddog":["svg",2],"hollow":["svg",2],"shtaps":["svg",2],"copenhague":["svg",2],"equilibre":["svg",2],"stepdown":["svg",2],"chaise":["svg",1],"extdoigts":["svg",2],"tenue":["svg",1],"cossack":["svg",2],"squatprof":["svg",1],"sleeper":["svg",2],"etirpoignet":["svg",1]};
+Object.assign(IMG, { pompemur: ['svg', 2], dipschaise: ['svg', 2], squatchaise: ['svg', 2], bulgare: ['svg', 2], pikepush: ['svg', 2], pompearch: ['svg', 2], diaphragme: ['svg', 2] });
 
 // ===================== RENFORCEMENT : ÉLASTIQUES, GAINAGE, PRÉVENTION =====================
 M('muscu', 'bandpa', 'Écartés à l’élastique (pull-apart)', 'Élastiques', 'Élastique', 1, 'Arrière d’épaule, haut du dos',
@@ -773,3 +826,16 @@ Object.entries(SPEC).forEach(([k, s]) => {
   Object.defineProperty(p, 'seances', { get: () => specSeances(k), enumerable: true });
   PROGRAMS.push(p);
 });
+
+// ===================== ÉCHELLES DE PROGRESSION (poids du corps) =====================
+// Du plus facile au plus dur. Quand toutes les séries atteignent le plafond, l'appli propose la variante suivante.
+const LADDERS = [
+  ['pompemur', 'pompeincl', 'pompe', 'pompediam', 'pompedecl', 'pompearch', 'pompeexp'],
+  ['rowinv', 'negtraction', 'tractions'],
+  ['squatchaise', 'fentes', 'bulgare', 'pistol'],
+  ['dipschaise', 'dips'],
+  ['pikepush', 'hspu'],
+  ['gainage', 'hollow']
+];
+const LADDER_CAP = { pistol: 8, pompearch: 10, tractions: 12, negtraction: 6, hspu: 8, dips: 15, gainage: 60, hollow: 45 };
+const TEMPO = { lent: ['⏬', 'Descente lente (3 s), remontée normale'], pause: ['⏸', 'Pause 1 s en position contractée'], explosif: ['⚡', 'Montée explosive, réception contrôlée'] };

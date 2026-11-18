@@ -59,4 +59,22 @@ await t('partage : une séance survit au lien compressé', async () => {
 await t('charge : effort × durée sur 7 jours', () => {
   S().sessions = [{ id: 'a', date: today(), sport: 'course', dur: 40, rpe: 5 }]; assert.equal(loadStats().acute, 200); S().sessions = [];
 });
+await t('calories : MET × kg × h (Compendium 2024) et montre prioritaire', () => {
+  S().profile.poids = 70; S().profile.age = 30;
+  const run = kcalOf({ sport: 'course', dur: 60, dist: 10, rpe: 6 }); // 10 km/h ≈ 6,2 mph -> MET ≈ 9,7
+  assert.ok(run.k > 640 && run.k < 700, 'course ' + run.k);
+  assert.equal(kcalOf({ sport: 'mobilite', dur: 60, rpe: 3 }).k, Math.round(2.3 * 70));
+  assert.equal(kcalOf({ sport: 'course', dur: 30, rpe: 6, ext: { kcal: 412 } }).k, 412);
+  S().profile.age = 65; assert.ok(kcalOf({ sport: 'mobilite', dur: 60, rpe: 3 }).k < 161); S().profile.age = 30;
+  S().profile.poids = ''; assert.equal(kcalOf({ sport: 'hiit', dur: 30, rpe: 9 }).est, true);
+});
+await t('poids du corps : 3 séries au plafond -> variante plus dure proposée', () => {
+  S().sessions = [{ id: 'a', date: '2026-01-05', sport: 'muscu', rpe: 7, items: [{ mv: 'pompe', target: 15, sets: [15, 16, 15].map(r => ({ reps: r, done: true })) }] }];
+  const sg = suggest('pompe', 15, false); assert.equal(sg.next, 'pompediam');
+  S().sessions[0].items[0].sets[2].reps = 12; assert.equal(suggest('pompe', 15, false).next, undefined);
+  S().sessions = [];
+  ['pdc1', 'pdc2', 'pdc3', 'pdcx'].forEach(id => assert.ok(PROGRAMS.find(p => p.id === id && p.mat === 'aucun')));
+  LADDERS.flat().forEach(id => assert.ok(mvById(id), id));
+});
+
 console.log(`\n${ok} tests réussis`);
