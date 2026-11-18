@@ -1,3 +1,4 @@
+const APEX_ID = 'apexfit-rinate83-7f3c9e'; // empreinte de l’auteur original
 // ===================== COMPATIBILITÉ (iPhone anciens) + ERREURS VISIBLES =====================
 if (!Array.prototype.at) Object.defineProperty(Array.prototype, 'at', { value: function (i) { i = Math.trunc(i) || 0; if (i < 0) i += this.length; return this[i]; }, writable: true, configurable: true });
 if (!Array.prototype.flat) Object.defineProperty(Array.prototype, 'flat', { value: function () { return [].concat(...this); }, writable: true, configurable: true });
@@ -44,7 +45,7 @@ const KEY = 'apexfit_v3';
 let S = load();
 function blank() { return { v: 3, profile: { prenom: '', age: 30, sexe: 'h', poids: '', taille: '', obj: 'forme', jours: 3, mat: ['aucun'], sports: [] }, sessions: [], templates: [], tests: [], prog: null, goals: [], skipTest: false, body: [], remind: null, avail: {}, weekOk: {} }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; o.avail = o.avail || {}; o.weekOk = o.weekOk || {}; o.profile.pratique = o.profile.pratique || []; return o; } } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; o.avail = o.avail || {}; o.weekOk = o.weekOk || {}; o.profile.pratique = (o.profile.pratique || []).map(k => k === 'combat' ? 'boxe' : k).filter(k => SPEC[k]); if (o.prog && o.prog.id === 'sp_combat') o.prog.id = 'sp_boxe'; o.specLvl = o.specLvl || {}; return o; } } catch (e) {}
   const s = blank();
   try { // reprise des données de l'ancienne version (apexfit_state)
     const o = JSON.parse(localStorage.getItem('apexfit_state'));
@@ -682,14 +683,14 @@ function vProgrammes() {
       <div class="grid2" style="margin-top:12px">${nx ? `<button class="btn pri" onclick="startProgSession()">${ic('play')}Démarrer</button>` : ''}<button class="btn dan" onclick="if(confirm('Arrêter ce programme ?')){S.prog=null;save();render()}">Arrêter</button></div></div>`; }
   const pr = S.profile.pratique || [];
   h += `<h3 class="sec">Préparation pour vos sports <a onclick="sportsPicker()">${pr.length ? 'Modifier' : '+ Ajouter'}</a></h3>`;
-  h += pr.length ? pr.map(k => `<button class="li" onclick="openSpec('${k}')"><span class="em" style="font-size:24px">${SPEC[k].ic}</span><span class="t"><b>Préparation ${esc(SPEC[k].nom)}</b><small>${esc(SPEC[k].qual)}</small></span>${ic('right')}</button>`).join('')
+  h += pr.length ? pr.map(k => `<button class="li" onclick="openSpec('${k}')"><span class="em" style="font-size:24px">${SPEC[k].ic}</span><span class="t"><b>Préparation ${esc(SPEC[k].nom)}</b><small>Niveau ${LV[specLevel(k)]} · ${esc(SPEC[k].qual)}</small></span>${ic('right')}</button>`).join('')
     : `<div class="card"><div class="row"><div class="em" style="font-size:26px">🏅</div><div style="flex:1"><b>Vous pratiquez un sport ?</b><div class="mu small">Football, tennis, escalade, ski, tir… Recevez une préparation physique et des exercices de prévention spécifiques.</div></div></div><button class="btn w" style="margin-top:10px" onclick="sportsPicker()">Choisir mes sports</button></div>`;
   if (rec.length) h += `<h3 class="sec">Recommandés pour vous</h3>${rec.slice(0, 3).map(p => progRow(p, true)).join('')}`;
   h += `<h3 class="sec">Tous les programmes</h3><div class="chips" style="margin-bottom:10px">${[['tous', 'Tous'], ...Object.entries(OBJ)].map(([k, v]) => `<button class="chip ${progF === k ? 'on' : ''}" onclick="progF='${k}';render()">${v}</button>`).join('')}</div>`;
   h += PROGRAMS.filter(p => (progF === 'tous' && !p.spec) || p.obj === progF).map(p => progRow(p)).join('');
   $('#view').innerHTML = h;
 }
-const NIV = ['', 'Débutant', 'Intermédiaire', 'Avancé'];
+const NIV = ['', 'Débutant', 'Intermédiaire', 'Confirmé'];
 function progRow(p, star) { return `<button class="li" onclick="openProg('${p.id}')"><span class="em" style="font-size:24px">${p.ic}</span><span class="t"><b>${star ? '⭐ ' : ''}${esc(p.nom)}</b><small>${NIV[p.niv]} · ${p.sem} sem. · ${p.freq}×/sem · ${OBJ[p.obj]}</small></span>${ic('right')}</button>`; }
 function openProg(id) {
   const p = PROGRAMS.find(x => x.id === id), S0 = (p.weeks ? p.weeks[0] : p.seances).map(s => personalize(JSON.parse(JSON.stringify(s))));
@@ -721,7 +722,7 @@ function renderTest() {
       <div class="grid3"><label class="f">Sexe<select class="in" id="tS"><option value="h" ${P.sexe === 'h' ? 'selected' : ''}>Homme</option><option value="f" ${P.sexe === 'f' ? 'selected' : ''}>Femme</option></select></label><label class="f">Poids (kg)<input class="in" type="number" id="tW" value="${P.poids || ''}"></label><label class="f">Taille (cm)<input class="in" type="number" id="tH" value="${P.taille || ''}"></label></div>
       <label class="f">Objectif principal<select class="in" id="tO">${Object.entries(OBJ).map(([k, v]) => `<option value="${k}" ${P.obj === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
       <label class="f">Séances possibles par semaine<select class="in" id="tJ">${[2, 3, 4, 5].map(n => `<option ${+P.jours === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
-      <label class="f">Vous pratiquez un sport ? (préparation spécifique)</label><div class="chips" style="flex-wrap:wrap" id="tSp">${Object.entries(SPEC).map(([k, s]) => `<button class="chip ${(P.pratique || []).includes(k) ? 'on' : ''}" data-sp="${k}" onclick="this.classList.toggle('on')">${s.ic} ${s.nom}</button>`).join('')}</div>
+      <label class="f">Vous pratiquez un sport ? (préparation spécifique)</label>${sportChips(P.pratique || [], 'tSp')}
       <label class="f">Matériel disponible</label><div class="chips" style="flex-wrap:wrap">${[['aucun', 'Rien (maison)'], ['halteres', 'Haltères / kettlebell'], ['barre', 'Barre de traction'], ['salle', 'Salle de sport'], ['piscine', 'Piscine'], ['velo', 'Vélo']].map(([k, v]) => `<button class="chip ${P.mat.includes(k) ? 'on' : ''}" onclick="this.classList.toggle('on')" data-m="${k}">${v}</button>`).join('')}</div>
       <div class="tip" style="margin-top:14px">⚠️ En cas de problème de santé, de douleur ou de reprise après une longue pause, demandez l’avis d’un médecin avant les tests d’effort maximal.</div>`,
     `<span></span><button class="btn pri" onclick="saveTestProfile()">Continuer</button>`);
@@ -754,7 +755,7 @@ function renderTest() {
 }
 function saveTestProfile() {
   const P = S.profile; P.prenom = $('#tP').value.trim(); P.age = +$('#tA').value || 30; P.sexe = $('#tS').value; P.poids = +$('#tW').value || ''; P.taille = +$('#tH').value || ''; P.obj = $('#tO').value; P.jours = +$('#tJ').value;
-  P.pratique = $$('#tSp .chip.on').map(b => b.dataset.sp);
+  P.pratique = pickedSports('tSp');
   P.mat = $$('#live .chip.on[data-m]').map(b => b.dataset.m); if (!P.mat.length) P.mat = ['aucun']; save(); TS.step++; renderTest();
 }
 function saveTestValue(ti) {
@@ -820,24 +821,54 @@ function recommend(r) {
   const pr = P.pratique || [];
   return PROGRAMS.filter(ok).filter(p => !p.spec || pr.includes(p.spec)).map(p => ({ p, s: (p.spec ? -1 : 0) + (p.obj === P.obj ? 0 : 3) + Math.abs(p.niv - lvl) * 1.5 + (p.freq > (+P.jours || 3) ? 2 : 0) + (weakCardio && p.obj === 'endurance' && p.niv === 1 ? -1 : 0) })).sort((a, b) => a.s - b.s).map(x => x.p);
 }
+// ---- sports pratiqués : choix groupé par catégorie
+function sportChips(sel, id) {
+  return Object.entries(SPCAT).map(([c, lab]) => `<div class="mu tiny" style="margin:12px 0 6px;font-weight:800;letter-spacing:.04em">${lab}</div><div class="chips" style="flex-wrap:wrap" id="${id}_${c}">${Object.entries(SPEC).filter(([, s]) => s.cat === c).map(([k, s]) => `<button class="chip ${sel.includes(k) ? 'on' : ''}" data-sp="${k}" onclick="this.classList.toggle('on')">${s.ic} ${s.nom}</button>`).join('')}</div>`).join('');
+}
+const pickedSports = id => $$(`[id^="${id}_"] .chip.on`).map(b => b.dataset.sp);
 function sportsPicker() {
   const pr = S.profile.pratique || [];
-  sheet(`<h2>Mes sports pratiqués</h2><p class="mu small">En club ou en loisir. Vous recevrez une préparation physique, les risques de blessure à connaître et des exercices de prévention.</p>
-    <div class="chips" style="flex-wrap:wrap" id="spP">${Object.entries(SPEC).map(([k, s]) => `<button class="chip ${pr.includes(k) ? 'on' : ''}" data-sp="${k}" onclick="this.classList.toggle('on')">${s.ic} ${s.nom}</button>`).join('')}</div>
-    <button class="btn pri w" style="margin-top:14px" onclick="S.profile.pratique=$$('#spP .chip.on').map(b=>b.dataset.sp);save();closeSheet();render()">Enregistrer</button>`);
+  sheet(`<h2>Mes sports pratiqués</h2><p class="mu small">En club ou en loisir. Pour chaque sport : une préparation physique en 3 niveaux, ajustée à votre test, les risques de blessure et des exercices de prévention.</p>
+    ${sportChips(pr, 'spP')}
+    <button class="btn pri w" style="margin-top:16px" onclick="S.profile.pratique=pickedSports('spP');save();closeSheet();render()">Enregistrer</button>`);
 }
-function openSpec(k) {
-  const s = SPEC[k], S0 = s.seances.map(x => personalize(JSON.parse(JSON.stringify(x))));
-  READY = s.seances.map(x => ({ s: x }));
-  sheet(`<div style="font-size:40px">${s.ic}</div><h2>Préparation ${esc(s.nom)}</h2>
-    <div class="kpi" style="margin-top:10px"><div class="l">Qualités clés</div><div class="small" style="margin-top:4px">${esc(s.qual)}</div></div>
-    <div class="kpi" style="margin-top:8px;border-color:rgba(244,63,94,.35)"><div class="l" style="color:#fda4af">Zones à protéger</div><div class="small" style="margin-top:4px">${esc(s.risques)}</div></div>
-    <h3 class="sec">Conseils</h3><ul class="small" style="padding-left:18px;line-height:1.5">${s.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
-    <h3 class="sec">Séances spécifiques</h3>${S0.map((x, i) => `<div class="kpi" style="margin-top:8px"><div class="row" style="justify-content:space-between"><b>${SPORTS[x.sport].ic} ${esc(x.nom)}</b><button class="btn sm pri" onclick="closeSheet();startReady(${i})">${ic('play')}</button></div>
-      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">${x.items.map(it => `<span class="mini" onclick="openMv('${it.mv}',1)">${mvImg(it.mv, 'thumb')}<small>${esc(mvName(it))}</small></span>`).join('')}</div></div>`).join('')}
-    <button class="btn pri w" style="margin-top:14px" onclick="S.prog={id:'sp_${k}',start:today(),done:[]};save();closeSheet();go('home');toast('Préparation ${esc(s.nom)} lancée 💪')">Suivre la préparation (6 semaines, 2×/sem.)</button>
-    <p class="mu tiny" style="margin-top:12px">Sources : ${s.src.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--ac2)">${esc(t)}</a>`).join(' · ')}</p>
-    <p class="mu tiny">En cas de douleur ou de blessure, demandez l’avis d’un kiné ou d’un médecin.</p>`);
+// ---- niveau : choisi par l'utilisateur, sinon celui du test ; chaque exercice suit le score de la qualité qu'il travaille
+const recLevel = () => { const t = S.tests.at(-1); return t ? t.level : 1; };
+const specLevel = k => (S.specLvl && S.specLvl[k]) || recLevel();
+function qLvl(q, L) {
+  const t = S.tests.at(-1); if (!q || !t || t.scores[q] == null) return L;
+  const v = t.scores[q], ql = v <= 2 ? 1 : v === 3 ? 2 : 3;
+  return clamp(ql, Math.max(1, L - 1), Math.min(3, L + 1));
+}
+function weakKey(k) { const t = S.tests.at(-1); if (!t) return null; return SPEC[k].key.filter(q => t.scores[q] != null && t.scores[q] <= 2).sort((a, b) => t.scores[a] - t.scores[b])[0] || null; }
+function specSession(k, i, L) {
+  const s = SPEC[k].seances[i], adj = [];
+  const items = s.slots.map(sl => { const l = qLvl(sl.q, L); const it = JSON.parse(JSON.stringify(sl.v[l - 1])); if (l !== L) { it.adj = l > L ? 'up' : 'down'; adj.push({ q: sl.q, l, mv: it.mv }); } return it; });
+  const wq = weakKey(k);
+  if (wq) { const it = JSON.parse(JSON.stringify(QFIX[wq].v[Math.min(L, 2) - 1])); if (!items.some(x => x.mv === it.mv)) { it.fix = wq; items.push(it); } }
+  return { nom: `${s.nom} · ${LV[L]}`, sport: s.sport, items, lvl: L, adj, fix: wq };
+}
+function specSeances(k) { const L = specLevel(k); return SPEC[k].seances.map((_, i) => specSession(k, i, L)); }
+function setSpecLvl(k, l) { S.specLvl = S.specLvl || {}; if (l === recLevel()) delete S.specLvl[k]; else S.specLvl[k] = l; save(); haptic(8); openSpec(k, true); }
+function openSpec(k, re) {
+  const s = SPEC[k], L = specLevel(k), rec = recLevel(), t = S.tests.at(-1), wq = weakKey(k);
+  const S0 = specSeances(k).map(x => personalize(x));
+  READY = S0.map(x => ({ s: x }));
+  const sc = q => t && t.scores[q] != null ? ` (${t.scores[q]}/5)` : '';
+  let h = `<div class="row" style="gap:12px"><div style="font-size:40px">${s.ic}</div><div style="flex:1"><h2 style="margin:0">Préparation ${esc(s.nom)}</h2><div class="mu small">${esc(SPCAT[s.cat])}</div></div></div>
+    <label class="f" style="margin-top:14px">Niveau de la préparation</label>
+    <div class="seg lv3">${[1, 2, 3].map(l => `<button class="${L === l ? 'on' : ''}" onclick="setSpecLvl('${k}',${l})">${LV[l]}${l === rec && t ? '<i>conseillé</i>' : ''}</button>`).join('')}</div>
+    <div class="tip" style="margin-top:10px">${t ? `🧪 D’après votre test (${esc(t.levelTxt)}), le niveau conseillé est <b>${LV[rec]}</b>. Chaque exercice est ensuite ajusté selon la qualité qu’il travaille : ${s.key.map(q => esc(QUAL[q]) + sc(q)).join(', ')}.` : '🧪 Faites le test de capacités pour obtenir un niveau conseillé et des exercices ajustés à vos points forts et faibles. <a onclick="closeSheet();startTest()" style="color:var(--ac2);font-weight:700">Faire le test</a>'}</div>
+    ${wq ? `<div class="tip" style="margin-top:8px;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08);color:#fde68a">🎯 Point faible détecté : <b>${esc(QUAL[wq])}</b>${sc(wq)}. Un exercice ciblé est ajouté à chaque séance.</div>` : ''}
+    <div class="grid2" style="margin-top:12px"><div class="kpi"><div class="l">Qualités clés</div><div class="small" style="margin-top:4px">${esc(s.qual)}</div></div>
+    <div class="kpi" style="border-color:rgba(244,63,94,.35)"><div class="l" style="color:#fda4af">Zones à protéger</div><div class="small" style="margin-top:4px">${esc(s.risques)}</div></div></div>
+    <h3 class="sec">Séances · ${LV[L]}</h3>${S0.map((x, i) => `<div class="kpi" style="margin-top:8px"><div class="row" style="justify-content:space-between"><b>${SPORTS[x.sport].ic} ${esc(x.nom)}</b><button class="btn sm pri" onclick="closeSheet();startReady(${i})">${ic('play')}</button></div>
+      <div class="spl">${x.items.map(it => `<div class="spi" onclick="openMv('${it.mv}',1)">${mvImg(it.mv, 'thumb')}<span><b>${esc(mvName(it))}</b><small>${typeof it.sets === 'number' ? it.sets + ' × ' + (it.sec ? it.sec + ' s' : it.reps) : ''}${it.rest ? ' · repos ' + it.rest + ' s' : ''}</small></span>${it.fix ? '<em class="b fix">point faible</em>' : it.adj === 'up' ? '<em class="b up">▲ plus dur</em>' : it.adj === 'down' ? '<em class="b down">▼ plus facile</em>' : ''}</div>`).join('')}</div></div>`).join('')}
+    ${S.prog && S.prog.id === 'sp_' + k ? `<div class="tip" style="margin-top:14px">✅ Préparation suivie : ${S.prog.done.length} séance(s) faite(s). Le niveau choisi s’applique aux prochaines séances.</div>` : `<button class="btn pri w" style="margin-top:14px" onclick="S.prog={id:'sp_${k}',start:today(),done:[]};save();closeSheet();go('home');toast('Préparation ${esc(s.nom)} lancée 💪')">Suivre la préparation (6 semaines, 2×/sem.)</button>`}
+    <h3 class="sec">Conseils</h3><ul class="small" style="padding-left:18px;line-height:1.5">${s.tips.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    ${s.src && s.src.length ? `<p class="mu tiny" style="margin-top:12px">Sources : ${s.src.map(([a, u]) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--ac2)">${esc(a)}</a>`).join(' · ')}</p>` : ''}
+    <p class="mu tiny">En cas de douleur ou de blessure, demandez l’avis d’un kiné ou d’un médecin. Les exercices avancés (pont de lutte, équilibre sur les mains…) se pratiquent idéalement avec un encadrement.</p>`;
+  const sh = re && $('#sheetBg .sheet'); if (sh) { const st = sh.scrollTop; sh.innerHTML = '<div class="grab"></div>' + h; sh.scrollTop = st; } else sheet(h);
 }
 // adapte une séance aux résultats du test (répétitions, durées, allures)
 function personalize(s) {
@@ -877,7 +908,7 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.5 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.6 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
   bodyChart(); loadThumbs();
 }

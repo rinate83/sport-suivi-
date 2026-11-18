@@ -233,3 +233,12 @@ canvas.spark{width:100px;height:30px}
 @media(prefers-reduced-motion:reduce){.mg-lines,.mg-sfx,.mg-fig{animation:none}}
 
 @keyframes fade{from{opacity:0}}
+
+/* préparation par sport : niveaux */
+.seg.lv3 button{position:relative;padding-top:6px;padding-bottom:6px;line-height:1.15}
+.seg.lv3 button i{display:block;font-style:normal;font-size:10px;font-weight:800;color:var(--ac);text-transform:uppercase;letter-spacing:.04em}
+.spl{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.spi{display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px;border-radius:12px;transition:background .15s}.spi:active{background:rgba(255,255,255,.05)}
+.spi .mvimg.thumb{width:44px;height:44px;flex:none}.spi span{flex:1;min-width:0}.spi b{display:block;font-size:13.5px}.spi small{color:var(--mu);font-size:12px}
+.spi .b{font-style:normal;font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:8px;white-space:nowrap}
+.spi .b.up{background:rgba(34,197,94,.15);color:#86efac}.spi .b.down{background:rgba(96,165,250,.15);color:#93c5fd}.spi .b.fix{background:rgba(245,158,11,.15);color:#fde68a}

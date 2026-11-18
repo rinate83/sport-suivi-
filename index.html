@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<!-- ApexFit — © rinate83 — https://github.com/rinate83/sport-suivi- — empreinte : apexfit-rinate83-7f3c9e -->
+<meta name="author" content="rinate83">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#070b14">
@@ -248,6 +250,15 @@ canvas.spark{width:100px;height:30px}
 @media(prefers-reduced-motion:reduce){.mg-lines,.mg-sfx,.mg-fig{animation:none}}
 
 @keyframes fade{from{opacity:0}}
+
+/* préparation par sport : niveaux */
+.seg.lv3 button{position:relative;padding-top:6px;padding-bottom:6px;line-height:1.15}
+.seg.lv3 button i{display:block;font-style:normal;font-size:10px;font-weight:800;color:var(--ac);text-transform:uppercase;letter-spacing:.04em}
+.spl{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.spi{display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px;border-radius:12px;transition:background .15s}.spi:active{background:rgba(255,255,255,.05)}
+.spi .mvimg.thumb{width:44px;height:44px;flex:none}.spi span{flex:1;min-width:0}.spi b{display:block;font-size:13.5px}.spi small{color:var(--mu);font-size:12px}
+.spi .b{font-style:normal;font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:8px;white-space:nowrap}
+.spi .b.up{background:rgba(34,197,94,.15);color:#86efac}.spi .b.down{background:rgba(96,165,250,.15);color:#93c5fd}.spi .b.fix{background:rgba(245,158,11,.15);color:#fde68a}
 
 </style>
 </head>
@@ -719,7 +730,7 @@ PROGRAMS.push(
 // ===================== PRÉPARATION PHYSIQUE PAR SPORT PRATIQUÉ =====================
 // Contenus construits à partir de programmes de prévention publiés (FIFA 11+, prévention de l'épaule des sports de lancer,
 // entraînement des antagonistes en escalade, préparation au ski, mobilité du golfeur, tir sportif…)
-const SPEC = {
+const SPEC_OLD = {
   foot: { nom: 'Football', ic: '⚽', qual: 'Endurance intermittente, vitesse, changements de direction, frappe', risques: 'Ischio-jambiers, adducteurs, chevilles, genoux (LCA)',
     tips: ['Faites le programme d’échauffement FIFA 11+ avant chaque entraînement : il réduit nettement les blessures.', 'Le Nordic hamstring est l’exercice le plus étudié contre les déchirures des ischios.', 'Ajoutez le gainage Copenhague pour les adducteurs.'],
     src: [['FIFA 11+ : méta-analyse (BJSM)', 'https://bjsm.bmj.com/content/51/7/562'], ['Prévention en football (Aspetar)', 'https://www.aspetar.com/Journal/viewarticle.aspx?id=568']],
@@ -786,13 +797,255 @@ const SPEC = {
     seances: [{ nom: 'Stabilité & gainage', sport: 'muscu', items: [T('gainage', 3, 45, 30), T('gainlat', 2, 30, 30), T('deadbug', 3, 40, 30), I('birddog', 3, 8, 30), T('equilibre', 3, 30, 20), T('tenue', 4, 30, 30)] },
       { nom: 'Épaules & poignets', sport: 'muscu', items: [I('rotext', 3, 15, 45), I('bandpa', 3, 15, 45), I('oiseauel', 3, 15, 45), I('poignet', 3, 15, 45), T('couetir', 2, 30, 10), T('etirpoignet', 2, 20, 10)] }] }
 };
+
+
+// ===================== EXERCICES : SPORTS DE COMBAT, POIDS DU CORPS, PUISSANCE =====================
+M('muscu', 'shadow', 'Shadow boxing', 'Sports de combat', 'Aucun', 1, 'Épaules, jambes, cardio',
+  ['En garde, mains hautes, menton rentré.', 'Enchaînez directs, crochets et esquives en vous déplaçant.', 'Rythme régulier pendant tout le round, expirez à chaque frappe.'],
+  ['Baisser la garde', 'Rester planté sur place', 'Bloquer la respiration'], 'Visualisez un adversaire : bougez la tête après chaque enchaînement.', '3 × 2–3 min, 1 min de repos');
+M('muscu', 'sac', 'Rounds au sac de frappe', 'Sports de combat', 'Sac de frappe + gants', 2, 'Corps entier, puissance, cardio',
+  ['Gants et bandes, à distance de bras du sac.', 'Enchaînez combinaisons et déplacements autour du sac.', 'Alternez 20 s en rapidité et 10 s en puissance.'],
+  ['Frapper avec les bras seulement', 'Poignet cassé à l’impact', 'Rester collé au sac'], 'La puissance part des pieds et passe par la rotation des hanches.', '3–6 × 3 min, 1 min de repos');
+M('muscu', 'sprawl', 'Sprawl', 'Sports de combat', 'Aucun', 2, 'Hanches, gainage, cardio',
+  ['Debout en garde.', 'Projetez les jambes en arrière et plaquez les hanches au sol, poitrine haute.', 'Revenez debout en garde le plus vite possible.'],
+  ['Atterrir à genoux', 'Dos creusé sans gainage'], 'C’est le réflexe de défense contre une amenée au sol.', '4 × 20–40 s');
+M('muscu', 'crevette', 'Échappement de hanche (crevette)', 'Sports de combat', 'Tapis', 1, 'Hanches, gainage latéral',
+  ['Sur le dos, pieds au sol.', 'Poussez sur un pied pour chasser les hanches vers l’arrière en pivotant sur l’épaule.', 'Enchaînez d’un côté puis de l’autre en avançant sur le tapis.'],
+  ['Pousser avec les mains', 'Rester à plat'], 'Mouvement de base au sol en jiu-jitsu, lutte et MMA.', '4 × longueur de tapis');
+M('muscu', 'pontlutte', 'Pont de lutte (progressif)', 'Sports de combat', 'Tapis', 3, 'Nuque, extenseurs du dos, fessiers',
+  ['Commencez par un pont fessier, puis un pont sur les mains (pont arrière).', 'Pour les pratiquants confirmés seulement : appui sur le sommet du crâne, avec les mains pour protéger.', 'Petits roulements avant-arrière, très lents.'],
+  ['Brûler les étapes', 'Mouvements brusques de la nuque', 'Le faire sans encadrement si débutant'], 'À progresser très lentement ; en cas de douleur au cou, arrêtez.', '3 × 20–30 s');
+M('muscu', 'serviette', 'Suspension à la serviette', 'Sports de combat', 'Barre + 2 serviettes', 2, 'Grip, avant-bras, dos',
+  ['Passez deux serviettes sur une barre de traction.', 'Agrippez-les et suspendez-vous, épaules engagées.', 'Progression : tractions avec les serviettes.'],
+  ['Épaules relâchées aux oreilles'], 'Reproduit la saisie du kimono (judo, jiu-jitsu).', '4 × 20–45 s');
+M('muscu', 'uchikomi', 'Uchi-komi à l’élastique', 'Sports de combat', 'Élastique + point d’ancrage', 2, 'Dos, hanches, coordination',
+  ['Élastique attaché à hauteur de poitrine, une extrémité dans chaque main.', 'Répétez l’entrée de votre projection (rotation, placement des hanches) contre la tension.', 'Revenez en garde en contrôlant.'],
+  ['Tirer avec les bras sans tourner les hanches'], 'Rapidité d’entrée : vitesse maximale, technique propre.', '4 × 15 entrées');
+M('muscu', 'genoux', 'Frappes de genou', 'Sports de combat', 'Aucun (sac facultatif)', 1, 'Fléchisseurs de hanche, gainage',
+  ['Mains devant comme pour saisir la nuque.', 'Montez le genou vers l’avant en avançant la hanche, buste légèrement en arrière.', 'Alternez droite-gauche.'],
+  ['Pencher le buste en avant', 'Genou qui part sur le côté'], 'Base du clinch en boxe thaïe.', '3 × 30–60 s');
+M('muscu', 'kickel', 'Kick latéral contrôlé', 'Sports de combat', 'Aucun', 2, 'Moyen fessier, équilibre, ischios',
+  ['Armez le genou à hauteur de hanche.', 'Tendez la jambe sur le côté en pivotant le pied d’appui.', 'Tenez 1 s, réarmez et reposez sans perdre l’équilibre.'],
+  ['Buste qui tombe', 'Kick lancé sans contrôle'], 'Lent et contrôlé = force et souplesse ; rapide = puissance.', '3 × 8 par jambe');
+M('muscu', 'cavalier', 'Position du cavalier', 'Sports de combat', 'Aucun', 1, 'Quadriceps, adducteurs',
+  ['Pieds deux fois plus écartés que les épaules.', 'Descendez cuisses presque parallèles au sol, dos droit.', 'Genoux poussés vers l’extérieur, respirez calmement.'],
+  ['Genoux qui rentrent', 'Dos penché'], 'Posture de base du karaté et du kung-fu.', '3 × 30–90 s');
+M('muscu', 'fenteesc', 'Fente d’escrime', 'Sports de combat', 'Aucun', 2, 'Quadriceps, fessiers, ischios',
+  ['En garde : pieds à 90°, genoux fléchis.', 'Bras armé tendu, poussez fort sur la jambe arrière et allongez la jambe avant.', 'Revenez en garde par une poussée de la jambe avant.'],
+  ['Genou avant qui dépasse le pied', 'Buste penché en avant'], 'La jambe arrière propulse, la jambe avant freine : travaillez les deux.', '4 × 8 par côté');
+M('muscu', 'bearcrawl', 'Marche de l’ours', 'Poids du corps', 'Aucun', 1, 'Épaules, gainage, coordination',
+  ['À quatre pattes, genoux décollés de 5 cm.', 'Avancez bras et jambe opposés en même temps.', 'Dos plat, bassin stable.'],
+  ['Fesses trop hautes', 'Genoux qui touchent le sol'], 'Excellent échauffement pour les sports de combat.', '4 × 20 m');
+M('muscu', 'farmer', 'Marche du fermier', 'Poids du corps', 'Haltères, kettlebells ou sacs', 1, 'Grip, trapèzes, gainage',
+  ['Une charge lourde dans chaque main.', 'Marchez droit, épaules basses, petits pas rapides.', 'Posez les charges sans arrondir le dos.'],
+  ['Épaules qui tombent en avant', 'Pencher d’un côté'], 'Le meilleur exercice simple pour la poigne.', '4 × 30–40 m');
+M('muscu', 'getup', 'Turkish get-up', 'Poids du corps', 'Kettlebell ou haltère', 3, 'Épaules, gainage, mobilité',
+  ['Allongé, charge tenue bras tendu vers le plafond.', 'Relevez-vous étape par étape (coude, main, genou, debout) sans quitter la charge des yeux.', 'Redescendez dans l’ordre inverse.'],
+  ['Bras qui plie', 'Aller trop vite'], 'Commencez sans charge ou avec une chaussure posée sur le poing.', '3 × 2 par côté');
+M('muscu', 'pistol', 'Squat pistol', 'Poids du corps', 'Aucun', 3, 'Quadriceps, fessiers, équilibre',
+  ['Sur une jambe, l’autre tendue devant.', 'Descendez le plus bas possible, talon au sol.', 'Remontez sans poser l’autre pied.'],
+  ['Talon qui décolle', 'Genou qui rentre'], 'Progression : descendre sur une chaise, puis sur un banc plus bas.', '3 × 3–6 par jambe');
+M('muscu', 'pompeincl', 'Pompes inclinées', 'Poids du corps', 'Banc ou table', 1, 'Pectoraux, triceps',
+  ['Mains sur un support surélevé.', 'Corps gainé, descendez la poitrine vers le support.', 'Poussez jusqu’à bras tendus.'],
+  ['Fesses en l’air', 'Coudes trop écartés'], 'Plus le support est haut, plus c’est facile.', '3 × 8–15');
+M('muscu', 'pompedecl', 'Pompes pieds surélevés', 'Poids du corps', 'Banc', 2, 'Haut des pectoraux, épaules',
+  ['Pieds sur un banc, mains au sol.', 'Corps aligné, descendez jusqu’à frôler le sol.', 'Remontez sans casser le dos.'],
+  ['Dos creusé'], 'Progression vers les pompes en équilibre.', '4 × 8–15');
+M('muscu', 'pompediam', 'Pompes mains serrées', 'Poids du corps', 'Aucun', 2, 'Triceps, pectoraux',
+  ['Mains rapprochées sous la poitrine.', 'Coudes le long du corps, descendez lentement.', 'Poussez jusqu’à bras tendus.'],
+  ['Coudes qui s’écartent'], 'Utile pour la puissance des directs.', '3 × 8–15');
+M('muscu', 'pompeexp', 'Pompes explosives', 'Puissance', 'Aucun', 3, 'Pectoraux, triceps, puissance',
+  ['Position de pompe.', 'Descendez puis poussez si fort que les mains décollent.', 'Réceptionnez-vous bras légèrement fléchis.'],
+  ['Atterrir bras tendus', 'Dos creusé'], 'Peu de répétitions, qualité maximale.', '4 × 4–6');
+M('muscu', 'rowinv', 'Rowing inversé', 'Poids du corps', 'Barre basse ou table solide', 1, 'Dos, biceps',
+  ['Sous une barre, corps droit, talons au sol.', 'Tirez la poitrine vers la barre en serrant les omoplates.', 'Redescendez lentement.'],
+  ['Bassin qui tombe'], 'Plus le corps est horizontal, plus c’est dur.', '3 × 8–15');
+M('muscu', 'tracelast', 'Tractions assistées à l’élastique', 'Poids du corps', 'Barre + élastique', 1, 'Dos, biceps',
+  ['Élastique accroché à la barre, un pied ou genou dedans.', 'Tirez jusqu’au menton au-dessus de la barre.', 'Redescendez bras tendus.'],
+  ['Balancer les jambes'], 'Élastique de moins en moins fort au fil des semaines.', '4 × 5–10');
+M('muscu', 'negtraction', 'Tractions négatives', 'Poids du corps', 'Barre', 2, 'Dos, biceps (excentrique)',
+  ['Montez menton au-dessus de la barre (saut ou chaise).', 'Descendez le plus lentement possible (4–6 s).', 'Remontez sans tirer et recommencez.'],
+  ['Se laisser tomber à la fin'], 'Le moyen le plus sûr d’obtenir sa première traction.', '4 × 3–5');
+M('muscu', 'lsit', 'L-sit', 'Poids du corps', 'Barres parallèles ou chaises', 3, 'Abdominaux, triceps, fléchisseurs de hanche',
+  ['Appui bras tendus, épaules basses.', 'Levez les jambes tendues à l’horizontale.', 'Tenez la position.'],
+  ['Épaules qui remontent', 'Jambes pliées (sauf en progression)'], 'Progression : genoux pliés (tuck), puis une jambe, puis deux.', '4 × 10–20 s');
+M('muscu', 'atr', 'Équilibre sur les mains au mur', 'Poids du corps', 'Mur', 3, 'Épaules, gainage',
+  ['Mains à 20 cm du mur, montez les pieds en marchant au mur.', 'Corps aligné, regard entre les mains.', 'Tenez, puis redescendez en marchant.'],
+  ['Dos très creusé', 'Bras pliés'], 'Commencez en pike (pieds sur une chaise) si l’épaule manque de force.', '4 × 15–45 s');
+M('muscu', 'hspu', 'Pompes en équilibre', 'Poids du corps', 'Mur', 3, 'Épaules, triceps',
+  ['En équilibre face au mur ou dos au mur.', 'Descendez la tête vers le sol en contrôlant.', 'Poussez jusqu’à bras tendus.'],
+  ['Tête qui tape le sol', 'Coudes ouverts'], 'Exercice avancé : maîtrisez d’abord l’équilibre.', '4 × 3–6');
+M('muscu', 'suspjambes', 'Relevés de jambes suspendu', 'Poids du corps', 'Barre', 3, 'Abdominaux, grip',
+  ['Suspendu à une barre, épaules engagées.', 'Montez les jambes tendues jusqu’à la barre (ou à l’horizontale).', 'Redescendez sans balancer.'],
+  ['Balancier', 'Dos qui se cambre'], 'Version facile : genoux pliés vers la poitrine.', '3 × 6–12');
+M('muscu', 'medpasse', 'Passe poitrine au médecine-ball', 'Puissance', 'Médecine-ball + mur', 1, 'Pectoraux, triceps, puissance',
+  ['Face à un mur, ballon contre la poitrine.', 'Lancez le ballon le plus fort possible en poussant des jambes et des bras.', 'Rattrapez et enchaînez.'],
+  ['Lancer seulement avec les bras'], 'Puissance de poussée pour les directs, le pop-up et les contacts.', '4 × 8');
+M('muscu', 'medslam', 'Slam au médecine-ball', 'Puissance', 'Médecine-ball (sans rebond)', 1, 'Corps entier, puissance',
+  ['Ballon au-dessus de la tête, sur la pointe des pieds.', 'Frappez-le au sol de toutes vos forces en fléchissant hanches et genoux.', 'Ramassez dos droit et recommencez.'],
+  ['Dos rond pour ramasser'], 'Défoulant et très efficace en fin de séance.', '4 × 8–10');
+M('muscu', 'broadjump', 'Saut en longueur sans élan', 'Puissance', 'Aucun', 2, 'Fessiers, quadriceps, puissance',
+  ['Pieds largeur de hanches, balancez les bras.', 'Sautez le plus loin possible en poussant fort.', 'Réception amortie, genoux dans l’axe, tenez 2 s.'],
+  ['Réception jambes tendues', 'Genoux qui rentrent'], 'Qualité avant quantité : récupérez bien entre les sauts.', '4 × 4');
+M('muscu', 'tuckjump', 'Sauts genoux-poitrine', 'Puissance', 'Aucun', 2, 'Jambes, gainage, explosivité',
+  ['Debout, sautez en ramenant les genoux vers la poitrine.', 'Réception souple sur l’avant du pied.', 'Enchaînez sans pause.'],
+  ['Atterrir talons en premier'], 'Développe la détente et la vitesse de jambes.', '3 × 8–12');
+M('muscu', 'bondlat', 'Bonds latéraux', 'Puissance', 'Aucun', 2, 'Fessiers, adducteurs, appuis',
+  ['Sur une jambe, sautez latéralement sur l’autre jambe.', 'Réception stable 1 s, genou dans l’axe.', 'Repartez de l’autre côté.'],
+  ['Genou qui rentre à la réception'], 'Appuis de côté : ski, tennis, sports de combat, basket.', '3 × 8 par côté');
+M('muscu', 'climber', 'Mountain climbers', 'Poids du corps', 'Aucun', 1, 'Gainage, cardio',
+  ['Position de pompe bras tendus.', 'Ramenez alternativement les genoux vers la poitrine en courant.', 'Bassin bas et stable.'],
+  ['Fesses en l’air'], 'Variante lente et contrôlée pour débuter.', '4 × 30 s');
+M('muscu', 'battle', 'Cordes ondulatoires', 'Puissance', 'Cordes', 2, 'Épaules, cardio, gainage',
+  ['Demi-squat, une corde dans chaque main.', 'Faites des vagues rapides en alternant les bras.', 'Gainez, respirez.'],
+  ['Dos rond', 'Jambes tendues'], 'Simule l’effort des échanges en combat.', '5 × 20–30 s');
+M('muscu', 'adductel', 'Adduction de hanche à l’élastique', 'Prévention', 'Élastique', 1, 'Adducteurs',
+  ['Élastique attaché bas à la cheville, de profil.', 'Ramenez la jambe vers l’intérieur devant l’autre.', 'Revenez lentement.'],
+  ['Pencher le buste'], 'Protège l’aine ; utile en cavalier, football et arts martiaux.', '3 × 15 par jambe');
+M('muscu', 'departs', 'Départs et accélérations', 'Puissance', 'Aucun', 2, 'Jambes, vitesse',
+  ['Départ accroupi ou en fente.', 'Accélérez à fond sur 10 à 30 m, buste penché vers l’avant au début.', 'Récupérez complètement en marchant.'],
+  ['Se redresser trop tôt', 'Récupération trop courte'], 'La vitesse se travaille frais, en début de séance.', '6–8 × 20 m');
+M('muscu', 'popup', 'Pop-up de surf', 'Puissance', 'Aucun (planche facultative)', 2, 'Pectoraux, gainage, mobilité de hanche',
+  ['Allongé sur le ventre, mains sous les épaules.', 'Poussez et ramenez les pieds sous vous en un seul mouvement.', 'Arrivez en position de surf, genoux fléchis, regard devant.'],
+  ['Passer par les genoux', 'Regarder ses pieds'], 'Rapidité et fluidité avant tout.', '4 × 6–10');
+M('muscu', 'ramesurf', 'Rame allongée (paddle)', 'Prévention', 'Banc ou ballon (facultatif)', 1, 'Dorsaux, épaules, lombaires',
+  ['Allongé sur le ventre, poitrine légèrement décollée.', 'Ramez en alternant les bras comme sur la planche.', 'Gardez la nuque longue.'],
+  ['Trop cambrer', 'Relever la tête'], 'Le pagayage représente une grande partie de l’effort en surf.', '4 × 45–60 s');
+M('mobilite', 'ecart', 'Écart latéral assis', 'Hanches', 'Tapis', 2, 'Adducteurs, ischios',
+  ['Assis, jambes écartées le plus possible, pointes vers le haut.', 'Dos droit, penchez-vous vers l’avant depuis les hanches.', 'Respirez et relâchez à chaque expiration.'],
+  ['Arrondir le dos', 'Forcer en à-coups'], 'Indispensable pour les coups de pied hauts.', '3 × 45 s');
+Object.assign(IMG, { shadow: ['svg', 2], sac: ['svg', 2], sprawl: ['svg', 2], crevette: ['svg', 2], pontlutte: ['svg', 2], serviette: ['svg', 2], uchikomi: ['svg', 2],
+  genoux: ['svg', 2], kickel: ['svg', 2], cavalier: ['svg', 1], fenteesc: ['svg', 2], bearcrawl: ['svg', 2], farmer: ['jpg', 2], getup: ['jpg', 2], pistol: ['svg', 2],
+  pompeincl: ['jpg', 2], pompedecl: ['jpg', 2], pompediam: ['jpg', 2], pompeexp: ['jpg', 2], rowinv: ['jpg', 2], tracelast: ['jpg', 2], negtraction: ['svg', 2], lsit: ['svg', 2],
+  atr: ['svg', 2], hspu: ['jpg', 2], suspjambes: ['jpg', 2], medpasse: ['jpg', 2], medslam: ['jpg', 2], broadjump: ['jpg', 2], tuckjump: ['jpg', 2], bondlat: ['jpg', 2],
+  climber: ['jpg', 2], battle: ['jpg', 2], adductel: ['svg', 2], departs: ['svg', 2], popup: ['svg', 2], ramesurf: ['svg', 2], ecart: ['svg', 2] });
+
+// ===================== PRÉPARATION PAR SPORT : 3 NIVEAUX =====================
+// X(qualité testée, version débutant, intermédiaire, confirmé) — « mouvement séries×répétitions/repos » ou « séries×secondes s/repos »
+const QK = { fh: 'force_haut', fb: 'force_bas', g: 'gainage', s: 'souplesse', c: 'cardio' };
+const X = (q, ...v) => ({ q: QK[q] || null, v: v.map(s => { const m = s.match(/^(\S+) (\d+)x(\d+)(s?)\/(\d+)$/); if (!m) throw new Error('dose ' + s); return m[4] ? T(m[1], +m[2], +m[3], +m[5]) : I(m[1], +m[2], +m[3], +m[5]); }) });
+const SS = (nom, sport, ...slots) => ({ nom, sport, slots });
+const LV = ['', 'Débutant', 'Intermédiaire', 'Confirmé'];
+const SPCAT = { combat: '🥋 Sports de combat', collectif: '⚽ Sports collectifs', raquette: '🎾 Raquette', nature: '🏔️ Nature & glisse', precision: '🎯 Précision', endurance: '🚣 Endurance', art: '🤸 Gym, danse & athlé' };
+const O = k => { const s = SPEC_OLD[k]; return { nom: s.nom, ic: s.ic, qual: s.qual, risques: s.risques, tips: s.tips, src: s.src }; };
+const SPEC = {
+  boxe: { ...O('combat'), nom: 'Boxe anglaise', ic: '🥊', cat: 'combat', key: ['cardio', 'force_haut', 'gainage'], qual: 'Puissance de frappe, vitesse, cardio par rounds, gainage', risques: 'Poignets et mains, épaules, cou',
+    tips: ['Avant la vitesse, construisez la force et la stabilité en rotation, avec du gainage « anti-rotation ».', 'Les lancers rotatifs de médecine-ball ressemblent au geste du coup de poing.', 'Travaillez en rounds de 3 minutes avec 1 minute de repos, comme en combat.'],
+    seances: [SS('Puissance & vitesse de frappe', 'muscu', X('c', 'shadow 3x120s/60', 'shadow 4x180s/60', 'shadow 5x180s/45'), X('fh', 'pompeincl 3x10/60', 'pompe 4x12/60', 'pompeexp 4x6/90'), X(null, 'medpasse 3x8/60', 'medrot 4x6/60', 'medrot 5x6/60'), X('g', 'pallof 3x10/45', 'pallof 3x12/45', 'pallof 4x12/45'), X('fb', 'squatjump 3x8/60', 'squatjump 4x8/60', 'broadjump 4x4/90'), X(null, 'cou 2x4/30', 'cou 3x4/30', 'cou 3x4/30')),
+      SS('Cardio de ring', 'hiit', X('c', 'corde 3x120s/60', 'corde 4x180s/60', 'corde 5x180s/45'), X('c', 'sac 3x120s/60', 'sac 4x180s/60', 'sac 6x180s/60'), X('c', 'climber 3x20s/40', 'climber 4x30s/30', 'battle 5x30s/30'), X('g', 'gainage 3x30s/30', 'shtaps 3x20/45', 'commando 4x30s/30'), X('fh', 'rowinv 3x10/60', 'rowh 4x10/60', 'tractions 4x6/90'), X(null, 'rotext 2x15/30', 'rotext 3x15/30', 'ytw 3x8/30'))] },
+  muaythai: { nom: 'Boxe thaïe / kickboxing', ic: '🦵', cat: 'combat', key: ['cardio', 'souplesse', 'force_bas'], qual: 'Clinch, coups de pied, cardio par rounds, cou solide', risques: 'Tibias, cou, genoux, hanches',
+    tips: ['Un cou solide résiste mieux aux frappes et permet de tenir la posture dans le clinch.', 'Durcissez les tibias progressivement : augmentez le volume de coups de pied d’environ 10 à 15 % par semaine.', 'Rounds de 3 minutes au sac, en alternant vitesse et puissance.'],
+    src: [['Renforcer le cou pour le clinch (Evolve MMA)', 'https://evolve-mma.com/blog/10-neck-strengthening-exercises-for-a-stronger-muay-thai-clinch-game/'], ['Erreurs fréquentes en muay-thaï (Fairtex)', 'https://www.fairtex.com/blogs/news/what-is-muay-thai']],
+    seances: [SS('Clinch & cou', 'muscu', X(null, 'cou 2x4/30', 'cou 3x4/30', 'cou 4x4/30'), X('fh', 'rowinv 3x10/60', 'tractions 4x5/90', 'serviette 4x30s/90'), X('c', 'genoux 3x30s/45', 'genoux 4x45s/45', 'genoux 5x60s/45'), X('fb', 'goblet 3x10/60', 'squat 4x6/120', 'squat 5x5/150'), X('g', 'gainage 3x30s/30', 'pallof 3x10/45', 'hollow 4x30s/30'), X(null, 'farmer 3x30s/60', 'farmer 4x40s/60', 'farmer 5x40s/60')),
+      SS('Kicks & cardio', 'hiit', X('c', 'corde 3x120s/60', 'corde 4x180s/45', 'corde 5x180s/45'), X('fb', 'fentes 3x10/60', 'bondlat 3x8/60', 'fentesaut 4x10/60'), X('s', 'kickel 2x6/30', 'kickel 3x8/30', 'kickel 4x10/30'), X('c', 'sac 3x120s/60', 'sac 4x180s/60', 'sac 5x180s/60'), X(null, 'molletexc 2x12/45', 'molletexc 3x12/45', 'molletexc 3x15/45'), X('s', 'ecart 2x30s/15', 'ecart 3x45s/15', 'ecart 3x60s/15'))] },
+  mma: { nom: 'MMA', ic: '🤼', cat: 'combat', key: ['cardio', 'force_haut', 'force_bas', 'gainage'], qual: 'Force, explosivité, poigne, cou, cardio sur 3 à 5 rounds', risques: 'Épaules, genoux, cou, mains',
+    tips: ['Un combat dure 3 rounds de 5 minutes (5 pour les combats principaux) : entraînez le cardio en conséquence.', 'Préférez des exercices proches du combat : sprawls plutôt que burpees, cordes ondulatoires plutôt que tapis de course.', 'Cou solide, poigne et endurance aérobie sont prioritaires.'],
+    src: [['Guide d’entraînement MMA (TRX)', 'https://www.trxtraining.com/blogs/news/mma-workout-guide'], ['Programme MMA de 12 semaines (Fighters Only)', 'https://fightersonly.com/article/ext/90211'], ['Organiser l’entraînement d’un combattant (SimpliFaster)', 'https://simplifaster.com/?p=34882']],
+    seances: [SS('Force de combat', 'muscu', X('fb', 'goblet 3x10/90', 'squat 4x6/120', 'squat 5x4/150'), X('fh', 'rowinv 3x10/60', 'tractions 4x6/90', 'serviette 4x30s/90'), X('fh', 'pompe 3x10/60', 'dc 4x6/120', 'pompeexp 4x6/90'), X(null, 'farmer 3x30s/60', 'farmer 4x40s/60', 'farmer 5x40s/60'), X('g', 'pallof 3x10/45', 'pallof 4x10/45', 'getup 3x2/60'), X(null, 'cou 2x4/30', 'cou 3x4/30', 'cou 4x4/30')),
+      SS('Rounds mixtes', 'hiit', X('c', 'shadow 3x120s/60', 'shadow 3x180s/60', 'shadow 4x180s/45'), X('c', 'sprawl 3x20s/40', 'sprawl 4x30s/30', 'sprawl 5x40s/30'), X('c', 'bearcrawl 3x20s/40', 'bearcrawl 4x30s/30', 'battle 5x30s/30'), X('g', 'crevette 3x30s/30', 'crevette 4x40s/30', 'crevette 5x45s/30'), X('c', 'corde 3x120s/60', 'corde 4x180s/60', 'sac 5x180s/60'), X('s', '9090 2x45s/10', '9090 2x60s/10', 'pigeon 2x60s/10'))] },
+  judo: { nom: 'Judo', ic: '🥋', cat: 'combat', key: ['force_haut', 'force_bas', 'gainage'], qual: 'Tirage, poigne, explosivité des projections, gainage', risques: 'Épaules (luxations), coudes, genoux, doigts',
+    tips: ['La poigne est décisive : marche du fermier, suspensions et tractions à la serviette reproduisent la saisie du kimono.', 'La force maximale et la puissance rendent les entrées en projection plus rapides.', 'Sur une carrière, le judo a un taux de blessure élevé, surtout aux membres supérieurs : renforcez les épaules.'],
+    src: [['Musculation pour le judo (StrengthLog)', 'https://www.strengthlog.com/strength-training-for-judo'], ['Préparation physique du judoka', 'https://judodoha2023.com/blog/strength-conditioning-program-competitive-judoka']],
+    seances: [SS('Tirage & poigne', 'muscu', X('fh', 'rowinv 3x10/60', 'tractions 4x6/90', 'tractions 5x8/120'), X(null, 'serviette 3x20s/90', 'serviette 4x30s/90', 'serviette 5x40s/90'), X('fh', 'rowh 3x10/60', 'rowb 4x8/90', 'rowb 5x5/120'), X(null, 'farmer 3x30s/60', 'farmer 4x40s/60', 'farmer 4x45s/60'), X(null, 'poignet 2x15/45', 'poignet 3x15/45', 'extdoigts 3x25/30'), X('g', 'birddog 3x8/30', 'pallof 3x10/45', 'getup 3x2/60')),
+      SS('Projections & jambes', 'muscu', X('fb', 'goblet 3x10/90', 'squat 4x6/120', 'squat 5x4/150'), X('fb', 'sdtr 3x10/90', 'sdtr 4x8/120', 'sdt 5x4/150'), X('c', 'uchikomi 3x10/45', 'uchikomi 4x15/45', 'uchikomi 5x20/45'), X('fb', 'squatjump 3x6/60', 'boxjump 4x5/90', 'broadjump 5x4/90'), X(null, 'glutepont1 3x10/45', 'pontlutte 3x20s/45', 'pontlutte 3x30s/45'), X(null, 'rotext 2x15/30', 'rotext 3x15/30', 'rotext 3x15/30'))] },
+  grappling: { nom: 'Jiu-jitsu brésilien / lutte', ic: '🤼', cat: 'combat', key: ['force_haut', 'gainage', 'cardio'], qual: 'Poigne, tirage, force statique, endurance au sol', risques: 'Coudes, genoux, cou, doigts',
+    tips: ['Poigne, tirage et force « statique » pour résister aux avancées de position sont les qualités clés.', 'En compétition, le coude est l’articulation la plus souvent blessée : renforcez bras et épaules, et tapez tôt.', 'Les échappements de hanche et le pont sont vos meilleurs exercices spécifiques.'],
+    src: [['Force, puissance et endurance en JJB (NSCA)', 'https://www.nsca.com/contentassets/246f9b22016841e68ad57b43efe15f32/coach-10.2.6-developing-strength-power-and-endurance-in-the-brazilian-jiu-jitsu-athlete.pdf']],
+    seances: [SS('Force au sol', 'muscu', X('fb', 'glutepont1 3x10/45', 'hipthrust 4x8/90', 'hipthrust 5x6/120'), X('fh', 'rowinv 3x10/60', 'tractions 4x6/90', 'serviette 5x40s/90'), X(null, 'farmer 3x30s/60', 'farmer 4x40s/60', 'farmer 5x40s/60'), X('g', 'deadbug 3x40s/30', 'hollow 3x30s/30', 'lsit 4x15s/60'), X(null, 'cou 2x4/30', 'pontlutte 3x20s/45', 'pontlutte 3x30s/45'), X('g', 'crevette 3x30s/30', 'crevette 4x40s/30', 'getup 3x2/60')),
+      SS('Endurance de combat', 'hiit', X('c', 'bearcrawl 3x20s/40', 'bearcrawl 4x30s/30', 'bearcrawl 5x40s/30'), X('c', 'sprawl 3x20s/40', 'sprawl 4x30s/30', 'sprawl 5x40s/30'), X('fb', 'goblet 3x12/60', 'fentes 4x10/60', 'pistol 4x4/90'), X('fh', 'pompe 3x10/60', 'dips 4x8/90', 'pompeexp 4x6/90'), X('c', 'climber 3x30s/30', 'burpee 4x30s/30', 'battle 5x30s/30'), X('s', '9090 2x45s/10', 'pigeon 2x60s/10', 'squatprof 3x60s/10'))] },
+  karate: { nom: 'Karaté / taekwondo', ic: '🥋', cat: 'combat', key: ['souplesse', 'force_bas', 'gainage'], qual: 'Souplesse de hanche, explosivité des jambes, équilibre, gainage', risques: 'Ischios, hanches (adducteurs), chevilles, genoux',
+    tips: ['Le soulevé de terre jambes tendues renforce les ischios tout en travaillant leur souplesse : idéal pour les coups de pied hauts.', 'La puissance des coups de pied vient beaucoup des fléchisseurs de hanche : renforcez-les.', 'Équilibre sur une jambe et gainage dans tous les plans pour frapper sans perdre l’appui.'],
+    src: [['Exercices pour débuter le taekwondo (Sweet Science of Fighting)', 'https://sweetscienceoffighting.com/taekwondo/exercises-for-beginners'], ['Musculation et taekwondo', 'https://taekwondonation.com/strength-training']],
+    seances: [SS('Coups de pied', 'muscu', X('s', 'fentebasse 2x40s/10', 'ecart 3x45s/15', 'ecart 3x60s/15'), X('fb', 'sdtr 3x10/90', 'sdtr 4x8/90', 'pistol 4x5/90'), X('s', 'kickel 2x6/30', 'kickel 3x8/30', 'kickel 4x10/30'), X(null, 'monster 2x10/30', 'monster 3x12/30', 'clam 3x20/30'), X('fb', 'squatjump 3x6/60', 'tuckjump 3x8/60', 'bondlat 4x8/60'), X('g', 'releve 3x8/60', 'releve 3x12/60', 'suspjambes 3x8/60')),
+      SS('Explosivité & posture', 'muscu', X('fb', 'cavalier 3x30s/45', 'cavalier 3x60s/45', 'cavalier 4x90s/45'), X('c', 'shadow 3x90s/45', 'shadow 4x120s/45', 'shadow 5x120s/30'), X('fh', 'pompeincl 3x10/60', 'pompe 4x12/60', 'pompeexp 4x6/90'), X('g', 'pallof 3x10/45', 'pallof 4x10/45', 'russian 4x20/45'), X('c', 'jj 3x30s/30', 'tuckjump 4x20s/40', 'fentesaut 5x20s/40'), X('s', 'pigeon 2x45s/10', 'papillon 2x60s/10', 'ecart 3x60s/10'))] },
+  escrime: { nom: 'Escrime', ic: '🤺', cat: 'combat', key: ['force_bas', 'cardio'], qual: 'Fente explosive, vitesse de déplacement, équilibre', risques: 'Ischios, genoux, déséquilibre gauche/droite',
+    tips: ['L’escrime est surtout anaérobie : la fente et la vitesse de changement de direction reposent sur la force et la puissance.', 'Les ischios sont à renforcer en priorité, et la garde asymétrique crée des déséquilibres à compenser.', 'Travaillez aussi la jambe « faible » et le côté opposé à votre garde.'],
+    src: [['Déterminants de la performance en escrime (JSCR, Turner et al.)', 'https://pure.cardiffmet.ac.uk/en/publications/determinants-of-olympic-fencing-performance-and-implications-for-/']],
+    seances: [SS('Fente & jambes', 'muscu', X('fb', 'fenteesc 3x6/60', 'fenteesc 4x8/60', 'fenteesc 5x10/60'), X('fb', 'fentes 3x8/60', 'stepdown 3x8/45', 'pistol 4x4/90'), X(null, 'nordic 2x3/90', 'nordic 3x5/90', 'nordic 3x8/90'), X('fb', 'squatjump 3x6/60', 'bondlat 3x8/60', 'broadjump 4x4/90'), X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X('s', 'fentebasse 2x40s/10', 'fentebasse 2x60s/10', 'pigeon 2x60s/10')),
+      SS('Équilibrage & vitesse', 'muscu', X(null, 'glutepont1 3x10/45', 'glutepont1 3x12/45', 'glutepont1 4x12/45'), X('c', 'departs 4x5s/60', 'departs 6x5s/60', 'departs 8x5s/60'), X('g', 'pallof 3x10/45', 'gainlat 3x30s/30', 'getup 3x2/60'), X(null, 'rotext 2x15/30', 'facepull 3x15/45', 'ytw 3x8/30'), X(null, 'poignet 2x15/45', 'poignet 3x15/45', 'poignet 3x20/45'), X('c', 'corde 3x60s/30', 'corde 4x90s/30', 'corde 5x120s/30'))] },
+  foot: { ...O('foot'), cat: 'collectif', key: ['force_bas', 'cardio', 'gainage'],
+    seances: [SS('Prévention (type FIFA 11+)', 'muscu', X(null, 'nordic 2x3/90', 'nordic 3x5/90', 'nordic 3x8/90'), X(null, 'copenhague 2x4/60', 'copenhague 3x6/60', 'copenhague 3x10/60'), X(null, 'equilibre 3x30s/20', 'equilibre 3x30s/20', 'equilibre 3x45s/20'), X('g', 'gainage 3x30s/30', 'gainage 3x45s/30', 'shtaps 3x20/45'), X('g', 'gainlat 2x20s/30', 'gainlat 3x30s/30', 'gainlat 3x45s/30'), X(null, 'monster 2x10/30', 'monster 3x10/30', 'monster 3x15/30')),
+      SS('Force & vitesse', 'muscu', X('fb', 'goblet 3x10/90', 'squat 4x6/120', 'squat 5x4/150'), X('fb', 'fentes 3x8/60', 'fentes 3x10/60', 'bondlat 4x8/60'), X('fb', 'glutepont1 3x10/45', 'hipthrust 4x8/90', 'hipthrust 5x6/120'), X('c', 'departs 4x5s/60', 'departs 6x5s/60', 'departs 8x5s/60'), X('fb', 'squatjump 3x6/60', 'boxjump 4x5/90', 'broadjump 4x4/90'), X(null, 'molletexc 2x12/45', 'molletexc 3x12/45', 'molletexc 3x15/45'))] },
+  rugby: { ...O('rugby'), cat: 'collectif', key: ['force_haut', 'force_bas', 'gainage'],
+    seances: [SS('Force & cou', 'muscu', X('fb', 'goblet 3x10/90', 'squat 4x6/120', 'squat 5x4/180'), X('fh', 'pompe 3x10/60', 'dc 4x6/120', 'dc 5x4/150'), X('fh', 'rowinv 3x10/60', 'rowb 4x8/90', 'tractions 5x5/120'), X(null, 'cou 2x4/30', 'cou 3x4/30', 'cou 4x4/30'), X('g', 'gainage 3x30s/30', 'gainage 3x45s/30', 'getup 3x2/60')),
+      SS('Puissance & contacts', 'muscu', X('fb', 'squatjump 3x6/60', 'boxjump 4x5/90', 'broadjump 5x4/90'), X('fh', 'medpasse 3x8/60', 'medpasse 4x8/60', 'pompeexp 5x5/90'), X(null, 'medslam 3x8/60', 'medrot 4x6/60', 'medrot 5x6/60'), X(null, 'nordic 2x3/90', 'nordic 3x5/90', 'nordic 3x6/90'), X(null, 'farmer 3x30s/60', 'farmer 4x40s/60', 'farmer 5x40s/60'), X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'ytw 3x8/30'))] },
+  basket: { ...O('basket'), cat: 'collectif', key: ['force_bas', 'cardio'],
+    seances: [SS('Appuis & réceptions', 'muscu', X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X('fb', 'squatjump 3x6/60', 'tuckjump 4x8/60', 'boxjump 5x5/90'), X('fb', 'stepdown 3x8/45', 'stepdown 3x10/45', 'pistol 4x4/90'), X(null, 'molletexc 2x12/45', 'molletexc 3x12/45', 'molletexc 3x15/45'), X(null, 'monster 2x10/30', 'monster 3x12/30', 'bondlat 4x8/60'), X('g', 'gainlat 2x20s/30', 'gainlat 3x30s/30', 'pallof 4x10/45')),
+      SS('Force & détente', 'muscu', X('fb', 'goblet 3x10/90', 'squat 4x6/120', 'squat 5x5/150'), X('fb', 'fentes 3x8/60', 'fentes 4x10/60', 'fentesaut 4x10/60'), X('fb', 'glutepont1 3x10/45', 'hipthrust 4x8/90', 'hipthrust 5x6/120'), X('c', 'departs 4x5s/60', 'departs 6x5s/60', 'departs 8x5s/45'), X('g', 'gainage 3x30s/30', 'gainage 3x45s/30', 'hollow 4x30s/30'))] },
+  volley: { ...O('volley'), cat: 'collectif', key: ['force_bas', 'force_haut'],
+    seances: [SS('Chevilles & sauts', 'muscu', X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X('fb', 'squatjump 3x6/60', 'boxjump 4x5/90', 'tuckjump 5x6/60'), X(null, 'molletexc 2x12/45', 'molletexc 3x12/45', 'molletexc 3x15/45'), X('fb', 'stepdown 3x8/45', 'stepdown 3x10/45', 'pistol 4x4/90'), X('g', 'gainage 3x30s/30', 'gainage 3x45s/30', 'shtaps 3x20/45')),
+      SS('Épaule de frappe', 'muscu', X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'rotext 3x15/45'), X(null, 'ytw 2x8/30', 'ytw 3x8/30', 'ytw 3x10/30'), X('fh', 'rowinv 3x10/60', 'rowh 4x10/60', 'tractions 4x6/90'), X('fh', 'pompeincl 3x10/60', 'pompe 4x10/60', 'medpasse 4x8/60'), X(null, 'medslam 3x8/60', 'medslam 4x8/60', 'medrot 4x6/60'), X('s', 'sleeper 2x30s/10', 'sleeper 3x30s/10', 'pecsetir 3x30s/10'))] },
+  hand: { ...O('hand'), cat: 'collectif', key: ['force_haut', 'force_bas'],
+    seances: [SS('Épaule du lanceur', 'muscu', X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'rotext 3x15/45'), X(null, 'ytw 2x8/30', 'ytw 3x8/30', 'oiseauel 3x15/45'), X('fh', 'pompeincl 3x10/60', 'pompe 4x12/60', 'pompeexp 4x6/90'), X('fh', 'rowinv 3x10/60', 'rowh 4x10/60', 'tractions 4x6/90'), X(null, 'medslam 3x8/60', 'medrot 4x6/60', 'medrot 5x6/60'), X('g', 'pallof 3x10/45', 'pallof 4x10/45', 'getup 3x2/60')),
+      SS('Genoux & appuis', 'muscu', X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X(null, 'nordic 2x3/90', 'nordic 3x5/90', 'nordic 3x8/90'), X('fb', 'stepdown 3x8/45', 'stepdown 3x10/45', 'pistol 4x4/90'), X('fb', 'squatjump 3x6/60', 'bondlat 3x8/60', 'boxjump 4x5/90'), X(null, 'monster 2x10/30', 'monster 3x12/30', 'copenhague 3x8/60'))] },
+  tennis: { ...O('tennis'), cat: 'raquette', key: ['gainage', 'force_bas', 'souplesse'],
+    seances: [SS('Épaule & coude (après le tennis)', 'muscu', X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'rotext 3x15/45'), X(null, 'bandpa 2x15/45', 'bandpa 3x15/45', 'ytw 3x10/30'), X(null, 'oiseauel 2x15/45', 'oiseauel 3x15/45', 'facepull 3x15/45'), X(null, 'poignet 2x15/45', 'poignet 3x15/45', 'poignet 3x20/45'), X('s', 'sleeper 2x30s/10', 'sleeper 3x30s/10', 'sleeper 3x30s/10')),
+      SS('Rotation & appuis', 'muscu', X(null, 'medrot 3x6/60', 'medrot 4x6/60', 'medrot 5x6/60'), X('g', 'pallof 3x10/45', 'pallof 3x12/45', 'russian 4x20/45'), X('fb', 'fentes 3x8/60', 'fentes 3x10/60', 'bondlat 4x8/60'), X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X('fb', 'goblet 3x10/90', 'goblet 4x10/90', 'squatjump 4x6/60'), X('c', 'departs 4x5s/60', 'departs 6x5s/45', 'departs 8x5s/45'))] },
+  padel: { ...O('padel'), cat: 'raquette', key: ['gainage', 'force_bas'],
+    seances: [SS('Épaule, coude & poignet', 'muscu', X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'rotext 3x15/45'), X(null, 'ytw 2x8/30', 'ytw 3x8/30', 'ytw 3x10/30'), X(null, 'poignet 2x15/45', 'poignet 3x15/45', 'poignet 3x20/45'), X(null, 'bandpa 2x15/45', 'bandpa 3x15/45', 'facepull 3x15/45'), X('s', 'etirpoignet 2x20s/10', 'etirpoignet 2x20s/10', 'sleeper 3x30s/10')),
+      SS('Tronc & appuis', 'muscu', X('g', 'pallof 3x10/45', 'pallof 3x12/45', 'pallof 4x12/45'), X('g', 'deadbug 3x30s/30', 'deadbug 3x40s/30', 'hollow 4x30s/30'), X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X('fb', 'fentes 3x8/60', 'fentes 3x10/60', 'bondlat 4x8/60'), X('fb', 'glutepont1 3x10/45', 'glutepont1 3x12/45', 'pistol 3x5/90'))] },
+  escalade: { ...O('escalade'), cat: 'nature', key: ['force_haut', 'gainage'],
+    seances: [SS('Antagonistes', 'muscu', X('fh', 'pompeincl 3x10/60', 'pompe 4x12/60', 'pompediam 4x10/60'), X('fh', 'dm 3x10/90', 'dm 4x8/90', 'hspu 4x4/120'), X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'rotext 3x15/45'), X(null, 'extdoigts 3x20/30', 'extdoigts 3x25/30', 'extdoigts 4x30/30'), X(null, 'poignet 2x15/45', 'poignet 3x15/45', 'poignet 3x20/45'), X('g', 'gainage 3x30s/30', 'shtaps 3x20/45', 'shtaps 4x24/45')),
+      SS('Traction & gainage', 'muscu', X('fh', 'tracelast 3x6/90', 'tractions 4x5/120', 'tractions 5x8/150'), X('fh', 'rowinv 3x10/60', 'rowinv 4x12/60', 'serviette 4x30s/90'), X('g', 'hollow 3x20s/30', 'hollow 3x30s/30', 'lsit 4x15s/60'), X('g', 'releve 3x8/60', 'releve 3x12/60', 'suspjambes 4x8/60'), X('g', 'birddog 3x8/30', 'birddog 3x10/30', 'getup 3x2/60'), X(null, 'facepull 3x15/45', 'facepull 3x15/45', 'ytw 3x10/30'))] },
+  ski: { ...O('ski'), cat: 'nature', key: ['force_bas', 'gainage'],
+    seances: [SS('Cuisses & genoux', 'muscu', X('fb', 'chaise 3x45s/60', 'chaise 3x75s/60', 'chaise 4x120s/60'), X('fb', 'goblet 3x10/90', 'goblet 4x12/60', 'pistol 4x4/90'), X('fb', 'stepdown 3x8/45', 'stepdown 3x10/45', 'stepdown 4x12/45'), X(null, 'monster 2x10/30', 'monster 3x12/30', 'monster 3x15/30'), X('fb', 'fentes 3x8/60', 'fentes 4x10/60', 'fentesaut 4x10/60')),
+      SS('Équilibre & explosivité', 'muscu', X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X('fb', 'squatjump 3x6/60', 'bondlat 3x8/60', 'bondlat 4x10/60'), X('c', 'chasses 3x30s/30', 'chasses 4x30s/30', 'tuckjump 4x20s/40'), X('g', 'gainlat 2x20s/30', 'gainlat 3x30s/30', 'gainlat 3x45s/30'), X('g', 'gainage 3x30s/30', 'gainage 3x45s/30', 'getup 3x2/60'))] },
+  surf: { nom: 'Surf', ic: '🏄', cat: 'nature', key: ['force_haut', 'gainage', 'souplesse'], qual: 'Endurance à la rame, pop-up explosif, équilibre, mobilité de hanche', risques: 'Épaules (coiffe), lombaires, genoux',
+    tips: ['La rame peut représenter jusqu’à 60 % de l’énergie dépensée : dorsaux, arrière d’épaule et coiffe des rotateurs sont prioritaires.', 'Faites 5 minutes de rotations d’épaule à l’élastique avant chaque session.', 'Pompes explosives et sauts pour un pop-up rapide, équilibre pour tenir sur la planche.'],
+    src: [['Endurance à la rame (Rapture Camps)', 'https://www.rapturecamps.com/learn-to-surf/surf-fitness/paddle-strength-training'], ['Santé des épaules du surfeur (Rapture Camps)', 'https://www.rapturecamps.com/learn-to-surf/surf-fitness/shoulder-health'], ['Entraînement inspiré du surf (ACE)', 'https://www.acefitness.org/resources/everyone/blog/5493/surfing-inspired-workout/']],
+    seances: [SS('Rame & épaules', 'muscu', X(null, 'ramesurf 3x30s/30', 'ramesurf 4x45s/30', 'ramesurf 5x60s/30'), X('fh', 'rowinv 3x10/60', 'tractions 4x5/90', 'tractions 5x8/120'), X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'ytw 3x10/30'), X(null, 'bandpa 2x15/45', 'bandpa 3x15/45', 'facepull 3x15/45'), X('s', 'pecsetir 2x30s/10', 'pecsetir 2x40s/10', 'thoracique 2x45s/10')),
+      SS('Pop-up & équilibre', 'muscu', X('fh', 'pompeincl 3x10/60', 'pompe 4x10/60', 'pompeexp 4x6/90'), X('c', 'popup 3x6/45', 'popup 4x8/45', 'popup 5x10/45'), X('fb', 'squatjump 3x6/60', 'squatjump 4x8/60', 'boxjump 4x5/90'), X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X('g', 'pallof 3x10/45', 'pallof 3x12/45', 'russian 4x20/45'), X('s', 'fentebasse 2x40s/10', 'fentebasse 2x60s/10', 'squatprof 3x60s/10'))] },
+  trail: { ...O('trail'), cat: 'nature', key: ['force_bas', 'cardio', 'gainage'],
+    seances: [SS('Descentes & chevilles', 'muscu', X('fb', 'stepdown 3x8/45', 'stepdown 3x10/45', 'stepdown 4x12/45'), X(null, 'molletexc 2x12/45', 'molletexc 3x12/45', 'molletexc 3x15/45'), X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X('fb', 'fentes 3x8/60', 'fentes 4x10/60', 'fentesaut 4x10/60'), X(null, 'nordic 2x3/90', 'nordic 2x5/90', 'nordic 3x6/90')),
+      SS('Tronc & hanches', 'muscu', X('g', 'deadbug 3x30s/30', 'deadbug 3x40s/30', 'hollow 4x30s/30'), X('g', 'birddog 3x8/30', 'birddog 3x10/30', 'birddog 4x10/30'), X(null, 'monster 2x10/30', 'monster 3x10/30', 'monster 3x15/30'), X('fb', 'glutepont1 3x10/45', 'glutepont1 3x12/45', 'pistol 3x5/90'), X('g', 'gainlat 2x20s/30', 'gainlat 3x30s/30', 'gainlat 3x45s/30'))] },
+  equitation: { nom: 'Équitation', ic: '🏇', cat: 'nature', key: ['gainage', 'souplesse', 'force_bas'], qual: 'Gainage, adducteurs, équilibre, posture du haut du dos', risques: 'Lombaires, chutes, hanches',
+    tips: ['Gainage, stabilité et souplesse des hanches, équilibre et symétrie sont les priorités du cavalier.', 'Des adducteurs forts et souples stabilisent la jambe, notamment en cross.', 'L’équilibre réduit le risque de chute, première cause de blessure à cheval.'],
+    src: [['Être un cavalier en forme (Penn State Extension)', 'https://extension.psu.edu/being-a-fit-rider-can-help-your-horse'], ['Musculation pour cavaliers (StrengthLog)', 'https://www.strengthlog.com/strength-training-for-equestrians/']],
+    seances: [SS('Assiette & gainage', 'muscu', X('g', 'deadbug 3x30s/30', 'deadbug 3x40s/30', 'hollow 4x30s/30'), X('g', 'birddog 3x8/30', 'birddog 3x10/30', 'birddog 4x10/30'), X(null, 'adductel 2x12/30', 'adductel 3x15/30', 'copenhague 3x8/60'), X('fb', 'chaise 3x30s/45', 'chaise 3x60s/45', 'cavalier 4x60s/45'), X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20')),
+      SS('Posture & mobilité', 'muscu', X('fh', 'rowinv 3x10/60', 'rowh 3x10/60', 'rowh 4x10/60'), X(null, 'bandpa 2x15/45', 'bandpa 3x15/45', 'facepull 3x15/45'), X('fb', 'glutepont1 3x10/45', 'glutepont1 3x12/45', 'hipthrust 4x8/90'), X('s', 'papillon 2x45s/10', 'papillon 2x60s/10', 'ecart 3x45s/15'), X('s', 'fentebasse 2x40s/10', 'pigeon 2x45s/10', 'pigeon 2x60s/10'))] },
+  golf: { ...O('golf'), cat: 'precision', key: ['souplesse', 'gainage'],
+    seances: [SS('Mobilité du swing', 'mobilite', X('s', 'thoracique 2x40s/10', 'thoracique 2x45s/10', 'thoracique 3x45s/10'), X('s', 'worlds 2x40s/10', 'worlds 2x45s/10', 'worlds 3x45s/10'), X('s', '9090 2x40s/10', '9090 2x45s/10', '9090 3x60s/10'), X('s', 'hipcircles 1x40s/5', 'hipcircles 2x40s/5', 'cossack 3x8/30'), X('s', 'torsion 1x60s/0', 'torsion 2x45s/10', 'torsion 2x60s/10')),
+      SS('Stabilité & rotation', 'muscu', X('g', 'pallof 3x10/45', 'pallof 3x12/45', 'pallof 4x12/45'), X('g', 'deadbug 3x30s/30', 'deadbug 3x40s/30', 'birddog 4x10/30'), X(null, 'medrot 3x6/60', 'medrot 4x6/60', 'medrot 5x6/60'), X('fb', 'glutepont1 3x10/45', 'glutepont1 3x12/45', 'sdtr 4x8/90'), X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'))] },
+  tir: { ...O('tir'), cat: 'precision', key: ['gainage'],
+    seances: [SS('Stabilité & gainage', 'muscu', X('g', 'gainage 3x30s/30', 'gainage 3x45s/30', 'gainage 4x60s/30'), X('g', 'gainlat 2x20s/30', 'gainlat 2x30s/30', 'gainlat 3x40s/30'), X('g', 'deadbug 3x30s/30', 'deadbug 3x40s/30', 'birddog 4x10/30'), X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X(null, 'tenue 3x20s/30', 'tenue 4x30s/30', 'tenue 5x45s/30')),
+      SS('Épaules & poignets', 'muscu', X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'rotext 3x15/45'), X(null, 'bandpa 2x15/45', 'bandpa 3x15/45', 'ytw 3x8/30'), X(null, 'oiseauel 2x15/45', 'oiseauel 3x15/45', 'facepull 3x15/45'), X(null, 'poignet 2x15/45', 'poignet 3x15/45', 'poignet 3x20/45'), X('s', 'couetir 2x30s/10', 'couetir 2x30s/10', 'couetir 2x30s/10'), X('s', 'etirpoignet 2x20s/10', 'etirpoignet 2x20s/10', 'etirpoignet 2x20s/10'))] },
+  aviron: { nom: 'Aviron', ic: '🚣', cat: 'endurance', key: ['force_bas', 'gainage', 'cardio'], qual: 'Puissance des jambes, chaîne postérieure, endurance, gainage', risques: 'Lombaires, côtes, poignets',
+    tips: ['Les rameurs ont la plus forte fréquence de douleurs lombaires de tous les sportifs : gainage et dos en priorité.', 'Renforcer le haut du dos et le tronc, avec une bonne récupération, réduit le risque de blessure.', 'Augmentez progressivement le volume d’ergomètre, surtout l’hiver.'],
+    src: [['Blessures de l’aviron (University of Rochester Medical Center)', 'https://www.urmc.rochester.edu/ortho/sports-medicine/rowing-injuries.shtml'], ['Prévenir les blessures en aviron (Boston Children’s Hospital)', 'https://bchcmg.tch.harvard.edu/sports-injury-prevention/rowing']],
+    seances: [SS('Chaîne postérieure & dos', 'muscu', X('fb', 'sdtr 3x10/90', 'sdtr 4x8/90', 'sdt 5x5/150'), X('fb', 'goblet 3x10/90', 'squat 4x6/120', 'squat 5x5/150'), X('fh', 'rowinv 3x10/60', 'rowb 4x8/90', 'rowb 5x6/120'), X('g', 'birddog 3x8/30', 'deadbug 3x40s/30', 'hollow 4x30s/30'), X('g', 'superman 3x10/30', 'superman 3x12/30', 'superman 4x12/30'), X('s', 'ischios 2x40s/10', 'ischios 2x60s/10', 'ischios 3x60s/10')),
+      SS('Ergomètre & gainage', 'hiit', X('c', 'rameur 4x60s/60', 'rameur 5x120s/60', 'rameur 6x180s/60'), X('g', 'gainage 3x30s/30', 'gainage 3x45s/30', 'gainage 4x60s/30'), X('g', 'gainlat 2x20s/30', 'gainlat 3x30s/30', 'gainlat 3x45s/30'), X(null, 'bandpa 2x15/45', 'facepull 3x15/45', 'ytw 3x10/30'), X('s', 'chatvache 1x60s/10', 'chatvache 2x60s/10', 'thoracique 2x45s/10'))] },
+  triathlon: { nom: 'Triathlon', ic: '🏊', cat: 'endurance', key: ['cardio', 'force_bas', 'gainage'], qual: 'Endurance, économie de course, épaules de nageur, gainage', risques: 'Épaules, tendons d’Achille, genoux, lombaires',
+    tips: ['Placez la musculation loin des séances clés de natation, vélo ou course.', 'Compensez le crawl par du renforcement de la coiffe et du haut du dos.', 'Mollets et chevilles solides limitent les blessures liées à la course.'],
+    seances: [SS('Force pour l’endurance', 'muscu', X('fb', 'goblet 3x12/60', 'squat 4x8/90', 'squat 4x5/120'), X('fb', 'fentes 3x8/60', 'stepdown 3x10/45', 'pistol 3x5/90'), X('fh', 'rowinv 3x10/60', 'tractions 3x5/90', 'tractions 4x8/90'), X(null, 'molletexc 2x12/45', 'molletexc 3x12/45', 'molletexc 3x15/45'), X('g', 'gainage 3x30s/30', 'gainage 3x45s/30', 'gainage 4x60s/30')),
+      SS('Épaules de nageur & tronc', 'muscu', X(null, 'rotext 2x15/45', 'rotext 3x15/45', 'ytw 3x10/30'), X(null, 'bandpa 2x15/45', 'bandpa 3x15/45', 'facepull 3x15/45'), X('g', 'deadbug 3x30s/30', 'deadbug 3x40s/30', 'hollow 4x30s/30'), X('fb', 'glutepont1 3x10/45', 'glutepont1 3x12/45', 'hipthrust 4x8/90'), X('s', 'pecsetir 2x30s/10', 'thoracique 2x45s/10', 'worlds 2x45s/10'))] },
+  calisthenie: { nom: 'Street workout / calisthénie', ic: '🤸', cat: 'art', key: ['force_haut', 'gainage', 'force_bas'], qual: 'Force au poids du corps, gainage, équilibre sur les mains', risques: 'Épaules, coudes, poignets',
+    tips: ['Progressez par variantes : pompes inclinées → pompes → pieds surélevés → en équilibre.', 'Pour obtenir sa première traction : élastique, puis tractions négatives lentes.', 'Échauffez bien poignets et épaules avant l’équilibre sur les mains.'],
+    seances: [SS('Poussée & tirage', 'muscu', X('fh', 'pompeincl 3x10/60', 'pompe 4x12/60', 'pompedecl 4x12/60'), X('fh', 'tracelast 3x6/90', 'tractions 4x6/120', 'tractions 5x10/120'), X('fh', 'pompediam 3x6/60', 'dips 4x8/90', 'dips 5x12/90'), X('fh', 'rowinv 3x10/60', 'rowinv 4x12/60', 'negtraction 4x5/120'), X('g', 'gainage 3x30s/30', 'hollow 3x30s/30', 'lsit 4x15s/60')),
+      SS('Figures & jambes', 'muscu', X('fh', 'pompedecl 3x8/60', 'atr 4x20s/60', 'hspu 4x4/120'), X('fb', 'goblet 3x12/60', 'fentes 4x10/60', 'pistol 4x5/90'), X('g', 'releve 3x8/60', 'suspjambes 3x8/60', 'suspjambes 4x12/60'), X('fb', 'squatjump 3x8/60', 'tuckjump 4x8/60', 'broadjump 4x4/90'), X('s', 'squatprof 2x45s/10', 'pigeon 2x60s/10', 'ecart 3x60s/10'))] },
+  danse: { nom: 'Danse', ic: '💃', cat: 'art', key: ['souplesse', 'gainage', 'force_bas'], qual: 'Souplesse, équilibre, gainage, force des chevilles, sauts', risques: 'Chevilles, tendon d’Achille, hanches, lombaires',
+    tips: ['Le renforcement des mollets et de l’équilibre protège les chevilles, très sollicitées.', 'Un bon gainage permet de tenir les lignes et de sauter sans cambrer.', 'La souplesse se travaille muscles chauds, sans à-coups.'],
+    seances: [SS('Équilibre & pointes', 'muscu', X(null, 'equilibre 3x30s/20', 'equilibre 3x45s/20', 'equilibre 4x45s/20'), X(null, 'molletexc 2x12/45', 'molletexc 3x15/45', 'molletexc 4x15/45'), X('fb', 'glutepont1 3x10/45', 'pistol 3x3/90', 'pistol 4x5/90'), X('g', 'deadbug 3x30s/30', 'hollow 3x30s/30', 'lsit 4x10s/60'), X('s', 'kickel 2x6/30', 'kickel 3x8/30', 'kickel 4x10/30')),
+      SS('Souplesse & sauts', 'mobilite', X('s', 'ecart 2x30s/15', 'ecart 3x45s/15', 'ecart 3x60s/15'), X('s', 'fentebasse 2x40s/10', 'pigeon 2x45s/10', 'pigeon 3x60s/10'), X('s', 'ischios 2x40s/10', 'ischios 2x60s/10', 'ischios 3x60s/10'), X('fb', 'squatjump 3x6/60', 'tuckjump 3x8/60', 'bondlat 4x8/60'), X('c', 'jj 3x30s/30', 'jj 4x45s/30', 'corde 4x60s/30'))] },
+  sprint: { nom: 'Sprint / athlétisme', ic: '🏃', cat: 'art', key: ['force_bas', 'gainage'], qual: 'Vitesse, puissance, raideur des chevilles, ischios solides', risques: 'Ischios, tendon d’Achille, mollets',
+    tips: ['La vitesse se travaille en début de séance, frais, avec une récupération complète entre les sprints.', 'Le Nordic hamstring protège les ischios, les muscles les plus souvent blessés en sprint.', 'La force maximale des jambes nourrit la puissance de départ.'],
+    seances: [SS('Vitesse', 'course', X('c', 'departs 4x5s/90', 'departs 6x5s/120', 'departs 8x5s/150'), X(null, 'skipping 2x20s/30', 'skipping 3x20s/30', 'bondissantes 4x20s/60'), X('fb', 'squatjump 3x6/60', 'boxjump 4x5/90', 'broadjump 5x4/90'), X(null, 'nordic 2x3/90', 'nordic 3x5/90', 'nordic 3x8/90'), X(null, 'molletexc 2x12/45', 'molletexc 3x12/45', 'molletexc 3x15/45')),
+      SS('Force', 'muscu', X('fb', 'goblet 3x10/90', 'squat 4x5/150', 'squat 5x3/180'), X('fb', 'glutepont1 3x10/45', 'hipthrust 4x6/120', 'hipthrust 5x5/150'), X('fb', 'sdtr 3x10/90', 'sdtr 4x6/120', 'sdtr 4x5/150'), X('fb', 'fentes 3x8/60', 'fentes 4x8/90', 'bondlat 4x8/60'), X('g', 'gainage 3x30s/30', 'hollow 3x30s/30', 'pallof 4x10/45'))] }
+};
+// exercice ajouté quand le test montre un point faible (score ≤ 2/5) sur une qualité clé du sport
+const QFIX = { force_haut: X('fh', 'pompeincl 2x8/60', 'pompe 3x10/60', 'pompe 3x15/60'), force_bas: X('fb', 'chaise 2x30s/45', 'goblet 3x12/60', 'fentes 3x10/60'), gainage: X('g', 'gainage 2x20s/30', 'gainage 3x30s/30', 'gainage 3x45s/30'),
+  souplesse: X('s', 'worlds 2x40s/10', 'worlds 2x45s/10', 'worlds 3x45s/10'), cardio: X('c', 'jj 3x30s/30', 'corde 3x60s/30', 'corde 4x90s/30') };
 OBJ.sport = 'Préparation sportive';
-Object.entries(SPEC).forEach(([k, s]) => PROGRAMS.push({ id: 'sp_' + k, spec: k, nom: `Préparation ${s.nom}`, obj: 'sport', niv: 2, sem: 6, freq: 2, mat: 'aucun', ic: s.ic,
-  desc: `Préparation physique spécifique au ${s.nom.toLowerCase()} : ${s.qual.toLowerCase()}. Prévention : ${s.risques.toLowerCase()}.`,
-  prog: 'À faire 2 fois par semaine en plus de votre pratique, à distance des matchs. +1 série toutes les 2 semaines.', seances: s.seances }));
+Object.entries(SPEC).forEach(([k, s]) => {
+  const p = { id: 'sp_' + k, spec: k, nom: `Préparation ${s.nom}`, obj: 'sport', niv: 2, sem: 6, freq: 2, mat: 'aucun', ic: s.ic,
+    desc: `Préparation physique spécifique : ${s.qual.toLowerCase()}. Prévention : ${s.risques.toLowerCase()}. 3 niveaux, ajustés à votre test.`,
+    prog: 'À faire 2 fois par semaine en plus de votre pratique, à distance des matchs. Changez de niveau quand tout devient facile.' };
+  Object.defineProperty(p, 'seances', { get: () => specSeances(k), enumerable: true });
+  PROGRAMS.push(p);
+});
 
 </script>
 <script>
+const APEX_ID = 'apexfit-rinate83-7f3c9e'; // empreinte de l’auteur original
 // ===================== COMPATIBILITÉ (iPhone anciens) + ERREURS VISIBLES =====================
 if (!Array.prototype.at) Object.defineProperty(Array.prototype, 'at', { value: function (i) { i = Math.trunc(i) || 0; if (i < 0) i += this.length; return this[i]; }, writable: true, configurable: true });
 if (!Array.prototype.flat) Object.defineProperty(Array.prototype, 'flat', { value: function () { return [].concat(...this); }, writable: true, configurable: true });
@@ -839,7 +1092,7 @@ const KEY = 'apexfit_v3';
 let S = load();
 function blank() { return { v: 3, profile: { prenom: '', age: 30, sexe: 'h', poids: '', taille: '', obj: 'forme', jours: 3, mat: ['aucun'], sports: [] }, sessions: [], templates: [], tests: [], prog: null, goals: [], skipTest: false, body: [], remind: null, avail: {}, weekOk: {} }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; o.avail = o.avail || {}; o.weekOk = o.weekOk || {}; o.profile.pratique = o.profile.pratique || []; return o; } } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; o.avail = o.avail || {}; o.weekOk = o.weekOk || {}; o.profile.pratique = (o.profile.pratique || []).map(k => k === 'combat' ? 'boxe' : k).filter(k => SPEC[k]); if (o.prog && o.prog.id === 'sp_combat') o.prog.id = 'sp_boxe'; o.specLvl = o.specLvl || {}; return o; } } catch (e) {}
   const s = blank();
   try { // reprise des données de l'ancienne version (apexfit_state)
     const o = JSON.parse(localStorage.getItem('apexfit_state'));
@@ -1477,14 +1730,14 @@ function vProgrammes() {
       <div class="grid2" style="margin-top:12px">${nx ? `<button class="btn pri" onclick="startProgSession()">${ic('play')}Démarrer</button>` : ''}<button class="btn dan" onclick="if(confirm('Arrêter ce programme ?')){S.prog=null;save();render()}">Arrêter</button></div></div>`; }
   const pr = S.profile.pratique || [];
   h += `<h3 class="sec">Préparation pour vos sports <a onclick="sportsPicker()">${pr.length ? 'Modifier' : '+ Ajouter'}</a></h3>`;
-  h += pr.length ? pr.map(k => `<button class="li" onclick="openSpec('${k}')"><span class="em" style="font-size:24px">${SPEC[k].ic}</span><span class="t"><b>Préparation ${esc(SPEC[k].nom)}</b><small>${esc(SPEC[k].qual)}</small></span>${ic('right')}</button>`).join('')
+  h += pr.length ? pr.map(k => `<button class="li" onclick="openSpec('${k}')"><span class="em" style="font-size:24px">${SPEC[k].ic}</span><span class="t"><b>Préparation ${esc(SPEC[k].nom)}</b><small>Niveau ${LV[specLevel(k)]} · ${esc(SPEC[k].qual)}</small></span>${ic('right')}</button>`).join('')
     : `<div class="card"><div class="row"><div class="em" style="font-size:26px">🏅</div><div style="flex:1"><b>Vous pratiquez un sport ?</b><div class="mu small">Football, tennis, escalade, ski, tir… Recevez une préparation physique et des exercices de prévention spécifiques.</div></div></div><button class="btn w" style="margin-top:10px" onclick="sportsPicker()">Choisir mes sports</button></div>`;
   if (rec.length) h += `<h3 class="sec">Recommandés pour vous</h3>${rec.slice(0, 3).map(p => progRow(p, true)).join('')}`;
   h += `<h3 class="sec">Tous les programmes</h3><div class="chips" style="margin-bottom:10px">${[['tous', 'Tous'], ...Object.entries(OBJ)].map(([k, v]) => `<button class="chip ${progF === k ? 'on' : ''}" onclick="progF='${k}';render()">${v}</button>`).join('')}</div>`;
   h += PROGRAMS.filter(p => (progF === 'tous' && !p.spec) || p.obj === progF).map(p => progRow(p)).join('');
   $('#view').innerHTML = h;
 }
-const NIV = ['', 'Débutant', 'Intermédiaire', 'Avancé'];
+const NIV = ['', 'Débutant', 'Intermédiaire', 'Confirmé'];
 function progRow(p, star) { return `<button class="li" onclick="openProg('${p.id}')"><span class="em" style="font-size:24px">${p.ic}</span><span class="t"><b>${star ? '⭐ ' : ''}${esc(p.nom)}</b><small>${NIV[p.niv]} · ${p.sem} sem. · ${p.freq}×/sem · ${OBJ[p.obj]}</small></span>${ic('right')}</button>`; }
 function openProg(id) {
   const p = PROGRAMS.find(x => x.id === id), S0 = (p.weeks ? p.weeks[0] : p.seances).map(s => personalize(JSON.parse(JSON.stringify(s))));
@@ -1516,7 +1769,7 @@ function renderTest() {
       <div class="grid3"><label class="f">Sexe<select class="in" id="tS"><option value="h" ${P.sexe === 'h' ? 'selected' : ''}>Homme</option><option value="f" ${P.sexe === 'f' ? 'selected' : ''}>Femme</option></select></label><label class="f">Poids (kg)<input class="in" type="number" id="tW" value="${P.poids || ''}"></label><label class="f">Taille (cm)<input class="in" type="number" id="tH" value="${P.taille || ''}"></label></div>
       <label class="f">Objectif principal<select class="in" id="tO">${Object.entries(OBJ).map(([k, v]) => `<option value="${k}" ${P.obj === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
       <label class="f">Séances possibles par semaine<select class="in" id="tJ">${[2, 3, 4, 5].map(n => `<option ${+P.jours === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
-      <label class="f">Vous pratiquez un sport ? (préparation spécifique)</label><div class="chips" style="flex-wrap:wrap" id="tSp">${Object.entries(SPEC).map(([k, s]) => `<button class="chip ${(P.pratique || []).includes(k) ? 'on' : ''}" data-sp="${k}" onclick="this.classList.toggle('on')">${s.ic} ${s.nom}</button>`).join('')}</div>
+      <label class="f">Vous pratiquez un sport ? (préparation spécifique)</label>${sportChips(P.pratique || [], 'tSp')}
       <label class="f">Matériel disponible</label><div class="chips" style="flex-wrap:wrap">${[['aucun', 'Rien (maison)'], ['halteres', 'Haltères / kettlebell'], ['barre', 'Barre de traction'], ['salle', 'Salle de sport'], ['piscine', 'Piscine'], ['velo', 'Vélo']].map(([k, v]) => `<button class="chip ${P.mat.includes(k) ? 'on' : ''}" onclick="this.classList.toggle('on')" data-m="${k}">${v}</button>`).join('')}</div>
       <div class="tip" style="margin-top:14px">⚠️ En cas de problème de santé, de douleur ou de reprise après une longue pause, demandez l’avis d’un médecin avant les tests d’effort maximal.</div>`,
     `<span></span><button class="btn pri" onclick="saveTestProfile()">Continuer</button>`);
@@ -1549,7 +1802,7 @@ function renderTest() {
 }
 function saveTestProfile() {
   const P = S.profile; P.prenom = $('#tP').value.trim(); P.age = +$('#tA').value || 30; P.sexe = $('#tS').value; P.poids = +$('#tW').value || ''; P.taille = +$('#tH').value || ''; P.obj = $('#tO').value; P.jours = +$('#tJ').value;
-  P.pratique = $$('#tSp .chip.on').map(b => b.dataset.sp);
+  P.pratique = pickedSports('tSp');
   P.mat = $$('#live .chip.on[data-m]').map(b => b.dataset.m); if (!P.mat.length) P.mat = ['aucun']; save(); TS.step++; renderTest();
 }
 function saveTestValue(ti) {
@@ -1615,24 +1868,54 @@ function recommend(r) {
   const pr = P.pratique || [];
   return PROGRAMS.filter(ok).filter(p => !p.spec || pr.includes(p.spec)).map(p => ({ p, s: (p.spec ? -1 : 0) + (p.obj === P.obj ? 0 : 3) + Math.abs(p.niv - lvl) * 1.5 + (p.freq > (+P.jours || 3) ? 2 : 0) + (weakCardio && p.obj === 'endurance' && p.niv === 1 ? -1 : 0) })).sort((a, b) => a.s - b.s).map(x => x.p);
 }
+// ---- sports pratiqués : choix groupé par catégorie
+function sportChips(sel, id) {
+  return Object.entries(SPCAT).map(([c, lab]) => `<div class="mu tiny" style="margin:12px 0 6px;font-weight:800;letter-spacing:.04em">${lab}</div><div class="chips" style="flex-wrap:wrap" id="${id}_${c}">${Object.entries(SPEC).filter(([, s]) => s.cat === c).map(([k, s]) => `<button class="chip ${sel.includes(k) ? 'on' : ''}" data-sp="${k}" onclick="this.classList.toggle('on')">${s.ic} ${s.nom}</button>`).join('')}</div>`).join('');
+}
+const pickedSports = id => $$(`[id^="${id}_"] .chip.on`).map(b => b.dataset.sp);
 function sportsPicker() {
   const pr = S.profile.pratique || [];
-  sheet(`<h2>Mes sports pratiqués</h2><p class="mu small">En club ou en loisir. Vous recevrez une préparation physique, les risques de blessure à connaître et des exercices de prévention.</p>
-    <div class="chips" style="flex-wrap:wrap" id="spP">${Object.entries(SPEC).map(([k, s]) => `<button class="chip ${pr.includes(k) ? 'on' : ''}" data-sp="${k}" onclick="this.classList.toggle('on')">${s.ic} ${s.nom}</button>`).join('')}</div>
-    <button class="btn pri w" style="margin-top:14px" onclick="S.profile.pratique=$$('#spP .chip.on').map(b=>b.dataset.sp);save();closeSheet();render()">Enregistrer</button>`);
+  sheet(`<h2>Mes sports pratiqués</h2><p class="mu small">En club ou en loisir. Pour chaque sport : une préparation physique en 3 niveaux, ajustée à votre test, les risques de blessure et des exercices de prévention.</p>
+    ${sportChips(pr, 'spP')}
+    <button class="btn pri w" style="margin-top:16px" onclick="S.profile.pratique=pickedSports('spP');save();closeSheet();render()">Enregistrer</button>`);
 }
-function openSpec(k) {
-  const s = SPEC[k], S0 = s.seances.map(x => personalize(JSON.parse(JSON.stringify(x))));
-  READY = s.seances.map(x => ({ s: x }));
-  sheet(`<div style="font-size:40px">${s.ic}</div><h2>Préparation ${esc(s.nom)}</h2>
-    <div class="kpi" style="margin-top:10px"><div class="l">Qualités clés</div><div class="small" style="margin-top:4px">${esc(s.qual)}</div></div>
-    <div class="kpi" style="margin-top:8px;border-color:rgba(244,63,94,.35)"><div class="l" style="color:#fda4af">Zones à protéger</div><div class="small" style="margin-top:4px">${esc(s.risques)}</div></div>
-    <h3 class="sec">Conseils</h3><ul class="small" style="padding-left:18px;line-height:1.5">${s.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
-    <h3 class="sec">Séances spécifiques</h3>${S0.map((x, i) => `<div class="kpi" style="margin-top:8px"><div class="row" style="justify-content:space-between"><b>${SPORTS[x.sport].ic} ${esc(x.nom)}</b><button class="btn sm pri" onclick="closeSheet();startReady(${i})">${ic('play')}</button></div>
-      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">${x.items.map(it => `<span class="mini" onclick="openMv('${it.mv}',1)">${mvImg(it.mv, 'thumb')}<small>${esc(mvName(it))}</small></span>`).join('')}</div></div>`).join('')}
-    <button class="btn pri w" style="margin-top:14px" onclick="S.prog={id:'sp_${k}',start:today(),done:[]};save();closeSheet();go('home');toast('Préparation ${esc(s.nom)} lancée 💪')">Suivre la préparation (6 semaines, 2×/sem.)</button>
-    <p class="mu tiny" style="margin-top:12px">Sources : ${s.src.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--ac2)">${esc(t)}</a>`).join(' · ')}</p>
-    <p class="mu tiny">En cas de douleur ou de blessure, demandez l’avis d’un kiné ou d’un médecin.</p>`);
+// ---- niveau : choisi par l'utilisateur, sinon celui du test ; chaque exercice suit le score de la qualité qu'il travaille
+const recLevel = () => { const t = S.tests.at(-1); return t ? t.level : 1; };
+const specLevel = k => (S.specLvl && S.specLvl[k]) || recLevel();
+function qLvl(q, L) {
+  const t = S.tests.at(-1); if (!q || !t || t.scores[q] == null) return L;
+  const v = t.scores[q], ql = v <= 2 ? 1 : v === 3 ? 2 : 3;
+  return clamp(ql, Math.max(1, L - 1), Math.min(3, L + 1));
+}
+function weakKey(k) { const t = S.tests.at(-1); if (!t) return null; return SPEC[k].key.filter(q => t.scores[q] != null && t.scores[q] <= 2).sort((a, b) => t.scores[a] - t.scores[b])[0] || null; }
+function specSession(k, i, L) {
+  const s = SPEC[k].seances[i], adj = [];
+  const items = s.slots.map(sl => { const l = qLvl(sl.q, L); const it = JSON.parse(JSON.stringify(sl.v[l - 1])); if (l !== L) { it.adj = l > L ? 'up' : 'down'; adj.push({ q: sl.q, l, mv: it.mv }); } return it; });
+  const wq = weakKey(k);
+  if (wq) { const it = JSON.parse(JSON.stringify(QFIX[wq].v[Math.min(L, 2) - 1])); if (!items.some(x => x.mv === it.mv)) { it.fix = wq; items.push(it); } }
+  return { nom: `${s.nom} · ${LV[L]}`, sport: s.sport, items, lvl: L, adj, fix: wq };
+}
+function specSeances(k) { const L = specLevel(k); return SPEC[k].seances.map((_, i) => specSession(k, i, L)); }
+function setSpecLvl(k, l) { S.specLvl = S.specLvl || {}; if (l === recLevel()) delete S.specLvl[k]; else S.specLvl[k] = l; save(); haptic(8); openSpec(k, true); }
+function openSpec(k, re) {
+  const s = SPEC[k], L = specLevel(k), rec = recLevel(), t = S.tests.at(-1), wq = weakKey(k);
+  const S0 = specSeances(k).map(x => personalize(x));
+  READY = S0.map(x => ({ s: x }));
+  const sc = q => t && t.scores[q] != null ? ` (${t.scores[q]}/5)` : '';
+  let h = `<div class="row" style="gap:12px"><div style="font-size:40px">${s.ic}</div><div style="flex:1"><h2 style="margin:0">Préparation ${esc(s.nom)}</h2><div class="mu small">${esc(SPCAT[s.cat])}</div></div></div>
+    <label class="f" style="margin-top:14px">Niveau de la préparation</label>
+    <div class="seg lv3">${[1, 2, 3].map(l => `<button class="${L === l ? 'on' : ''}" onclick="setSpecLvl('${k}',${l})">${LV[l]}${l === rec && t ? '<i>conseillé</i>' : ''}</button>`).join('')}</div>
+    <div class="tip" style="margin-top:10px">${t ? `🧪 D’après votre test (${esc(t.levelTxt)}), le niveau conseillé est <b>${LV[rec]}</b>. Chaque exercice est ensuite ajusté selon la qualité qu’il travaille : ${s.key.map(q => esc(QUAL[q]) + sc(q)).join(', ')}.` : '🧪 Faites le test de capacités pour obtenir un niveau conseillé et des exercices ajustés à vos points forts et faibles. <a onclick="closeSheet();startTest()" style="color:var(--ac2);font-weight:700">Faire le test</a>'}</div>
+    ${wq ? `<div class="tip" style="margin-top:8px;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08);color:#fde68a">🎯 Point faible détecté : <b>${esc(QUAL[wq])}</b>${sc(wq)}. Un exercice ciblé est ajouté à chaque séance.</div>` : ''}
+    <div class="grid2" style="margin-top:12px"><div class="kpi"><div class="l">Qualités clés</div><div class="small" style="margin-top:4px">${esc(s.qual)}</div></div>
+    <div class="kpi" style="border-color:rgba(244,63,94,.35)"><div class="l" style="color:#fda4af">Zones à protéger</div><div class="small" style="margin-top:4px">${esc(s.risques)}</div></div></div>
+    <h3 class="sec">Séances · ${LV[L]}</h3>${S0.map((x, i) => `<div class="kpi" style="margin-top:8px"><div class="row" style="justify-content:space-between"><b>${SPORTS[x.sport].ic} ${esc(x.nom)}</b><button class="btn sm pri" onclick="closeSheet();startReady(${i})">${ic('play')}</button></div>
+      <div class="spl">${x.items.map(it => `<div class="spi" onclick="openMv('${it.mv}',1)">${mvImg(it.mv, 'thumb')}<span><b>${esc(mvName(it))}</b><small>${typeof it.sets === 'number' ? it.sets + ' × ' + (it.sec ? it.sec + ' s' : it.reps) : ''}${it.rest ? ' · repos ' + it.rest + ' s' : ''}</small></span>${it.fix ? '<em class="b fix">point faible</em>' : it.adj === 'up' ? '<em class="b up">▲ plus dur</em>' : it.adj === 'down' ? '<em class="b down">▼ plus facile</em>' : ''}</div>`).join('')}</div></div>`).join('')}
+    ${S.prog && S.prog.id === 'sp_' + k ? `<div class="tip" style="margin-top:14px">✅ Préparation suivie : ${S.prog.done.length} séance(s) faite(s). Le niveau choisi s’applique aux prochaines séances.</div>` : `<button class="btn pri w" style="margin-top:14px" onclick="S.prog={id:'sp_${k}',start:today(),done:[]};save();closeSheet();go('home');toast('Préparation ${esc(s.nom)} lancée 💪')">Suivre la préparation (6 semaines, 2×/sem.)</button>`}
+    <h3 class="sec">Conseils</h3><ul class="small" style="padding-left:18px;line-height:1.5">${s.tips.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    ${s.src && s.src.length ? `<p class="mu tiny" style="margin-top:12px">Sources : ${s.src.map(([a, u]) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--ac2)">${esc(a)}</a>`).join(' · ')}</p>` : ''}
+    <p class="mu tiny">En cas de douleur ou de blessure, demandez l’avis d’un kiné ou d’un médecin. Les exercices avancés (pont de lutte, équilibre sur les mains…) se pratiquent idéalement avec un encadrement.</p>`;
+  const sh = re && $('#sheetBg .sheet'); if (sh) { const st = sh.scrollTop; sh.innerHTML = '<div class="grab"></div>' + h; sh.scrollTop = st; } else sheet(h);
 }
 // adapte une séance aux résultats du test (répétitions, durées, allures)
 function personalize(s) {
@@ -1672,7 +1955,7 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.5 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.6 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
   bodyChart(); loadThumbs();
 }
