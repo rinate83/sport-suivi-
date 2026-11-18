@@ -12,3 +12,10 @@ Application web installable (iPhone : Safari › Partager › Sur l'écran d'acc
 
 ## Développement
 Le code est dans `src/` ; `./build.sh` assemble `index.html`.
+
+## Développement
+
+- Le code est dans `src/` ; `./build.sh` assemble `index.html` et génère `sw.js` (cache hors connexion de toutes les images).
+- Tests des calculs (sans navigateur) : `node tests/unit.mjs`.
+- Aucune donnée n’est envoyée à un serveur : chaque personne garde ses données sur son téléphone (sauvegarde par fichier dans Profil).
+- Partager une séance : bouton 🔗 sur une séance type ou une séance de préparation → le lien contient la séance.

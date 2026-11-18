@@ -256,3 +256,23 @@ canvas.spark{width:100px;height:30px}
 .aiload{color:var(--mu);font-size:13px;display:flex;align-items:center;gap:4px}.aiload i{width:7px;height:7px;border-radius:50%;background:var(--ac2);animation:aid 1s infinite alternate}.aiload i:nth-child(2){animation-delay:.2s}.aiload i:nth-child(3){animation-delay:.4s;margin-right:6px}
 @keyframes aid{from{opacity:.25;transform:translateY(0)}to{opacity:1;transform:translateY(-3px)}}
 details.card summary{cursor:pointer;list-style:none}details.card summary::-webkit-details-marker{display:none}details.card summary:after{content:'›';float:right;transition:transform .2s;color:var(--mu)}details.card[open] summary:after{transform:rotate(90deg)}
+/* v3.8 : accueil, badges, douleurs, zones, mode salle, calme */
+.card.today{border-color:rgba(34,197,94,.35);background:linear-gradient(135deg,#0f2318,#111827)}
+.chipb{border:1px solid var(--line2);background:var(--card2);color:inherit;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:650;cursor:pointer;min-height:36px}
+.chipb.ok{border-color:rgba(34,197,94,.55);background:rgba(34,197,94,.12)}.chipb.bad{border-color:rgba(244,63,94,.55);background:rgba(244,63,94,.12);color:#fecdd3}
+.chal{margin-top:12px;font-size:13px;font-weight:650}.chal .pbar{margin-top:6px}
+.evcard{border-color:rgba(167,139,250,.45);cursor:pointer}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.bdg{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center;opacity:.45;filter:grayscale(1)}
+.bdg.on{opacity:1;filter:none;border-color:rgba(250,204,21,.45);background:linear-gradient(160deg,rgba(250,204,21,.12),var(--card2))}
+.bdg span{font-size:24px;display:block}.bdg b{display:block;font-size:12px;margin-top:4px;line-height:1.2}.bdg small{display:block;font-size:10.5px;color:var(--mu);margin-top:2px;line-height:1.2}
+.painrow{display:grid;grid-template-columns:110px 1fr 28px;align-items:center;gap:10px;margin-top:10px;font-size:14px}.painrow b{text-align:right}.painrow input{accent-color:#f43f5e}
+.zrow{display:grid;grid-template-columns:10px 26px 1fr auto auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}.zrow:last-of-type{border:0}
+.zrow i{width:10px;height:10px;border-radius:3px}.zrow em{font-style:normal;font-weight:700}.zrow small{color:var(--mu);min-width:36px;text-align:right}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:11.5px;color:var(--mu)}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.tgl{padding:10px 0;border-bottom:1px solid var(--line);gap:12px;cursor:pointer}.tgl:last-child{border:0}.tgl input{width:24px;height:24px;accent-color:#22c55e}
+#live.bigmode .set input,#live.bigmode .set .n{font-size:24px!important;min-height:56px}#live.bigmode .clock{font-size:26px}#live.bigmode .ex b{font-size:19px}#live.bigmode .set .ok{min-width:60px;min-height:56px}
+#live.bigmode ~ .restbar .big,.restbar.bigmode .big{font-size:52px}
+body.calm *,body.calm *:before,body.calm *:after{animation:none!important;transition:none!important}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #38bdf8;outline-offset:2px}
+.icob{width:34px;height:34px;flex:none;border-radius:10px;border:1px solid var(--line);background:transparent;color:inherit;font-size:16px;cursor:pointer;padding:0}
