@@ -96,6 +96,82 @@ function weekStats(off = 0) {
 }
 
 // ===================== ACCUEIL : RÉCAP + CALENDRIER =====================
+// ===================== BANNIÈRES MANGA (dessins originaux) =====================
+// silhouette « encrée » : membres épais à bouts ronds, contour blanc façon case de manga
+function mgFig(p, props = '') {
+  const L = (a, b, c) => `M${a[0]} ${a[1]}L${b[0]} ${b[1]}${c ? `L${c[0]} ${c[1]}` : ''}`;
+  const limbs = [L(p.sh, p.e1, p.h1), L(p.sh, p.e2, p.h2), L(p.hip, p.k1, p.f1), L(p.hip, p.k2, p.f2)].join('');
+  const torso = L(p.sh, p.hip);
+  const fist = (h, r = 8) => `<circle cx="${h[0]}" cy="${h[1]}" r="${r}"/>`;
+  const body = (col, w, hr) => `<g stroke="${col}" fill="${col}" stroke-linecap="round" stroke-linejoin="round"><path d="${torso}" stroke-width="${w + 10}" fill="none"/><path d="${limbs}" stroke-width="${w}" fill="none"/><circle cx="${p.head[0]}" cy="${p.head[1]}" r="${hr}"/>${fist(p.h1, w / 2 + 2)}${fist(p.h2, w / 2 + 2)}</g>`;
+  const burst = Array.from({ length: 28 }, (_, i) => { const r = i % 2 ? 62 : 96, t = i / 28 * Math.PI * 2; return `${(100 + r * Math.cos(t)).toFixed(1)},${(104 + r * Math.sin(t) * .9).toFixed(1)}`; }).join(' ');
+  return `<polygon points="${burst}" fill="var(--mc)" opacity=".28" stroke="#0b0b0f" stroke-width="2.5" stroke-linejoin="round"/>${props}${body('#fff', 22, 19)}${body('#0b0b0f', 14, 15)}`;
+}
+var MG_POSE = {
+  sprint: { head: [112, 46], sh: [104, 68], hip: [86, 112], e1: [128, 84], h1: [146, 66], e2: [80, 82], h2: [62, 100], k1: [116, 132], f1: [104, 166], k2: [62, 128], f2: [42, 150] },
+  lift: { head: [100, 62], sh: [100, 84], hip: [100, 128], e1: [72, 58], h1: [62, 30], e2: [128, 58], h2: [138, 30], k1: [80, 150], f1: [74, 182], k2: [120, 150], f2: [126, 182] },
+  punch: { head: [96, 52], sh: [100, 74], hip: [92, 120], e1: [130, 70], h1: [162, 62], e2: [78, 92], h2: [86, 72], k1: [118, 146], f1: [130, 180], k2: [70, 148], f2: [54, 178] },
+  victory: { head: [100, 56], sh: [100, 78], hip: [100, 124], e1: [78, 52], h1: [70, 24], e2: [122, 52], h2: [130, 24], k1: [88, 152], f1: [84, 184], k2: [114, 152], f2: [118, 184] },
+  focus: { head: [100, 66], sh: [100, 88], hip: [100, 134], e1: [80, 112], h1: [96, 120], e2: [120, 112], h2: [104, 120], k1: [66, 150], f1: [118, 158], k2: [134, 150], f2: [82, 158] },
+  pull: { head: [100, 60], sh: [100, 80], hip: [100, 124], e1: [74, 52], h1: [70, 22], e2: [126, 52], h2: [130, 22], k1: [94, 154], f1: [104, 176], k2: [108, 150], f2: [116, 172] },
+  rest: { head: [58, 128], sh: [76, 140], hip: [120, 146], e1: [70, 160], h1: [56, 150], e2: [94, 158], h2: [110, 154], k1: [146, 130], f1: [170, 152], k2: [148, 146], f2: [176, 164] }
+};
+var MG_PROPS = {
+  lift: '<g stroke="#fff" stroke-width="12" stroke-linecap="round"><path d="M28 28H172"/></g><g stroke="#0b0b0f" stroke-width="6" stroke-linecap="round"><path d="M28 28H172"/></g><g fill="#0b0b0f" stroke="#fff" stroke-width="3"><rect x="20" y="10" width="14" height="36" rx="3"/><rect x="166" y="10" width="14" height="36" rx="3"/></g>',
+  pull: '<path d="M40 22H160" stroke="#fff" stroke-width="12" stroke-linecap="round"/><path d="M40 22H160" stroke="#0b0b0f" stroke-width="6" stroke-linecap="round"/>',
+  punch: '<g fill="none" stroke="#0b0b0f" stroke-width="4" stroke-linecap="round" opacity=".9"><path d="M176 50l18-8M178 64h20M176 78l18 8"/></g>',
+  rest: '<text x="128" y="92" font-size="26" font-weight="900" fill="#0b0b0f" stroke="#fff" stroke-width="5" paint-order="stroke" font-family="system-ui">Z</text><text x="150" y="70" font-size="20" font-weight="900" fill="#0b0b0f" stroke="#fff" stroke-width="5" paint-order="stroke" font-family="system-ui">z</text><text x="166" y="52" font-size="15" font-weight="900" fill="#0b0b0f" stroke="#fff" stroke-width="4" paint-order="stroke" font-family="system-ui">z</text>',
+  focus: '<g fill="none" stroke="#0b0b0f" stroke-width="3" opacity=".55"><path d="M100 18c-30 30-50 60-50 100M100 18c30 30 50 60 50 100"/><path d="M100 4c-40 36-64 72-64 120M100 4c40 36 64 72 64 120" opacity=".6"/></g>'
+};
+// sfx = onomatopées japonaises courantes en manga (son de pression, de choc, d'élan…)
+var BANNERS = [
+  { k: 'force1', pose: 'punch', c: '#ef4444', sfx: 'ドン!', t: 'Dépasse tes limites !', s: 'La force naît là où tu voulais abandonner.' },
+  { k: 'force2', pose: 'lift', c: '#f59e0b', sfx: 'ゴゴゴ', t: 'Chaque répétition compte', s: 'Petit à petit, ton corps forge sa légende.' },
+  { k: 'cardio', pose: 'sprint', c: '#22d3ee', sfx: 'シュッ', t: 'Plus vite qu’hier !', s: 'Ton seul rival, c’est le toi d’hier.' },
+  { k: 'mental', pose: 'focus', c: '#a78bfa', sfx: 'ゴゴゴ', t: 'L’esprit d’abord', s: 'Respire. Concentre-toi. Le corps suivra.' },
+  { k: 'grit', pose: 'pull', c: '#f43f5e', sfx: 'グッ!', t: 'Ne lâche rien !', s: 'Encore une. Puis encore une.' },
+  { k: 'rise', pose: 'victory', c: '#22c55e', sfx: 'キラッ', t: 'Ton futur toi te dit merci', s: 'La discipline d’aujourd’hui, c’est la victoire de demain.' },
+  { k: 'start', pose: 'sprint', c: '#f97316', sfx: 'ダッ!', t: 'Le premier pas est le plus dur', s: 'Tu es déjà en route. Continue !' }
+];
+var MG_SPECIAL = {
+  rest: { pose: 'rest', c: '#60a5fa', sfx: 'スー…', t: 'Jour de récupération', s: 'Le muscle se construit pendant le repos. Recharge tes batteries.' },
+  win: { pose: 'victory', c: '#facc15', sfx: 'ドーン!', t: 'Mission accomplie !', s: 'Séance terminée. Tu as gagné ce combat.' },
+  pr: { pose: 'lift', c: '#facc15', sfx: 'ズドン!', t: 'Nouveau record !', s: 'Niveau supérieur débloqué.' },
+  go: { pose: 'punch', c: '#ef4444', sfx: 'いくぞ!', t: 'C’est parti !', s: 'Donne tout.' }
+};
+function mangaBanner(b, opt = {}) {
+  const sub = opt.sub || b.s, tag = opt.tag || '';
+  return `<div class="manga ${opt.cls || ''}" style="--mc:${b.c}" ${opt.click ? `onclick="${opt.click}"` : ''}>
+    <div class="mg-lines"></div><div class="mg-dots"></div>
+    <div class="mg-sfx">${b.sfx}</div>
+    <svg class="mg-fig" viewBox="0 0 200 200" aria-hidden="true">${mgFig(MG_POSE[b.pose], MG_PROPS[b.pose] || '')}</svg>
+    <div class="mg-txt">${tag ? `<span class="mg-tag">${tag}</span>` : ''}<b>${esc(b.t)}</b><small>${esc(sub)}</small></div>
+  </div>`;
+}
+// bannière du jour sur l'accueil : change chaque jour, ou d'un geste
+var mgIdx = null;
+function homeBanner() {
+  if (S.manga === false) return '';
+  const done = S.sessions.some(x => x.date === today()), planned = plannedMap().has(today());
+  const streak = (() => { let n = 0; const d = new Date(); if (!S.sessions.some(x => x.date === ymd(d))) d.setDate(d.getDate() - 1); while (S.sessions.some(x => x.date === ymd(d))) { n++; d.setDate(d.getDate() - 1); } return n; })();
+  if (done) return mangaBanner(MG_SPECIAL.win, { tag: 'Aujourd’hui ✓', sub: streak > 1 ? `${streak} jours d’affilée. Rien ne peut t’arrêter !` : MG_SPECIAL.win.s, click: 'nextBanner()' });
+  if (!planned && (S.prog || (S.remind && S.remind.days.length)) && mgIdx == null) return mangaBanner(MG_SPECIAL.rest, { tag: 'Repos', click: 'nextBanner()' });
+  const i = mgIdx == null ? Math.floor(Date.now() / 864e5) % BANNERS.length : mgIdx;
+  return mangaBanner(BANNERS[i], { tag: streak > 1 ? `🔥 ${streak} jours` : 'Motivation du jour', click: 'nextBanner()' });
+}
+function nextBanner() {
+  haptic(10); mgIdx = ((mgIdx == null ? Math.floor(Date.now() / 864e5) % BANNERS.length : mgIdx) + 1) % BANNERS.length;
+  const el = $('#view .manga'); if (el) { el.outerHTML = mangaBanner(BANNERS[mgIdx], { tag: 'Motivation', click: 'nextBanner()', cls: 'slam' }); }
+}
+// écran plein « coup de manga » : départ de séance, record
+function mangaSplash(kind, sub, ms = 1500) {
+  if (S.manga === false) return;
+  const d = document.createElement('div'); d.className = 'mg-splash';
+  d.innerHTML = mangaBanner(MG_SPECIAL[kind], { cls: 'slam big', sub: sub || MG_SPECIAL[kind].s });
+  d.onclick = () => d.remove(); document.body.appendChild(d); haptic([20, 30, 40]);
+  setTimeout(() => { d.classList.add('out'); setTimeout(() => d.remove(), 350); }, ms);
+}
+
 function vHome() {
   const w = weekStats(), goal = +S.profile.jours || 3, p = clamp(Math.round(w.days / goal * 100), 0, 100), prev = weekStats(-1);
   const delta = w.min - prev.min, nx = nextProgSession(), lastTest = S.tests.at(-1);
@@ -104,6 +180,7 @@ function vHome() {
     <div style="flex:1"><div class="mu small">Cette semaine</div><div style="font-size:22px;font-weight:800;margin:2px 0">${w.n} séance${w.n > 1 ? 's' : ''} · ${hmin(w.min)}</div>
     <div class="mu small">${w.km ? w.km.toFixed(1) + ' km parcourus · ' : ''}${prev.min || w.min ? (delta >= 0 ? '▲ ' : '▼ ') + hmin(Math.abs(delta)) + ' vs sem. dernière' : 'Commencez votre semaine !'}</div></div></div>
     <canvas class="ch" id="weekChart" height="120" style="margin-top:12px;position:relative"></canvas></div>`;
+  h = homeBanner() + h;
   // prochaine action
   h += planPrompt();
   if (!lastTest && !S.skipTest) h += `<div class="card" style="border-color:rgba(245,158,11,.4)"><div class="row"><div class="em" style="font-size:30px">🧪</div><div style="flex:1"><b>Faites le test de capacités</b><div class="mu small">15–25 min pour mesurer force, gainage, souplesse et cardio, puis recevoir un programme adapté.</div></div></div>
@@ -481,7 +558,7 @@ function startLive(sess, opt = {}) {
   // éléments de programme { mv, sets: nombre, reps|sec }
   if (progItems) L.items = sess.items.map(it => ({ mv: it.mv, rest: it.rest ?? 90, target: it.reps || 0, sets: Array.from({ length: it.sets }, () => it.sec ? { sec: it.sec, done: false } : { reps: it.reps, kg: '', done: false }) }));
   if (L.items && !L.tplMode) applySuggestions(L.items);
-  document.body.style.overflow = 'hidden'; renderLive(); clearInterval(liveTick); liveTick = setInterval(() => { const c = $('#liveClock'); if (c) c.textContent = mmss((Date.now() - L.start) / 1000); }, 1000);
+  document.body.style.overflow = 'hidden'; renderLive(); if (!L.tplMode) mangaSplash('go', L.nom || SPORTS[L.sport].nom, 1300); clearInterval(liveTick); liveTick = setInterval(() => { const c = $('#liveClock'); if (c) c.textContent = mmss((Date.now() - L.start) / 1000); }, 1000);
   try { navigator.wakeLock && navigator.wakeLock.request('screen').then(w => L.wake = w).catch(() => {}); } catch (e) {}
 }
 function renderLive() {
@@ -530,7 +607,7 @@ function setDoneFx(i, j) {
   if (z.kg && z.reps) {
     const v = e1rm(+z.kg, +z.reps); let best = 0;
     S.sessions.forEach(s => (s.items || []).forEach(x => { if (x.mv === it.mv) x.sets.forEach(q => { if (q.done && q.kg && q.reps) best = Math.max(best, e1rm(+q.kg, +q.reps)); }); }));
-    if (best && v > best + 0.01 && !z.pr) { z.pr = true; confetti(70); toast(`🏅 Nouveau record sur ${mvName(it)} ! 1RM ≈ ${Math.round(v)} kg`, 3500); haptic([30, 40, 30]); }
+    if (best && v > best + 0.01 && !z.pr) { z.pr = true; confetti(70); toast(`🏅 Nouveau record sur ${mvName(it)} ! 1RM ≈ ${Math.round(v)} kg`, 3500); mangaSplash('pr', `${mvName(it)} · ${z.kg} kg × ${z.reps} (1RM ≈ ${Math.round(v)} kg)`, 1800); haptic([30, 40, 30]); }
   }
   // fait défiler jusqu'à la prochaine série à faire
   setTimeout(() => { const nx = $('#live .set:not(.done) .ok'); if (nx) nx.closest('.set').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 350);
@@ -565,7 +642,7 @@ function finishLive() {
   if (L.tplMode) { const nom = L.nom.trim() || sp.nom; S.templates.push(toTemplate({ sport: L.sport, items: L.items, blocks: L.blocks, dist: +L.dist || null }, nom)); save(); endLive(); render(); return toast('Séance type enregistrée 💾'); }
   const doneSets = L.items ? L.items.reduce((a, it) => a + it.sets.filter(z => z.done).length, 0) : 1;
   if (L.items && !doneSets && !confirm('Aucune série validée. Terminer quand même ?')) return;
-  sheet(`<h2>Bravo ! 🎉</h2><p class="mu small">${L.items ? doneSets + ' séries validées · ' : ''}${hmin(dur)}</p>
+  sheet(`${S.manga === false ? '<h2>Bravo ! 🎉</h2>' : mangaBanner(MG_SPECIAL.win, { cls: 'slam', tag: 'Victoire' })}<p class="mu small">${L.items ? doneSets + ' séries validées · ' : ''}${hmin(dur)}</p>
     <div class="grid2"><label class="f">Durée (min)<input class="in" type="number" id="fiT" value="${dur}"></label>${sp.dist ? `<label class="f">Distance (${sp.dist})<input class="in" type="number" step="0.01" inputmode="decimal" id="fiD" value="${L.dist || ''}"></label>` : '<span></span>'}</div>
     ${sp.deniv ? '<label class="f">Dénivelé + (m)<input class="in" type="number" id="fiE"></label>' : ''}
     <label class="f">Ressenti de l'effort : <b id="fiRv">7</b>/10<input type="range" min="1" max="10" value="7" id="fiR" oninput="$('#fiRv').textContent=this.value"></label>
@@ -791,6 +868,7 @@ function vProfil() {
   const prt = S.profile.pratique || [];
   h += `<h3 class="sec">Mes sports pratiqués <a onclick="sportsPicker()">Modifier</a></h3><div class="card">${prt.length ? `<div class="chips" style="flex-wrap:wrap">${prt.map(k => `<button class="chip on" onclick="openSpec('${k}')">${SPEC[k].ic} ${SPEC[k].nom}</button>`).join('')}</div>` : '<p class="mu small" style="margin:0">Ajoutez votre sport pour recevoir une préparation spécifique.</p>'}</div>
     <h3 class="sec">Ma semaine</h3><div class="card"><p class="mu small" style="margin-top:0">Indiquez vos jours indisponibles ou chargés : les séances sont réparties automatiquement.</p><div class="grid2"><button class="btn" onclick="openPlanner(0)">📅 Cette semaine</button><button class="btn" onclick="openPlanner(1)">📅 Semaine prochaine</button></div></div>`;
+  h += `<h3 class="sec">Motivation</h3><div class="card"><label class="row" style="gap:12px;cursor:pointer"><span class="em" style="font-size:26px">💥</span><span style="flex:1"><b>Bannières style manga</b><span class="mu small" style="display:block">Accueil, départ de séance, records et victoire</span></span><input type="checkbox" style="width:24px;height:24px;accent-color:#22c55e" ${S.manga === false ? '' : 'checked'} onchange="S.manga=this.checked;save();toast(this.checked?'💥 Bannières activées':'Bannières désactivées')"></label></div>`;
   h += bodySection() + remindSection();
   h += `<h3 class="sec">Objectifs de la semaine <a onclick="goalForm()">+ Ajouter</a></h3>`;
   h += S.goals.map(g => { const r = goalProgress(g); return `<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(g.titre)}</b><button class="btn sm ghost" onclick="S.goals=S.goals.filter(x=>x.id!=='${g.id}');save();render()">${ic('trash')}</button></div>
@@ -799,7 +877,7 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.4 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.5 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
   bodyChart(); loadThumbs();
 }
@@ -995,3 +1073,4 @@ $('#nav').innerHTML = `<button data-v="home" onclick="go('home')">${ic('home')}A
 save(); render();
 window.addEventListener('resize', () => { if (route.v === 'home') weekChart(); });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+
