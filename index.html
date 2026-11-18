@@ -260,6 +260,20 @@ canvas.spark{width:100px;height:30px}
 .spi .b{font-style:normal;font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:8px;white-space:nowrap}
 .spi .b.up{background:rgba(34,197,94,.15);color:#86efac}.spi .b.down{background:rgba(96,165,250,.15);color:#93c5fd}.spi .b.fix{background:rgba(245,158,11,.15);color:#fde68a}
 
+/* coach */
+.coachcard{border-color:rgba(56,189,248,.35);background:linear-gradient(135deg,#0c1d2c,#111827)}
+.rq{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:6px}
+.rq button{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:7px 2px;color:inherit;cursor:pointer;transition:all .15s}
+.rq button b{display:block;font-size:16px}.rq button small{display:block;font-size:9.5px;color:var(--mu);line-height:1.15;margin-top:2px}
+.rq button.on{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.7);transform:scale(1.04)}
+.gauge{position:relative;height:10px;border-radius:5px;margin:14px 0 6px;background:linear-gradient(90deg,#60a5fa 0 40%,#22c55e 40% 65%,#f59e0b 65% 75%,#ef4444 75%)}
+.gauge i{position:absolute;top:-5px;width:4px;height:20px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px #0b0d14;transform:translateX(-50%);transition:left .8s}
+.tipline{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.tipline:last-child{border:0}.tipline span{font-size:18px}.tipline p{margin:0;font-size:13.5px;line-height:1.45}
+.aibox{background:var(--card2);border:1px solid rgba(56,189,248,.3);border-radius:14px;padding:12px;font-size:13.5px;line-height:1.55}.aibox ul{padding-left:18px;margin:4px 0}
+.aiload{color:var(--mu);font-size:13px;display:flex;align-items:center;gap:4px}.aiload i{width:7px;height:7px;border-radius:50%;background:var(--ac2);animation:aid 1s infinite alternate}.aiload i:nth-child(2){animation-delay:.2s}.aiload i:nth-child(3){animation-delay:.4s;margin-right:6px}
+@keyframes aid{from{opacity:.25;transform:translateY(0)}to{opacity:1;transform:translateY(-3px)}}
+details.card summary{cursor:pointer;list-style:none}details.card summary::-webkit-details-marker{display:none}details.card summary:after{content:'›';float:right;transition:transform .2s;color:var(--mu)}details.card[open] summary:after{transform:rotate(90deg)}
+
 </style>
 </head>
 <body>
@@ -1092,7 +1106,7 @@ const KEY = 'apexfit_v3';
 let S = load();
 function blank() { return { v: 3, profile: { prenom: '', age: 30, sexe: 'h', poids: '', taille: '', obj: 'forme', jours: 3, mat: ['aucun'], sports: [] }, sessions: [], templates: [], tests: [], prog: null, goals: [], skipTest: false, body: [], remind: null, avail: {}, weekOk: {} }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; o.avail = o.avail || {}; o.weekOk = o.weekOk || {}; o.profile.pratique = (o.profile.pratique || []).map(k => k === 'combat' ? 'boxe' : k).filter(k => SPEC[k]); if (o.prog && o.prog.id === 'sp_combat') o.prog.id = 'sp_boxe'; o.specLvl = o.specLvl || {}; return o; } } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) { const o = Object.assign(blank(), s); o.body = o.body || []; o.avail = o.avail || {}; o.weekOk = o.weekOk || {}; o.profile.pratique = (o.profile.pratique || []).map(k => k === 'combat' ? 'boxe' : k).filter(k => SPEC[k]); if (o.prog && o.prog.id === 'sp_combat') o.prog.id = 'sp_boxe'; o.specLvl = o.specLvl || {}; o.ready = o.ready || {}; return o; } } catch (e) {}
   const s = blank();
   try { // reprise des données de l'ancienne version (apexfit_state)
     const o = JSON.parse(localStorage.getItem('apexfit_state'));
@@ -1220,6 +1234,283 @@ function mangaSplash(kind, sub, ms = 1500) {
   setTimeout(() => { d.classList.add('out'); setTimeout(() => d.remove(), 350); }, ms);
 }
 
+// ===================== COACH ADAPTATIF (sans clé) + IA (clé gratuite facultative) =====================
+// ---- forme du jour : sommeil, énergie, courbatures, stress (1 à 5)
+var READY_Q = [['sleep', '😴', 'Sommeil', ['Très mauvais', 'Mauvais', 'Moyen', 'Bon', 'Excellent']], ['energy', '⚡', 'Énergie', ['À plat', 'Faible', 'Moyenne', 'Bonne', 'Au top']],
+  ['sore', '🦵', 'Courbatures', ['Très fortes', 'Fortes', 'Légères', 'Quasi rien', 'Aucune']], ['stress', '🧠', 'Stress', ['Très élevé', 'Élevé', 'Moyen', 'Faible', 'Zen']]];
+function readyToday() { const r = (S.ready || {})[today()]; if (!r) return null; const v = READY_Q.map(([k]) => r[k] || 3), avg = v.reduce((a, b) => a + b, 0) / v.length; return { ...r, avg, mode: avg >= 3.5 ? 'go' : avg >= 2.5 ? 'light' : 'rest' }; }
+var MODE = { go: ['🟢', 'En forme', 'Séance normale : vous pouvez viser les progressions proposées.'], light: ['🟠', 'Forme moyenne', 'Séance allégée conseillée : version express, une série de moins, sans chercher de record.'], rest: ['🔴', 'Fatigue', 'Récupération conseillée : mobilité douce ou marche, et reportez la séance intense.'] };
+function readyForm(after) {
+  const r = (S.ready || {})[today()] || {};
+  sheet(`<h2>Comment vous sentez-vous ?</h2><p class="mu small">30 secondes pour adapter la séance du jour à votre forme.</p>
+    ${READY_Q.map(([k, e, l, lab]) => `<label class="f">${e} ${l}</label><div class="rq" data-k="${k}">${[1, 2, 3, 4, 5].map(v => `<button class="${(r[k] || 0) === v ? 'on' : ''}" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on');haptic(5)" title="${lab[v - 1]}"><b>${v}</b><small>${lab[v - 1]}</small></button>`).join('')}</div>`).join('')}
+    <button class="btn pri w" style="margin-top:16px" onclick="saveReady(${after ? 1 : 0})">Valider</button>`);
+}
+function saveReady(after) {
+  const r = {}; $$('.rq').forEach(d => { const b = d.querySelector('button.on'); r[d.dataset.k] = b ? +b.querySelector('b').textContent : 3; });
+  S.ready = S.ready || {}; S.ready[today()] = r; save(); closeSheet(); const t = readyToday(); toast(`${MODE[t.mode][0]} ${MODE[t.mode][1]} : ${t.mode === 'go' ? 'go !' : t.mode === 'light' ? 'séance allégée' : 'récupération'}`, 3200); render();
+  if (after) startAdapted();
+}
+// démarre la prochaine séance adaptée à la forme du jour
+function startAdapted() {
+  const t = readyToday(), nx = nextProgSession();
+  if (!t) return readyForm(true);
+  if (t.mode === 'rest') { const m = PROGRAMS.find(p => p.id === 'mobfull'); if (m) startLive(JSON.parse(JSON.stringify(m.seances[0])), {}); toast('🧘 Récupération active : la séance du programme est gardée pour un autre jour', 4000); return; }
+  if (nx) startProgSession(t.mode === 'light' ? 1 : 0); else plusMenu();
+}
+// ---- charge d'entraînement : effort ressenti × durée (méthode « session-RPE »)
+const sLoad = x => (+x.dur || 0) * (+x.rpe || 5);
+function loadStats() {
+  const now = new Date(), d0 = n => { const d = new Date(now); d.setDate(d.getDate() - n); return ymd(d); };
+  const acute = S.sessions.filter(x => x.date > d0(7)).reduce((a, x) => a + sLoad(x), 0);
+  const chronic = S.sessions.filter(x => x.date > d0(28)).reduce((a, x) => a + sLoad(x), 0) / 4;
+  const ratio = chronic ? acute / chronic : null, hist = S.sessions.some(x => x.date <= d0(21));
+  return { acute: Math.round(acute), chronic: Math.round(chronic), ratio, hist };
+}
+// ---- conseils automatiques (règles simples, sans IA)
+function coachTips() {
+  const T = [], L = loadStats(), r = readyToday(), last = S.sessions.slice(-3), t = S.tests.at(-1);
+  if (r) T.push([MODE[r.mode][0], MODE[r.mode][2]]);
+  else T.push(['📝', 'Indiquez votre forme du jour : la séance sera ajustée automatiquement.']);
+  if (L.ratio != null && L.hist) {
+    if (L.ratio > 1.5) T.push(['⚠️', `Charge de la semaine bien plus haute que d’habitude (×${L.ratio.toFixed(1)}). Allégez les prochains jours pour limiter le risque de blessure.`]);
+    else if (L.ratio < 0.8) T.push(['📉', 'Charge en baisse par rapport à vos 4 dernières semaines : reprenez progressivement votre rythme.']);
+    else T.push(['✅', 'Charge d’entraînement équilibrée par rapport à vos 4 dernières semaines.']);
+  }
+  if (last.length >= 2 && last.slice(-2).every(x => +x.rpe >= 9)) T.push(['😮‍💨', 'Vos 2 dernières séances étaient très dures (effort 9–10/10). Prévoyez une séance légère ou un jour de repos.']);
+  // mouvements qui stagnent : 3 séances sans progrès de charge → décharge de 10 %
+  const stall = []; const byMv = {};
+  S.sessions.slice(-30).forEach(s => (s.items || []).forEach(it => { const b = Math.max(0, ...it.sets.filter(z => z.done && z.kg).map(z => +z.kg)); if (b) (byMv[it.mv] = byMv[it.mv] || []).push(b); }));
+  Object.entries(byMv).forEach(([mv, v]) => { if (v.length >= 4 && Math.max(...v.slice(-3)) <= v[v.length - 4]) stall.push(mv); });
+  if (stall.length) T.push(['🔁', `Stagnation sur ${stall.slice(0, 3).map(m => mvName({ mv: m })).join(', ')} : baissez la charge de 10 % pendant une semaine puis repartez (décharge).`]);
+  if (t) { const days = Math.round((Date.now() - parseD(t.date)) / 864e5); if (days > 42) T.push(['🧪', `Votre dernier test date de ${days} jours : refaites-le pour mettre à jour niveaux et exercices.`]); }
+  else T.push(['🧪', 'Faites le test de capacités : niveaux, exercices et conseils seront personnalisés.']);
+  const imp = S.sessions.filter(x => x.ext).length; if (!imp) T.push(['⌚', 'Importez vos activités Garmin ou Strava pour que le coach tienne compte de tout votre entraînement.']);
+  return T;
+}
+// ---- IA : Google Gemini (clé gratuite) ou fournisseur compatible OpenAI (Groq, OpenRouter, Mistral…)
+const AIK = 'apexfit_ai';
+const aiCfg = () => { try { return JSON.parse(localStorage.getItem(AIK)) || {}; } catch (e) { return {}; } };
+const aiOn = () => !!aiCfg().key;
+function aiSaveCfg() {
+  const c = { prov: $('#aiProv').value, key: $('#aiKey').value.trim(), base: ($('#aiBase') || {}).value || '', model: ($('#aiModel') || {}).value || '' };
+  try { localStorage.setItem(AIK, JSON.stringify(c)); } catch (e) {}
+  toast(c.key ? '🤖 Clé enregistrée sur cet appareil' : 'Clé supprimée'); openCoach();
+}
+async function aiCall(system, user, json) {
+  const c = aiCfg(); if (!c.key) throw new Error('Aucune clé IA');
+  if ((c.prov || 'gemini') === 'gemini') {
+    const models = c.model ? [c.model] : ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+    let err;
+    for (const m of models) {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': c.key },
+        body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: user }] }], generationConfig: { temperature: .6, maxOutputTokens: 2048, ...(json ? { responseMimeType: 'application/json' } : {}) } }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok) { const t = (((d.candidates || [])[0] || {}).content || {}).parts; if (t) return t.map(p => p.text || '').join(''); err = new Error('Réponse vide'); continue; }
+      err = new Error((d.error && d.error.message) || 'Erreur ' + r.status); if (r.status === 400 || r.status === 401 || r.status === 403) break;
+    }
+    throw err;
+  }
+  const base = (c.base || 'https://api.groq.com/openai/v1').replace(/\/$/, '');
+  const r = await fetch(base + '/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + c.key },
+    body: JSON.stringify({ model: c.model || 'llama-3.3-70b-versatile', temperature: .6, messages: [{ role: 'system', content: system }, { role: 'user', content: user }], ...(json ? { response_format: { type: 'json_object' } } : {}) }) });
+  const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error((d.error && (d.error.message || d.error)) || 'Erreur ' + r.status);
+  return d.choices[0].message.content;
+}
+// contexte envoyé à l'IA : résumé, sans nom ni données superflues
+function aiContext() {
+  const P = S.profile, t = S.tests.at(-1), L = loadStats(), r = readyToday(), nx = nextProgSession(), d28 = (() => { const d = new Date(); d.setDate(d.getDate() - 28); return ymd(d); })();
+  const ses = S.sessions.filter(x => x.date > d28).slice(-40).map(x => ({ date: x.date, sport: x.sport, nom: x.nom || '', min: x.dur, effort: x.rpe, km: distKm(x) ? +distKm(x).toFixed(1) : undefined, fc: x.ext && x.ext.hr || undefined,
+    exos: x.items ? x.items.map(it => `${it.n || mvName(it)}: ${it.sets.filter(z => z.done).map(z => (z.sec ? z.sec + 's' : z.reps) + (z.kg ? '×' + z.kg + 'kg' : '')).join(', ')}`).slice(0, 8) : undefined }));
+  return JSON.stringify({ profil: { age: P.age, sexe: P.sexe, poids: P.poids, taille: P.taille, objectif: OBJ[P.obj], seances_semaine_voulues: P.jours, materiel: P.mat, sports_pratiques: (P.pratique || []).map(k => SPEC[k] && SPEC[k].nom) },
+    test: t ? { date: t.date, niveau: t.levelTxt, scores_sur_5: Object.fromEntries(Object.entries(t.scores).map(([k, v]) => [QUAL[k], v])), mesures: t.res } : null,
+    forme_du_jour: r ? { sommeil: r.sleep, energie: r.energy, courbatures: r.sore, stress: r.stress, note_sur_5: +r.avg.toFixed(1) } : null,
+    charge: { semaine: L.acute, moyenne_4_semaines: L.chronic, ratio: L.ratio && +L.ratio.toFixed(2) },
+    programme: S.prog ? { nom: (PROGRAMS.find(p => p.id === S.prog.id) || {}).nom, faites: S.prog.done.length } : null,
+    prochaine_seance: nx ? { nom: nx.s.nom, sport: nx.s.sport, exercices: (nx.s.items || []).map(it => ({ id: it.mv, nom: mvName(it), series: it.sets, reps: it.reps, sec: it.sec, repos: it.rest })), blocs: nx.s.blocks } : null,
+    seances_28_jours: ses });
+}
+const AI_SYS = 'Tu es le coach sportif de l’application ApexFit. Réponds en français, de façon concrète, bienveillante et concise (moins de 220 mots), avec des listes courtes. Base-toi uniquement sur les données fournies. Tu n’es pas médecin : en cas de douleur, de malaise ou de problème de santé, conseille de consulter un professionnel. Ne propose jamais de régime extrême ni de surentraînement.';
+// rendu simple : **gras**, listes, retours à la ligne
+const mdLite = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/^#{1,4} ?(.+)$/gm, '<b>$1</b>').replace(/^\s*[-*•] (.+)$/gm, '<li>$1</li>').replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m.replace(/\n/g, '')}</ul>`).replace(/\n{2,}/g, '\n').replace(/\n/g, '<br>').replace(/<br><ul>/g, '<ul>');
+async function aiAsk(kind) {
+  const out = $('#aiOut'); if (!out) return; out.innerHTML = '<div class="aiload"><i></i><i></i><i></i> Le coach réfléchit…</div>'; haptic(8);
+  const q = kind === 'chat' ? ($('#aiQ').value || '').trim() : '';
+  if (kind === 'chat' && !q) { out.innerHTML = ''; return; }
+  const prompt = { week: 'Analyse mes 4 dernières semaines : points positifs, points à corriger, et 3 actions précises pour la semaine prochaine (fréquence, intensité, récupération, exercices).',
+    plan: 'Propose ma semaine idéale (jours, type de séance, durée, intensité) en tenant compte de mon objectif, de ma forme, de ma charge et de mes sports pratiqués.', chat: q }[kind];
+  try {
+    const txt = await aiCall(AI_SYS, `Données de l’utilisateur (JSON) :\n${aiContext()}\n\nDemande : ${prompt}`);
+    out.innerHTML = `<div class="aibox">${mdLite(txt)}</div>`; S.aiLast = { date: today(), kind, txt: txt.slice(0, 4000) }; save();
+  } catch (e) { out.innerHTML = `<div class="tip" style="border-color:rgba(244,63,94,.4);color:#fda4af">⚠️ ${esc(e.message)}${/quota|429|rate/i.test(e.message) ? '<br>Limite gratuite atteinte : réessayez plus tard.' : /key|API_KEY|401|403/i.test(e.message) ? '<br>Vérifiez votre clé dans les réglages ci-dessous.' : ''}</div>`; }
+}
+// l'IA ajuste la prochaine séance : uniquement des exercices de la bibliothèque, valeurs bornées
+async function aiAdapt() {
+  const nx = nextProgSession(), out = $('#aiOut'); if (!out) return;
+  if (!nx || !nx.s.items) { out.innerHTML = '<div class="tip">Aucune séance de musculation à adapter : lancez un programme ou une préparation sportive.</div>'; return; }
+  out.innerHTML = '<div class="aiload"><i></i><i></i><i></i> Adaptation de la séance…</div>';
+  const ids = LIB.filter(m => SPORTS[m.s].kind === 'force').map(m => m.id);
+  const prompt = `Adapte la prochaine séance à ma forme du jour, à ma charge et à mon test. Garde la même logique. Réponds UNIQUEMENT en JSON : {"resume":"une phrase","items":[{"id":"identifiant","series":3,"reps":10,"sec":0,"repos":60,"note":"conseil court"}]}. Utilise "reps" OU "sec" (l’autre à 0). Identifiants autorisés : ${ids.join(',')}.`;
+  try {
+    const raw = await aiCall(AI_SYS, `Données (JSON) :\n${aiContext()}\n\n${prompt}`, true);
+    const j = JSON.parse(raw.replace(/^```json|```$/g, '').trim());
+    const items = (j.items || []).filter(x => ids.includes(x.id)).slice(0, 10).map(x => { const sec = clamp(Math.round(+x.sec || 0), 0, 600), it = { mv: x.id, sets: clamp(Math.round(+x.series || 3), 1, 8), rest: clamp(Math.round(+x.repos || 60), 0, 300), note: String(x.note || '').slice(0, 140) }; if (sec >= 5) it.sec = sec; else it.reps = clamp(Math.round(+x.reps || 10), 1, 50); return it; });
+    if (!items.length) throw new Error('Proposition inutilisable, réessayez.');
+    window.AI_SESS = { nom: nx.s.nom + ' · adaptée IA', sport: nx.s.sport, items, key: nx.s.key };
+    out.innerHTML = `<div class="aibox"><b>🤖 ${esc(String(j.resume || 'Séance adaptée'))}</b><div class="spl">${items.map(it => `<div class="spi">${mvImg(it.mv, 'thumb')}<span><b>${esc(mvName(it))}</b><small>${it.sets} × ${it.sec ? it.sec + ' s' : it.reps} · repos ${it.rest} s${it.note ? ' · ' + esc(it.note) : ''}</small></span></div>`).join('')}</div>
+      <div class="grid2" style="margin-top:12px"><button class="btn pri" onclick="closeSheet();startLive(AI_SESS,{src:{type:'prog',key:AI_SESS.key}})">${ic('play')}Lancer</button><button class="btn" onclick="aiAdapt()">↻ Autre</button></div></div>`;
+  } catch (e) { out.innerHTML = `<div class="tip" style="border-color:rgba(244,63,94,.4);color:#fda4af">⚠️ ${esc(e.message)}</div>`; }
+}
+function openCoach() {
+  const r = readyToday(), L = loadStats(), c = aiCfg(), tips = coachTips();
+  const g = L.ratio == null ? 0 : clamp(L.ratio / 2, 0, 1);
+  let h = `<h2>🤖 Coach</h2><p class="mu small">Adapte vos séances à votre forme, votre charge et votre test.</p>
+    <div class="card" style="margin-top:10px"><div class="row"><div style="font-size:30px">${r ? MODE[r.mode][0] : '📝'}</div><div style="flex:1"><b>Forme du jour</b><div class="mu small">${r ? `${MODE[r.mode][1]} · ${r.avg.toFixed(1)}/5` : 'Pas encore renseignée'}</div></div><button class="btn sm" onclick="readyForm()">${r ? 'Modifier' : 'Renseigner'}</button></div>
+    <button class="btn pri w" style="margin-top:12px" onclick="closeSheet();startAdapted()">${ic('play')}Séance adaptée à ma forme</button></div>
+    <div class="card"><b>Charge d’entraînement</b><div class="mu tiny" style="margin-top:2px">Effort ressenti × durée · 7 jours comparés à la moyenne de 4 semaines</div>
+      <div class="gauge"><i style="left:${g * 100}%"></i></div><div class="row mu tiny" style="justify-content:space-between"><span>Sous-charge</span><span>Équilibrée</span><span>Risque</span></div>
+      <div class="grid3" style="margin-top:10px"><div class="kpi"><div class="l">7 jours</div><div class="v" style="font-size:18px">${L.acute}</div></div><div class="kpi"><div class="l">Moy. 4 sem.</div><div class="v" style="font-size:18px">${L.chronic}</div></div><div class="kpi"><div class="l">Ratio</div><div class="v" style="font-size:18px">${L.ratio == null ? '—' : L.ratio.toFixed(2)}</div></div></div></div>
+    <h3 class="sec">Conseils du coach</h3><div class="card">${tips.map(([e, t]) => `<div class="tipline"><span>${e}</span><p>${esc(t)}</p></div>`).join('')}</div>
+    <h3 class="sec">Coach IA ${aiOn() ? '<span class="mu tiny" style="font-weight:600">· connecté</span>' : ''}</h3>`;
+  if (aiOn()) h += `<div class="card"><div class="grid2"><button class="btn" onclick="aiAsk('week')">📊 Analyser mes 4 semaines</button><button class="btn" onclick="aiAdapt()">🎯 Adapter ma séance</button></div>
+      <button class="btn w" style="margin-top:8px" onclick="aiAsk('plan')">🗓️ Ma semaine idéale</button>
+      <div class="row" style="margin-top:10px;gap:8px"><input class="in" id="aiQ" placeholder="Posez une question au coach…" onkeydown="if(event.key==='Enter')aiAsk('chat')"><button class="btn pri sm" onclick="aiAsk('chat')">${ic('right')}</button></div>
+      <div id="aiOut" style="margin-top:12px">${S.aiLast ? `<div class="aibox"><div class="mu tiny">Dernière réponse (${fmtDate(S.aiLast.date, { day: 'numeric', month: 'short' })})</div>${mdLite(S.aiLast.txt)}</div>` : ''}</div>
+      <p class="mu tiny" style="margin-top:10px">Un résumé de vos séances, de votre test et de votre forme est envoyé au fournisseur d’IA (sans votre prénom). Les conseils de l’IA peuvent se tromper : en cas de douleur, consultez.</p></div>`;
+  else h += `<div class="card"><b>Activer l’IA gratuite (2 minutes)</b><ol class="small" style="padding-left:18px;line-height:1.6;margin:8px 0">
+      <li>Ouvrez <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--ac2)">Google AI Studio</a> avec un compte Google.</li><li>Touchez « Create API key » et copiez la clé.</li><li>Collez-la ci-dessous : elle reste sur cet appareil.</li></ol>
+      <p class="mu tiny">Gratuit avec des limites d’utilisation. Sur l’offre gratuite, Google peut utiliser les échanges pour améliorer ses produits. Sans clé, le coach ci-dessus fonctionne quand même.</p></div>`;
+  h += `<details class="card"${aiOn() ? '' : ' open'}><summary><b>⚙️ Réglages de l’IA</b></summary>
+    <label class="f">Fournisseur</label><select class="in" id="aiProv" onchange="$('#aiAdv').style.display=this.value==='openai'?'':'none'"><option value="gemini" ${(c.prov || 'gemini') === 'gemini' ? 'selected' : ''}>Google Gemini (gratuit)</option><option value="openai" ${c.prov === 'openai' ? 'selected' : ''}>Compatible OpenAI (Groq, OpenRouter, Mistral…)</option></select>
+    <label class="f">Clé API</label><input class="in" id="aiKey" type="password" autocomplete="off" value="${esc(c.key || '')}" placeholder="Collez votre clé">
+    <div id="aiAdv" style="${c.prov === 'openai' ? '' : 'display:none'}"><label class="f">Adresse de l’API</label><input class="in" id="aiBase" value="${esc(c.base || 'https://api.groq.com/openai/v1')}"></div>
+    <label class="f">Modèle (facultatif)</label><input class="in" id="aiModel" value="${esc(c.model || '')}" placeholder="${c.prov === 'openai' ? 'llama-3.3-70b-versatile' : 'automatique'}">
+    <div class="grid2" style="margin-top:12px"><button class="btn pri" onclick="aiSaveCfg()">Enregistrer</button><button class="btn ghost" onclick="$('#aiKey').value='';aiSaveCfg()">Supprimer la clé</button></div></details>`;
+  const sh = $('#sheetBg .sheet'); if (sh && sh.querySelector('#aiProv')) { sh.innerHTML = '<div class="grab"></div>' + h; } else sheet(h);
+}
+
+// ===================== IMPORT GARMIN / STRAVA : fichiers FIT, GPX, TCX, ZIP, GZ =====================
+var FIT_SPORT = { 1: 'course', 2: 'velo', 5: 'natation', 11: 'marche', 17: 'marche', 10: 'muscu', 4: 'muscu', 62: 'hiit', 43: 'marche', 15: 'autre', 37: 'autre' };
+const gunzip = async buf => new Uint8Array(await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
+const inflateRaw = async buf => new Uint8Array(await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+// lecteur FIT minimal : messages « session » (18), sinon points (20) pour reconstituer l'activité
+function parseFIT(u8) {
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength), hs = u8[0];
+  if (u8.length < 14 || String.fromCharCode(u8[8], u8[9], u8[10], u8[11]) !== '.FIT') throw new Error('Fichier FIT invalide');
+  const end = Math.min(u8.length, hs + dv.getUint32(4, true)), defs = {}, sessions = [], rec = { t0: null, t1: null, dist: null, hr: [] };
+  let p = hs, lastTs = 0;
+  const rd = (o, size, le) => size === 1 ? dv.getUint8(o) : size === 2 ? dv.getUint16(o, le) : size === 4 ? dv.getUint32(o, le) : null;
+  const INV = { 1: 0xFF, 2: 0xFFFF, 4: 0xFFFFFFFF };
+  while (p < end) {
+    const h = u8[p++];
+    if (h & 0x80) { const def = defs[(h >> 5) & 3]; if (!def) break; p += def.len; continue; }
+    if (h & 0x40) {
+      const loc = h & 0x0F, dev = h & 0x20; p++; const le = u8[p++] === 0, gnum = le ? dv.getUint16(p, true) : dv.getUint16(p, false); p += 2;
+      const n = u8[p++], f = []; let len = 0;
+      for (let i = 0; i < n; i++) { f.push({ num: u8[p], size: u8[p + 1] }); len += u8[p + 1]; p += 3; }
+      if (dev) { const nd = u8[p++]; for (let i = 0; i < nd; i++) { len += u8[p + 1]; p += 3; } }
+      defs[loc] = { gnum, le, f, len }; continue;
+    }
+    const def = defs[h & 0x0F]; if (!def) break;
+    let o = p; const v = {};
+    for (const fd of def.f) { if ([1, 2, 4].includes(fd.size)) { const x = rd(o, fd.size, def.le); if (x !== INV[fd.size]) v[fd.num] = x; } o += fd.size; }
+    if (v[253] != null) lastTs = v[253];
+    if (def.gnum === 18) sessions.push({ start: v[2] != null ? v[2] : v[253], sport: v[5], sub: v[6], el: v[7] != null ? v[7] / 1000 : null, tm: v[8] != null ? v[8] / 1000 : null, dist: v[9] != null ? v[9] / 100 : null, kcal: v[11], hr: v[16], hrmax: v[17], asc: v[22] });
+    if (def.gnum === 20 && v[253] != null) { if (rec.t0 == null) rec.t0 = v[253]; rec.t1 = v[253]; if (v[5] != null) rec.dist = v[5] / 100; if (v[3] != null) rec.hr.push(v[3]); }
+    if (def.gnum === 12 && v[0] != null) rec.sport = v[0];
+    p += def.len;
+  }
+  const FE = 631065600; // époque FIT (31/12/1989) en secondes Unix
+  const out = sessions.filter(s => s.start != null).map(s => ({ start: new Date((s.start + FE) * 1000), sport: s.sport, sub: s.sub, sec: s.tm || s.el, m: s.dist, kcal: s.kcal, hr: s.hr, asc: s.asc }));
+  if (!out.length && rec.t0 != null) out.push({ start: new Date((rec.t0 + FE) * 1000), sport: rec.sport, sec: rec.t1 - rec.t0, m: rec.dist, hr: rec.hr.length ? Math.round(rec.hr.reduce((a, b) => a + b, 0) / rec.hr.length) : null });
+  return out;
+}
+const hav = (a, b) => { const R = 6371000, r = Math.PI / 180, dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r, x = Math.sin(dLa / 2) ** 2 + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+const XSPORT = s => { s = String(s || '').toLowerCase(); return /run|course|9\b/.test(s) ? 'course' : /bik|cycl|ride|vélo|velo|1\b/.test(s) ? 'velo' : /swim|nata/.test(s) ? 'natation' : /walk|hik|marche|rando/.test(s) ? 'marche' : /weight|strength|muscu/.test(s) ? 'muscu' : /yoga/.test(s) ? 'mobilite' : null; };
+function parseXML(txt) {
+  const doc = new DOMParser().parseFromString(txt, 'application/xml'), q = (el, n) => [...el.getElementsByTagName('*')].filter(e => e.localName === n);
+  const name = (q(doc, 'name')[0] || {}).textContent || '';
+  if (q(doc, 'gpx').length || doc.documentElement.localName === 'gpx') {
+    const pts = q(doc, 'trkpt').map(e => ({ ll: [+e.getAttribute('lat'), +e.getAttribute('lon')], ele: +((q(e, 'ele')[0] || {}).textContent || NaN), t: (q(e, 'time')[0] || {}).textContent, hr: +((q(e, 'hr')[0] || {}).textContent || NaN) })).filter(x => x.t);
+    if (!pts.length) return [];
+    let m = 0, asc = 0; for (let i = 1; i < pts.length; i++) { m += hav(pts[i - 1].ll, pts[i].ll); const d = pts[i].ele - pts[i - 1].ele; if (d > 0.5) asc += d; }
+    const hr = pts.map(x => x.hr).filter(x => x > 0);
+    return [{ start: new Date(pts[0].t), sec: (new Date(pts.at(-1).t) - new Date(pts[0].t)) / 1000, m, asc: Math.round(asc), hr: hr.length ? Math.round(hr.reduce((a, b) => a + b, 0) / hr.length) : null, xs: XSPORT((q(doc, 'type')[0] || {}).textContent) || XSPORT(name), name }];
+  }
+  return q(doc, 'Activity').map(a => {
+    const laps = q(a, 'Lap'), num = (el, n) => +((q(el, n)[0] || {}).textContent || 0);
+    const hrs = laps.map(l => +((q(l, 'AverageHeartRateBpm')[0] || { textContent: '' }).textContent.trim() || 0)).filter(Boolean);
+    const alt = q(a, 'AltitudeMeters').map(e => +e.textContent); let asc = 0; for (let i = 1; i < alt.length; i++) { const d = alt[i] - alt[i - 1]; if (d > 0.5) asc += d; }
+    return { start: new Date((q(a, 'Id')[0] || {}).textContent), sec: laps.reduce((s, l) => s + num(l, 'TotalTimeSeconds'), 0), m: laps.reduce((s, l) => s + num(l, 'DistanceMeters'), 0), kcal: laps.reduce((s, l) => s + num(l, 'Calories'), 0), hr: hrs.length ? Math.round(hrs.reduce((x, y) => x + y, 0) / hrs.length) : null, asc: Math.round(asc), xs: XSPORT(a.getAttribute('Sport')), name };
+  }).filter(x => !isNaN(x.start));
+}
+// lecture d'un ZIP (export Garmin « original », archive Strava) sans tout charger en mémoire
+async function* zipEntries(file) {
+  const tailLen = Math.min(file.size, 66000), tail = new Uint8Array(await file.slice(file.size - tailLen).arrayBuffer()), tv = new DataView(tail.buffer);
+  let e = -1; for (let i = tail.length - 22; i >= 0; i--) if (tv.getUint32(i, true) === 0x06054b50) { e = i; break; }
+  if (e < 0) throw new Error('ZIP illisible');
+  const n = tv.getUint16(e + 10, true), cdSize = tv.getUint32(e + 12, true), cdOff = tv.getUint32(e + 16, true);
+  const cd = new Uint8Array(await file.slice(cdOff, cdOff + cdSize).arrayBuffer()), cv = new DataView(cd.buffer), dec = new TextDecoder();
+  for (let i = 0, p = 0; i < n && p < cd.length; i++) {
+    const method = cv.getUint16(p + 10, true), csize = cv.getUint32(p + 20, true), nl = cv.getUint16(p + 28, true), xl = cv.getUint16(p + 30, true), cl = cv.getUint16(p + 32, true), lo = cv.getUint32(p + 42, true);
+    const name = dec.decode(cd.subarray(p + 46, p + 46 + nl)); p += 46 + nl + xl + cl;
+    if (!/\.(fit|gpx|tcx)(\.gz)?$/i.test(name)) continue;
+    const lh = new DataView(await file.slice(lo, lo + 30).arrayBuffer()), start = lo + 30 + lh.getUint16(26, true) + lh.getUint16(28, true);
+    const raw = new Uint8Array(await file.slice(start, start + csize).arrayBuffer());
+    yield { name, data: method === 8 ? await inflateRaw(raw) : raw };
+  }
+}
+function toSession(a, src) {
+  let sport = a.xs || (a.sport != null ? (a.sport === 10 && a.sub === 20 ? 'muscu' : FIT_SPORT[a.sport] || 'autre') : 'autre');
+  const P = S.profile, hrmax = 220 - (+P.age || 35), pct = a.hr ? a.hr / hrmax : 0;
+  const rpe = !pct ? 5 : pct < .6 ? 3 : pct < .7 ? 4 : pct < .78 ? 5 : pct < .85 ? 6 : pct < .9 ? 7 : 8;
+  const sp = SPORTS[sport], s = { id: uid(), date: ymd(a.start), sport, nom: a.name || `${sp.nom} (${src})`, dur: Math.max(1, Math.round((a.sec || 0) / 60)), rpe, notes: '',
+    ext: { src, start: a.start.toISOString().slice(0, 16), hr: a.hr || null, kcal: a.kcal || null } };
+  if (sp.dist && a.m) s.dist = sp.dist === 'm' ? Math.round(a.m) : +(a.m / 1000).toFixed(2);
+  if (sp.deniv && a.asc) s.deniv = Math.round(a.asc);
+  return s;
+}
+async function importFiles(files) {
+  const out = $('#impOut'); let added = 0, dup = 0, bad = 0, seen = 0;
+  const known = new Set(S.sessions.filter(x => x.ext).map(x => x.ext.start + x.sport));
+  const src = $('#impSrc') ? $('#impSrc').value : 'fichier';
+  const take = (acts) => acts.forEach(a => { if (!a.start || isNaN(a.start) || !a.sec) return; const s = toSession(a, src), k = s.ext.start + s.sport; if (known.has(k)) { dup++; return; } known.add(k); S.sessions.push(s); if (!S.profile.sports.includes(s.sport)) S.profile.sports.push(s.sport); added++; });
+  const one = async (name, data) => {
+    seen++; if (out && seen % 10 === 0) out.innerHTML = `<div class="aiload"><i></i><i></i><i></i> ${seen} fichiers lus…</div>`;
+    try {
+      if (/\.gz$/i.test(name)) { data = await gunzip(data); name = name.replace(/\.gz$/i, ''); }
+      if (/\.fit$/i.test(name)) take(parseFIT(data)); else take(parseXML(new TextDecoder().decode(data)));
+    } catch (e) { bad++; }
+  };
+  if (out) out.innerHTML = '<div class="aiload"><i></i><i></i><i></i> Lecture des fichiers…</div>';
+  for (const f of files) {
+    try {
+      if (/\.zip$/i.test(f.name)) { for await (const z of zipEntries(f)) await one(z.name, z.data); }
+      else await one(f.name, new Uint8Array(await f.arrayBuffer()));
+    } catch (e) { bad++; }
+  }
+  save(); render();
+  const msg = `${added} activité${added > 1 ? 's' : ''} importée${added > 1 ? 's' : ''}${dup ? ` · ${dup} déjà présente${dup > 1 ? 's' : ''}` : ''}${bad ? ` · ${bad} fichier${bad > 1 ? 's' : ''} illisible${bad > 1 ? 's' : ''}` : ''}`;
+  if (out) out.innerHTML = `<div class="tip">${added ? '✅' : 'ℹ️'} ${msg}</div>`; toast((added ? '⌚ ' : '') + msg, 3500); if (added) confetti(60);
+}
+function openConnect() {
+  const imp = S.sessions.filter(x => x.ext), bySrc = s => imp.filter(x => x.ext.src === s).length;
+  sheet(`<h2>⌚ Garmin & Strava</h2><p class="mu small">Importez vos activités : elles comptent dans vos statistiques, votre calendrier et la charge suivie par le coach.</p>
+    <div class="card"><b>Importer des fichiers</b><p class="mu small" style="margin:6px 0 10px">Formats : .fit, .gpx, .tcx, .zip, .gz. Plusieurs fichiers ou une archive complète d’un coup.</p>
+      <label class="f">Provenance</label><select class="in" id="impSrc"><option value="garmin">Garmin</option><option value="strava">Strava</option><option value="fichier">Autre (montre, appli…)</option></select>
+      <label class="btn pri w" style="margin-top:12px">${ic('plus')}Choisir les fichiers<input type="file" multiple accept=".fit,.gpx,.tcx,.zip,.gz,application/zip,application/gzip,application/octet-stream" style="display:none" onchange="importFiles([...this.files]);this.value=''"></label>
+      <div id="impOut" style="margin-top:10px"></div>
+      ${imp.length ? `<p class="mu tiny" style="margin-top:8px">Déjà importées : ${imp.length} (Garmin ${bySrc('garmin')}, Strava ${bySrc('strava')}, autres ${bySrc('fichier')}). <a style="color:#fda4af" onclick="if(confirm('Supprimer les ${imp.length} activités importées ?')){S.sessions=S.sessions.filter(x=>!x.ext);save();closeSheet();render();toast('Activités importées supprimées')}">Tout supprimer</a></p>` : ''}</div>
+    <details class="card"><summary><b>🟦 Depuis Garmin Connect</b></summary><ol class="small" style="padding-left:18px;line-height:1.6;margin-top:8px">
+      <li><b>Une activité</b> : sur connect.garmin.com, ouvrez l’activité → ⚙️ → « Exporter l’original » (fichier .zip) puis importez-le ici.</li>
+      <li><b>Tout l’historique</b> : sur votre compte Garmin, rubrique gestion des données → « Exporter vos données ». Vous recevez un lien par e-mail ; importez l’archive .zip ici.</li>
+      <li><b>Astuce</b> : si votre montre synchronise déjà vers Strava, un seul export Strava suffit.</li></ol></details>
+    <details class="card"><summary><b>🟧 Depuis Strava</b></summary><ol class="small" style="padding-left:18px;line-height:1.6;margin-top:8px">
+      <li><b>Une activité</b> : sur strava.com (navigateur), ouvrez l’activité → menu « ⋯ » → « Exporter l’original » ou « Exporter GPX ».</li>
+      <li><b>Tout l’historique</b> : Paramètres → Mon compte → « Télécharger ou supprimer votre compte » → « Demander votre archive ». Importez le .zip reçu par e-mail.</li></ol></details>
+    <details class="card"><summary><b>Pourquoi pas une connexion automatique ?</b></summary><p class="small" style="line-height:1.55;margin-top:8px">ApexFit fonctionne sans serveur, et vos données restent sur votre téléphone. Une connexion directe Strava demande un serveur, un abonnement développeur, et les conditions de Strava interdisent d’utiliser ses données dans une IA. Garmin réserve son API complète aux entreprises ; l’accès personnel ouvert en 2026 n’est pas prévu pour une appli web sans serveur comme celle-ci. L’import de vos propres fichiers évite tout cela.</p></details>`);
+}
+
 function vHome() {
   const w = weekStats(), goal = +S.profile.jours || 3, p = clamp(Math.round(w.days / goal * 100), 0, 100), prev = weekStats(-1);
   const delta = w.min - prev.min, nx = nextProgSession(), lastTest = S.tests.at(-1);
@@ -1231,6 +1522,9 @@ function vHome() {
   h = homeBanner() + h;
   // prochaine action
   h += planPrompt();
+  { const r = readyToday(), tip = coachTips()[r ? 1 : 0] || coachTips()[0];
+    h += `<div class="card coachcard"><div class="row"><div class="em" style="font-size:28px">${r ? MODE[r.mode][0] : '🤖'}</div><div style="flex:1;min-width:0"><b>${r ? 'Coach · ' + MODE[r.mode][1] : 'Coach : comment vous sentez-vous ?'}</b><div class="mu small">${esc(tip ? tip[1] : '')}</div></div></div>
+      <div class="grid2" style="margin-top:10px">${r ? `<button class="btn pri" onclick="startAdapted()">${ic('play')}Séance adaptée</button>` : `<button class="btn pri" onclick="readyForm(true)">📝 Forme du jour</button>`}<button class="btn" onclick="openCoach()">🤖 Coach${aiOn() ? ' IA' : ''}</button></div></div>`; }
   if (!lastTest && !S.skipTest) h += `<div class="card" style="border-color:rgba(245,158,11,.4)"><div class="row"><div class="em" style="font-size:30px">🧪</div><div style="flex:1"><b>Faites le test de capacités</b><div class="mu small">15–25 min pour mesurer force, gainage, souplesse et cardio, puis recevoir un programme adapté.</div></div></div>
     <div class="grid2" style="margin-top:12px"><button class="btn pri" onclick="startTest()">${ic('test')}Commencer</button><button class="btn ghost" onclick="S.skipTest=true;save();render()">Plus tard</button></div></div>`;
   if (nx) h += `<div class="card"><div class="mu tiny" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800">Prochaine séance · ${esc(nx.p.nom)}</div>
@@ -1947,6 +2241,7 @@ function vProfil() {
   h += `<h3 class="sec">Mes sports pratiqués <a onclick="sportsPicker()">Modifier</a></h3><div class="card">${prt.length ? `<div class="chips" style="flex-wrap:wrap">${prt.map(k => `<button class="chip on" onclick="openSpec('${k}')">${SPEC[k].ic} ${SPEC[k].nom}</button>`).join('')}</div>` : '<p class="mu small" style="margin:0">Ajoutez votre sport pour recevoir une préparation spécifique.</p>'}</div>
     <h3 class="sec">Ma semaine</h3><div class="card"><p class="mu small" style="margin-top:0">Indiquez vos jours indisponibles ou chargés : les séances sont réparties automatiquement.</p><div class="grid2"><button class="btn" onclick="openPlanner(0)">📅 Cette semaine</button><button class="btn" onclick="openPlanner(1)">📅 Semaine prochaine</button></div></div>`;
   h += `<h3 class="sec">Motivation</h3><div class="card"><label class="row" style="gap:12px;cursor:pointer"><span class="em" style="font-size:26px">💥</span><span style="flex:1"><b>Bannières style manga</b><span class="mu small" style="display:block">Accueil, départ de séance, records et victoire</span></span><input type="checkbox" style="width:24px;height:24px;accent-color:#22c55e" ${S.manga === false ? '' : 'checked'} onchange="S.manga=this.checked;save();toast(this.checked?'💥 Bannières activées':'Bannières désactivées')"></label></div>`;
+  h += `<h3 class="sec">Connexions & coach</h3><div class="card"><div class="grid2"><button class="btn" onclick="openConnect()">⌚ Garmin & Strava</button><button class="btn" onclick="openCoach()">🤖 Coach${aiOn() ? ' IA ✓' : ''}</button></div><p class="mu tiny" style="margin:8px 0 0">${S.sessions.filter(x => x.ext).length} activité(s) importée(s) · IA ${aiOn() ? 'activée' : 'non activée (facultative)'}</p></div>`;
   h += bodySection() + remindSection();
   h += `<h3 class="sec">Objectifs de la semaine <a onclick="goalForm()">+ Ajouter</a></h3>`;
   h += S.goals.map(g => { const r = goalProgress(g); return `<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(g.titre)}</b><button class="btn sm ghost" onclick="S.goals=S.goals.filter(x=>x.id!=='${g.id}');save();render()">${ic('trash')}</button></div>
@@ -1955,7 +2250,7 @@ function vProfil() {
   h += `<h3 class="sec">Tests de capacités</h3>${S.tests.length ? S.tests.map((t, i) => `<button class="li" onclick="showTest(${i})"><span class="em">🧪</span><span class="t"><b>${t.levelTxt} · ${t.avg.toFixed(1)}/5</b><small>${fmtDate(t.date, { day: 'numeric', month: 'long', year: 'numeric' })}</small></span>${ic('right')}</button>`).reverse().join('') : ''}<button class="btn w" style="margin-top:8px" onclick="startTest()">${ic('test')}${S.tests.length ? 'Refaire le test (conseillé toutes les 6 semaines)' : 'Faire le test'}</button>`;
   h += `<h3 class="sec">Données</h3><div class="card"><p class="mu small" style="margin-top:0">Vos données restent sur cet appareil. Sauvegardez-les régulièrement.</p><div class="grid2"><button class="btn" onclick="exportData()">⬇️ Sauvegarder</button><label class="btn" style="cursor:pointer">⬆️ Restaurer<input type="file" accept=".json" hidden onchange="importData(this.files[0])"></label></div>
     <button class="btn dan w" style="margin-top:8px" onclick="if(confirm('Effacer toutes les données ?')&&confirm('Vraiment tout effacer ?')){localStorage.removeItem(KEY);localStorage.removeItem('apexfit_state');S=blank();save();render()}">Tout effacer</button></div>
-    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.6 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
+    <p class="mu tiny" style="text-align:center;margin:18px 0">ApexFit v3.7 · données 100 % locales<br>Photos d’exercices : free-exercise-db (domaine public)</p>`;
   $('#view').innerHTML = h;
   bodyChart(); loadThumbs();
 }
